@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id      Int      @id @default(autoincrement())
+  email   String   @unique
+  name    String?
+  reviews Review[]
+}
+
+model Campus {
+  id         Int          @id @default(autoincrement())
+  name       String
+  UnitCampus UnitCampus[]
+}
+
+model Semester {
+  id           Int            @id @default(autoincrement())
+  name         String
+  UnitSemester UnitSemester[]
+}
+
+model Unit {
+  id        Int            @id @default(autoincrement())
+  name      String
+  code      String
+  reviews   Review[]
+  campuses  UnitCampus[]
+  semesters UnitSemester[]
+}
+
+model UnitCampus {
+  id       Int    @id @default(autoincrement())
+  unitId   Int
+  unit     Unit   @relation(fields: [unitId], references: [id])
+  campusId Int
+  campus   Campus @relation(fields: [campusId], references: [id])
+}
+
+model UnitSemester {
+  id         Int      @id @default(autoincrement())
+  unitId     Int
+  unit       Unit     @relation(fields: [unitId], references: [id])
+  semesterId Int
+  semester   Semester @relation(fields: [semesterId], references: [id])
+}
+
+model Review {
+  id                 Int     @id @default(autoincrement())
+  title              String
+  text               String
+  overallRating      Int
+  teachingRating     Int
+  contentRating      Int
+  difficultyRating   Int
+  workloadRating     Int
+  requiresAttendance Boolean
+  userId             Int
+  user               User    @relation(fields: [userId], references: [id])
+  unitId             Int
+  unit               Unit    @relation(fields: [unitId], references: [id])
+}

@@ -1,5 +1,6 @@
 import {
   isRouteErrorResponse,
+  Link,
   Links,
   Meta,
   Outlet,
@@ -9,6 +10,7 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import { SettingsIcon, UserIcon } from "lucide-react";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -32,8 +34,28 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="px-4 h-screen">
+        <header>
+          <nav className="flex h-[80px] min-h-[80px] justify-between items-center w-full">
+            <Link to="/" className="flex h-8 items-center gap-2">
+              <span className="text-lg font-medium">MonReview</span>
+            </Link>
+            <div className="flex gap-2">
+              <Link to="/auth/login" className="btn btn-circle btn-primary">
+                <UserIcon />
+              </Link>
+              <button className="btn btn-circle btn-primary">
+                <SettingsIcon />
+              </button>
+            </div>
+          </nav>
+        </header>
         {children}
+        {/* <footer className="flex min-h-[80px] items-center justify-end">
+          <p className="text-sm text-gray-500">
+            &copy; {new Date().getFullYear()} MonReview
+          </p>
+        </footer> */}
         <ScrollRestoration />
         <Scripts />
       </body>

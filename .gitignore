@@ -4,3 +4,9 @@
 # React Router
 /.react-router/
 /build/
+
+# Environment
+.env
+
+# Prisma
+prisma/dev.db
