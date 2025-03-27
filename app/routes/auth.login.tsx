@@ -7,7 +7,7 @@ import type { Route } from "../+types/root";
 export async function loader({ request }: Route.LoaderArgs) {
   // Check for existing session.
   const session = await getSession(request.headers.get("Cookie"));
-  const user = session.get("user");
+  const user = session.get("id");
 
   // If the user is already authenticated, redirect to home page.
   if (user) return redirect("/");
@@ -55,6 +55,7 @@ export default function Route() {
         <input
           type="email"
           name="email"
+          pattern="^[a-zA-Z0-9._%+-]+@student\.monash\.edu$"
           placeholder="Enter your email"
           className="h-10 rounded-lg w-full border-2 border-gray-200 bg-transparent px-4 text-sm font-medium placeholder:text-gray-400"
           required

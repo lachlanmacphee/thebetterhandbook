@@ -1,6 +1,7 @@
+import type { User } from "@prisma/client";
 import { createCookieSessionStorage } from "react-router";
 
-export const sessionStorage = createCookieSessionStorage({
+export const sessionStorage = createCookieSessionStorage<User>({
   cookie: {
     name: "_auth",
     sameSite: "lax",

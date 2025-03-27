@@ -2,8 +2,12 @@ import db from "~/modules/db/db.server";
 import type { Route } from "./+types/unit";
 import { StarIcon } from "lucide-react";
 import { data, Form, redirect } from "react-router";
+import { getSession } from "~/modules/auth/session.server";
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function loader({ params, request }: Route.LoaderArgs) {
+  const session = await getSession(request.headers.get("Cookie"));
+  const user = session.get("id");
+
   const unit = await db.unit.findUnique({
     where: {
       id: parseInt(params.unitId),
@@ -16,28 +20,34 @@ export async function loader({ params }: Route.LoaderArgs) {
       },
     },
   });
-  return unit;
+  return { unit, user };
 }
 
-export async function action({ request }: Route.ActionArgs) {
+export async function action({ request, params }: Route.ActionArgs) {
   const formData = await request.formData();
 
   const title = formData.get("title");
-  const text = formData.get("text");
+  const description = formData.get("description");
   const overallRating = formData.get("overallRating");
   const teachingRating = formData.get("teachingRating");
   const contentRating = formData.get("contentRating");
   const difficultyRating = formData.get("difficultyRating");
   const workloadRating = formData.get("workloadRating");
   const attendanceRequired = formData.get("attendanceRequired");
-  const unitId = formData.get("unitId");
-  const userId = formData.get("userId");
+
+  let session = await getSession(request.headers.get("cookie"));
+  let userId = session.get("id");
+  if (!userId)
+    return data(
+      { error: "You must be logged in to post a review" },
+      { status: 400 }
+    );
 
   // Need to verify that this user doesn't already have a review
 
   const errors: {
     title?: string;
-    text?: string;
+    description?: string;
     overallRating?: string;
     teachingRating?: string;
     contentRating?: string;
@@ -52,8 +62,8 @@ export async function action({ request }: Route.ActionArgs) {
     errors.title = "Title is required";
   }
 
-  if (!text) {
-    errors.text = "Text is required";
+  if (!description) {
+    errors.description = "Description is required";
   }
 
   if (!overallRating) {
@@ -80,12 +90,8 @@ export async function action({ request }: Route.ActionArgs) {
     errors.attendanceRequired = "Requires attendance is required";
   }
 
-  if (!unitId) {
+  if (!parseInt(params.unitId)) {
     errors.unitId = "Unit ID is required";
-  }
-
-  if (!userId) {
-    errors.userId = "User ID is required";
   }
 
   if (Object.keys(errors).length > 0) {
@@ -96,15 +102,15 @@ export async function action({ request }: Route.ActionArgs) {
     await db.review.create({
       data: {
         title: title as string,
-        text: text as string,
+        text: description as string,
         overallRating: parseInt(overallRating as string),
         teachingRating: parseInt(teachingRating as string),
         contentRating: parseInt(contentRating as string),
         difficultyRating: parseInt(difficultyRating as string),
         workloadRating: parseInt(workloadRating as string),
         requiresAttendance: attendanceRequired === "true",
-        unitId: parseInt(unitId as string),
-        userId: parseInt(userId as string),
+        unitId: parseInt(params.unitId),
+        userId,
       },
     });
   } catch (error) {
@@ -112,7 +118,7 @@ export async function action({ request }: Route.ActionArgs) {
     return { error: "Failed to save review" };
   }
 
-  return redirect("/units/" + parseInt(unitId as string));
+  return redirect("/units/" + params.unitId);
 }
 
 function OverallRating({ rating }: { rating: number }) {
@@ -159,10 +165,15 @@ function Rating({
 }
 
 export default function Unit({ loaderData }: Route.ComponentProps) {
-  const unit = loaderData;
+  const { unit, user } = loaderData;
+
   if (!unit) {
     return <h1>Unit not found</h1>;
   }
+
+  const overallRating =
+    unit.reviews.reduce((acc, review) => acc + review.overallRating, 0) /
+    unit.reviews.length;
 
   const teachingRating =
     unit.reviews.reduce((acc, review) => acc + review.teachingRating, 0) /
@@ -189,7 +200,7 @@ export default function Unit({ loaderData }: Route.ComponentProps) {
               <h1 className="card-title text-5xl">{unit.code}</h1>
               <p className="text-lg font-extralight">{unit.name}</p>
             </div>
-            <OverallRating rating={3} />
+            <OverallRating rating={overallRating} />
           </div>
           <div className="flex flex-wrap justify-between sm:flex-nowrap sm:justify-start items-center gap-4">
             <Rating rating={teachingRating} title="Teaching" />
@@ -233,131 +244,132 @@ export default function Unit({ loaderData }: Route.ComponentProps) {
                   </div>
                   <p>{review.user.name}</p>
                 </div>
-
                 <p>{review.text}</p>
               </div>
             </div>
           ))}
         </div>
       </div>
-      <div>
-        <h2 className="text-3xl font-bold mb-2">Add Review</h2>
-        <Form method="post" className="space-y-4">
-          <div>
-            <label className="block font-semibold">Title</label>
-            <input
-              name="title"
-              type="text"
-              className="input input-bordered w-full"
-              required
-            />
-          </div>
-          <div>
-            <label className="block font-semibold">Description</label>
-            <textarea
-              name="description"
-              className="textarea textarea-bordered w-full"
-              required
-            ></textarea>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
+      {user && (
+        <div>
+          <h2 className="text-3xl font-bold mb-2">Add Review</h2>
+          <Form method="post" className="space-y-4">
             <div>
-              <label className="block font-semibold">Overall Rating</label>
-              <div className="rating">
-                {[...Array(5)].map((_, i) => (
-                  <input
-                    key={i}
-                    type="radio"
-                    name="overallRating"
-                    value={i + 1}
-                    className="mask mask-star-2 bg-yellow-400"
-                    required
-                  />
-                ))}
+              <label className="block font-semibold">Title</label>
+              <input
+                name="title"
+                type="text"
+                className="input input-bordered w-full"
+                required
+              />
+            </div>
+            <div>
+              <label className="block font-semibold">Description</label>
+              <textarea
+                name="description"
+                className="textarea textarea-bordered w-full"
+                required
+              ></textarea>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block font-semibold">Overall Rating</label>
+                <div className="rating">
+                  {[...Array(5)].map((_, i) => (
+                    <input
+                      key={i}
+                      type="radio"
+                      name="overallRating"
+                      value={i + 1}
+                      className="mask mask-star-2 bg-yellow-400"
+                      required
+                    />
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="block font-semibold">Teaching Rating</label>
+                <div className="rating">
+                  {[...Array(5)].map((_, i) => (
+                    <input
+                      key={i}
+                      type="radio"
+                      name="teachingRating"
+                      value={i + 1}
+                      className="mask mask-star-2 bg-yellow-400"
+                      required
+                    />
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="block font-semibold">Content Rating</label>
+                <div className="rating">
+                  {[...Array(5)].map((_, i) => (
+                    <input
+                      key={i}
+                      type="radio"
+                      name="contentRating"
+                      value={i + 1}
+                      className="mask mask-star-2 bg-yellow-400"
+                      required
+                    />
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="block font-semibold">Difficulty</label>
+                <div className="flex gap-4">
+                  {["Very Easy", "Easy", "Medium", "Hard", "Very Hard"].map(
+                    (label, i) => (
+                      <label key={i} className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          name="difficultyRating"
+                          value={i + 1}
+                          className="radio radio-primary"
+                          required
+                        />
+                        {label}
+                      </label>
+                    )
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="block font-semibold">Workload</label>
+                <div className="flex gap-4">
+                  {["Very Low", "Low", "Moderate", "High", "Very High"].map(
+                    (label, i) => (
+                      <label key={i} className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          name="workloadRating"
+                          value={i + 1}
+                          className="radio radio-primary"
+                          required
+                        />
+                        {label}
+                      </label>
+                    )
+                  )}
+                </div>
               </div>
             </div>
             <div>
-              <label className="block font-semibold">Teaching Rating</label>
-              <div className="rating">
-                {[...Array(5)].map((_, i) => (
-                  <input
-                    key={i}
-                    type="radio"
-                    name="teachingRating"
-                    value={i + 1}
-                    className="mask mask-star-2 bg-yellow-400"
-                    required
-                  />
-                ))}
-              </div>
+              <label className="block font-semibold">Attendance Required</label>
+              <input
+                type="checkbox"
+                name="attendanceRequired"
+                className="checkbox checkbox-primary"
+              />
             </div>
-            <div>
-              <label className="block font-semibold">Content Rating</label>
-              <div className="rating">
-                {[...Array(5)].map((_, i) => (
-                  <input
-                    key={i}
-                    type="radio"
-                    name="contentRating"
-                    value={i + 1}
-                    className="mask mask-star-2 bg-yellow-400"
-                    required
-                  />
-                ))}
-              </div>
-            </div>
-            <div>
-              <label className="block font-semibold">Difficulty</label>
-              <div className="flex gap-4">
-                {["Very Easy", "Easy", "Medium", "Hard", "Very Hard"].map(
-                  (label, i) => (
-                    <label key={i} className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="difficultyRating"
-                        value={i + 1}
-                        className="radio radio-primary"
-                        required
-                      />
-                      {label}
-                    </label>
-                  )
-                )}
-              </div>
-            </div>
-            <div>
-              <label className="block font-semibold">Workload</label>
-              <div className="flex gap-4">
-                {["Very Low", "Low", "Moderate", "High", "Very High"].map(
-                  (label, i) => (
-                    <label key={i} className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="workloadRating"
-                        value={i + 1}
-                        className="radio radio-primary"
-                        required
-                      />
-                      {label}
-                    </label>
-                  )
-                )}
-              </div>
-            </div>
-          </div>
-          <div>
-            <label className="block font-semibold">Attendance Required</label>
-            <input
-              type="checkbox"
-              name="attendanceRequired"
-              className="checkbox checkbox-primary"
-            />
-          </div>
-          <button type="submit" className="btn btn-primary">
-            Submit Review
-          </button>
-        </Form>
-      </div>
+            <button type="submit" className="btn btn-primary">
+              Submit Review
+            </button>
+          </Form>
+        </div>
+      )}
     </div>
   );
 }

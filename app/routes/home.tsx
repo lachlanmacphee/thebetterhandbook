@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 import type { Route } from "./+types/home";
 import db from "~/modules/db/db.server";
+import { getSession } from "~/modules/auth/session.server";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -12,7 +13,10 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export async function loader() {
+export async function loader({ request }: Route.LoaderArgs) {
+  const session = await getSession(request.headers.get("Cookie"));
+  const user = session.get("id");
+
   const units = await db.unit.findMany({
     take: 9,
     include: {
@@ -28,11 +32,11 @@ export async function loader() {
       },
     },
   });
-  return units;
+  return { units, user };
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
-  const units = loaderData;
+  const { units, user } = loaderData;
 
   return (
     <div className="container mx-auto p-4">
@@ -68,12 +72,14 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                       </span>
                     ))}
                   </div>
-                  <Link
-                    to={`/units/${unit.id}#addReview`}
-                    className="btn btn-secondary"
-                  >
-                    Review
-                  </Link>
+                  {user && (
+                    <Link
+                      to={`/units/${unit.id}#addReview`}
+                      className="btn btn-secondary"
+                    >
+                      Review
+                    </Link>
+                  )}
                 </div>
               </div>
             </Link>

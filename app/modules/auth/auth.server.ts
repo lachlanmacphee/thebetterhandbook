@@ -2,7 +2,7 @@ import { Authenticator } from "remix-auth";
 import { TOTPStrategy } from "remix-auth-totp";
 import { sessionStorage } from "./session.server";
 import { sendEmail } from "./email.server";
-import { db } from "~/modules/db/db.server";
+import db from "~/modules/db/db.server";
 import { redirect } from "react-router";
 import type { User } from "@prisma/client";
 
@@ -27,20 +27,20 @@ authenticator.use(
         ...(process.env.NODE_ENV === "production" ? { secure: true } : {}),
       },
       sendTOTP: async ({ email, magicLink, code }) => {
-        // await sendEmail({
-        //   to: email,
-        //   subject: "Magic Link",
-        //   html: `
-        //     <p>Click this <a href="${magicLink}">magic link</a> to log in.</p>
-        //   `,
-        // });
+        await sendEmail({
+          to: email,
+          subject: "Magic Link",
+          html: `
+            <p>Click this <a href="${magicLink}">magic link</a> to log in.</p>
+          `,
+        });
 
         // Development Only.
-        console.log({
-          email,
-          code,
-          magicLink,
-        });
+        // console.log({
+        //   email,
+        //   code,
+        //   magicLink,
+        // });
       },
     },
     async ({ email, request }) => {
@@ -60,7 +60,10 @@ authenticator.use(
       const session = await sessionStorage.getSession(
         request.headers.get("Cookie")
       );
-      session.set("user", user);
+
+      session.set("id", user.id);
+      session.set("name", user.name);
+      session.set("email", user.email);
 
       // Commit session.
       const sessionCookie = await sessionStorage.commitSession(session);

@@ -1,6 +1,6 @@
 import { redirect, useLoaderData } from "react-router";
 import { Cookie } from "@mjackson/headers";
-import { Link, useFetcher } from "react-router";
+import { useFetcher } from "react-router";
 import { useState } from "react";
 import { getSession } from "~/modules/auth/session.server";
 import { authenticator } from "~/modules/auth/auth.server";
@@ -9,7 +9,7 @@ import type { Route } from "../+types/root";
 export async function loader({ request }: Route.LoaderArgs) {
   // Check for existing session.
   const session = await getSession(request.headers.get("Cookie"));
-  const user = session.get("user");
+  const user = session.get("id");
 
   // If the user is already authenticated, redirect to index.
   if (user) return redirect("/");
