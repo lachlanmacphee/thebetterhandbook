@@ -56,7 +56,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                 Welcome to MonReview
               </h1>
               <p className="text-lg text-base-content/70">
-                The independent unit reviewing platform.
+                The <strong>independent</strong> unit reviewing platform.
               </p>
             </div>
           </div>
@@ -77,13 +77,15 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                       {unit.name}
                     </p>
                   </div>
-                  <div className="flex justify-between items-end">
+                  <div className="space-y-3">
                     <div className="flex flex-wrap gap-2">
                       {unit.campuses.map((campus) => (
                         <span key={campus.id} className="badge badge-primary">
                           {campus.campus.name}
                         </span>
                       ))}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
                       {unit.semesters.map((semester) => (
                         <span
                           key={semester.id}
@@ -98,7 +100,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                         .length === 0 && (
                         <Link
                           to={`/units/${unit.id}#addReview`}
-                          className="btn btn-primary hover:scale-105 transition-transform duration-200"
+                          className="btn btn-primary w-full hover:scale-105 transition-transform duration-200"
                         >
                           Review
                         </Link>
@@ -106,7 +108,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                     {user &&
                       unit.reviews.filter((review) => review.userId === user)
                         .length !== 0 && (
-                        <button disabled className="btn btn-disabled">
+                        <button disabled className="btn btn-disabled w-full">
                           Reviewed
                         </button>
                       )}

@@ -8,8 +8,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     request.headers.get("Cookie")
   );
 
-  // Destroy the session and redirect to login.
-  return redirect("/auth/login", {
+  return redirect("/", {
     headers: {
       "Set-Cookie": await sessionStorage.destroySession(session),
     },

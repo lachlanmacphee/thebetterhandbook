@@ -296,7 +296,7 @@ export default function Unit({ loaderData }: Route.ComponentProps) {
             <Form method="post" className="space-y-8">
               <div className="space-y-6">
                 <div className="form-control">
-                  <label className="label">
+                  <label className="label mb-1">
                     <span className="label-text text-base font-semibold">
                       Title
                     </span>
@@ -304,19 +304,19 @@ export default function Unit({ loaderData }: Route.ComponentProps) {
                   <input
                     name="title"
                     type="text"
-                    className="input input-bordered w-full focus:input-primary transition-colors duration-200"
+                    className="input input-bordered w-full"
                     required
                   />
                 </div>
                 <div className="form-control">
-                  <label className="label">
+                  <label className="label mb-1">
                     <span className="label-text text-base font-semibold">
                       Description
                     </span>
                   </label>
                   <textarea
                     name="description"
-                    className="textarea textarea-bordered w-full min-h-[160px] focus:textarea-primary transition-colors duration-200"
+                    className="textarea textarea-bordered w-full min-h-[160px]"
                     required
                   ></textarea>
                 </div>
@@ -419,7 +419,7 @@ export default function Unit({ loaderData }: Route.ComponentProps) {
               <div className="flex items-center gap-3 pt-4">
                 <label className="cursor-pointer hover:text-primary transition-colors duration-200">
                   <span className="font-semibold mr-3">
-                    Attendance Required
+                    In Person Attendance Required
                   </span>
                   <input
                     type="checkbox"
