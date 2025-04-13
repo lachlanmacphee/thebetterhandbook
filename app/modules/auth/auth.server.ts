@@ -23,15 +23,23 @@ authenticator.use(
       successRedirect: "/",
       failureRedirect: "/auth/verify",
       cookieOptions: {
-        // Safari doesn't support secure cookies on localhost.
-        ...(process.env.NODE_ENV === "production" ? { secure: true } : {}),
+        secure: true,
+        httpOnly: true,
+        sameSite: "Lax",
       },
       sendTOTP: async ({ email, magicLink, code }) => {
+        // Raise an error if the email is not a Monash student email.
+        if (!email.endsWith("@student.monash.edu")) {
+          throw new Error(
+            "Only Monash student email addresses are allowed to sign up"
+          );
+        }
+
         await sendEmail({
           to: email,
           subject: "Magic Link",
           html: `
-            <p>Click this <a href="${magicLink}">magic link</a> to log in.</p>
+            <p>Click this <a href="${magicLink}">magic link</a> to log in. If that doesn't work, use the code ${code} to sign in.</p>
           `,
         });
 
@@ -44,6 +52,13 @@ authenticator.use(
       },
     },
     async ({ email, request }) => {
+      // Validate email domain
+      if (!email.endsWith("@student.monash.edu")) {
+        throw new Error(
+          "Only Monash student email addresses are allowed to sign up"
+        );
+      }
+
       // Get user from database.
       let user = await db.user.findFirst({
         where: { email },

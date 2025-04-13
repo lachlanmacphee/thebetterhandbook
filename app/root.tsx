@@ -6,11 +6,13 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from "react-router";
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import { SettingsIcon, UserIcon } from "lucide-react";
+import { LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
+import { getSession } from "~/modules/auth/session.server";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -25,7 +27,15 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
+export async function loader({ request }: Route.LoaderArgs) {
+  const session = await getSession(request.headers.get("Cookie"));
+  const user = session.get("id");
+  return { user };
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
+  const { user } = useLoaderData<typeof loader>();
+
   return (
     <html lang="en">
       <head>
@@ -34,28 +44,42 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body className="px-4 h-screen">
+      <body className="min-h-screen flex flex-col bg-base-100">
         <header>
-          <nav className="flex h-[80px] min-h-[80px] justify-between items-center w-full">
-            <Link to="/" className="flex h-8 items-center gap-2">
-              <span className="text-lg font-medium">MonReview</span>
-            </Link>
-            <div className="flex gap-2">
-              <Link to="/auth/login" className="btn btn-circle btn-primary">
-                <UserIcon />
+          <div className="max-w-4xl mx-auto px-4">
+            <nav className="flex h-[80px] justify-between items-center w-full">
+              <Link
+                to="/"
+                className="flex items-center gap-2 text-lg font-semibold hover:text-base-content/70 transition-colors duration-200"
+              >
+                MonReview
               </Link>
-              <button className="btn btn-circle btn-primary">
-                <SettingsIcon />
-              </button>
-            </div>
-          </nav>
+              <div className="flex gap-2">
+                {user ? (
+                  <Link to="/auth/logout" className="btn btn-primary btn-sm">
+                    <LogOutIcon className="w-4 h-4" />
+                    <span className="ml-2">Sign Out</span>
+                  </Link>
+                ) : (
+                  <Link to="/auth/login" className="btn btn-primary btn-sm">
+                    <UserIcon className="w-4 h-4" />
+                    <span className="ml-2">Sign In</span>
+                  </Link>
+                )}
+              </div>
+            </nav>
+          </div>
         </header>
-        {children}
-        {/* <footer className="flex min-h-[80px] items-center justify-end">
-          <p className="text-sm text-gray-500">
-            &copy; {new Date().getFullYear()} MonReview
-          </p>
-        </footer> */}
+        <main className="flex-grow flex">{children}</main>
+        <footer>
+          <div className="max-w-4xl mx-auto px-4">
+            <div className="flex h-[80px] items-center justify-center">
+              <p className="text-sm text-base-content/70">
+                &copy; {new Date().getFullYear()} MonReview
+              </p>
+            </div>
+          </div>
+        </footer>
         <ScrollRestoration />
         <Scripts />
       </body>

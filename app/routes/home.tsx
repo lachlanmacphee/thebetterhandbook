@@ -30,6 +30,14 @@ export async function loader({ request }: Route.LoaderArgs) {
           campus: true,
         },
       },
+      reviews: {
+        include: {
+          user: true,
+        },
+        where: {
+          userId: user,
+        },
+      },
     },
   });
   return { units, user };
@@ -39,53 +47,76 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   const { units, user } = loaderData;
 
   return (
-    <div className="container mx-auto p-4">
-      <header className="text-center my-8">
-        <h1 className="text-4xl font-bold">Welcome to MonReview</h1>
-        <p className="text-lg mt-2">
-          The independent Monash University unit reviewing platform.
-        </p>
-      </header>
-      <main className="space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
+    <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="space-y-10">
+        <div className="card bg-base-100 shadow-lg rounded-xl overflow-hidden">
+          <div className="card-body gap-6 p-6 md:p-8">
+            <div className="flex flex-col items-center text-center">
+              <h1 className="text-4xl md:text-5xl font-bold mb-2">
+                Welcome to MonReview
+              </h1>
+              <p className="text-lg text-base-content/70">
+                The independent unit reviewing platform.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-6">
           {units.map((unit) => (
             <Link
               key={unit.id}
               to={`/units/${unit.id}`}
-              className="card bg-base-100 card-lg shadow-sm"
+              className="card bg-base-100 shadow-md hover:shadow-xl transition-all duration-300 rounded-xl overflow-hidden"
             >
-              <div className="card-body">
-                <div className="flex items-center">
-                  <h2 className="card-title">{unit.code}</h2>
-                  <p className="text-right">{unit.name}</p>
-                </div>
-                <div className="card-actions justify-between">
-                  <div className="flex flex-wrap mt-auto gap-2">
-                    {unit.campuses.map((campus) => (
-                      <span key={campus.id} className="badge badge-primary">
-                        {campus.campus.name}
-                      </span>
-                    ))}
-                    {unit.semesters.map((semester) => (
-                      <span key={semester.id} className="badge badge-secondary">
-                        {semester.semester.name}
-                      </span>
-                    ))}
+              <div className="card-body p-6">
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-1">
+                    <h2 className="text-2xl font-semibold">{unit.code}</h2>
+                    <p className="text-base text-base-content/70">
+                      {unit.name}
+                    </p>
                   </div>
-                  {user && (
-                    <Link
-                      to={`/units/${unit.id}#addReview`}
-                      className="btn btn-secondary"
-                    >
-                      Review
-                    </Link>
-                  )}
+                  <div className="flex justify-between items-end">
+                    <div className="flex flex-wrap gap-2">
+                      {unit.campuses.map((campus) => (
+                        <span key={campus.id} className="badge badge-primary">
+                          {campus.campus.name}
+                        </span>
+                      ))}
+                      {unit.semesters.map((semester) => (
+                        <span
+                          key={semester.id}
+                          className="badge badge-secondary"
+                        >
+                          {semester.semester.name}
+                        </span>
+                      ))}
+                    </div>
+                    {user &&
+                      unit.reviews.filter((review) => review.userId === user)
+                        .length === 0 && (
+                        <Link
+                          to={`/units/${unit.id}#addReview`}
+                          className="btn btn-primary hover:scale-105 transition-transform duration-200"
+                        >
+                          Review
+                        </Link>
+                      )}
+                    {user &&
+                      unit.reviews.filter((review) => review.userId === user)
+                        .length !== 0 && (
+                        <button disabled className="btn btn-disabled">
+                          Reviewed
+                        </button>
+                      )}
+                  </div>
                 </div>
               </div>
             </Link>
           ))}
         </div>
-      </main>
+      </div>
     </div>
   );
 }

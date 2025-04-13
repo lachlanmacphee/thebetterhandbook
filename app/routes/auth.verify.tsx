@@ -74,71 +74,74 @@ export default function VerifyPage() {
   const fetcher = useFetcher();
   const isSubmitting = fetcher.state !== "idle" || fetcher.formData != null;
 
-  // const code = "code" in loaderData ? loaderData.code : undefined;
   const email = "email" in loaderData ? loaderData.email : undefined;
   const error = "error" in loaderData ? loaderData.error : null;
   const errors = fetcher.data?.error || error;
 
   return (
-    <div className="w-full max-w-80 relative bottom-8 flex flex-col justify-center gap-6">
-      <div className="flex w-full flex-col items-center gap-1">
-        <span className="mb-4 h-full text-6xl animate-bounce transition text-center duration-200 hover:-translate-y-1">
-          💌
-        </span>
-        <h1 className="text-center text-2xl font-semibold tracking-tight">
-          Check your email
-        </h1>
-        <p className="text-center text-base font-normal text-gray-600">
-          {email ? (
-            <>We sent a code at {email}</>
-          ) : (
-            <>Check your email for a verification code</>
+    <div className="max-w-4xl mx-auto px-4 py-8 flex-grow flex items-center justify-center">
+      <div className="card bg-base-100 shadow-lg rounded-xl overflow-hidden w-full max-w-md">
+        <div className="card-body gap-8 p-6 md:p-8">
+          <div className="flex flex-col items-center gap-4">
+            <span className="text-6xl animate-bounce transition duration-200 hover:-translate-y-1">
+              💌
+            </span>
+            <div className="text-center">
+              <h1 className="text-2xl font-semibold mb-2">Check your email</h1>
+              <p className="text-base-content/70">
+                {email ? (
+                  <>We sent a code to {email}</>
+                ) : (
+                  <>Check your email for a verification code</>
+                )}
+              </p>
+            </div>
+          </div>
+
+          <fetcher.Form method="post" className="space-y-6">
+            <input
+              minLength={6}
+              maxLength={6}
+              required
+              name="code"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              disabled={isSubmitting}
+              placeholder="Enter the 6-digit code"
+              className="input w-full text-center text-lg tracking-wider"
+            />
+            <button
+              type="submit"
+              className="btn btn-primary w-full hover:scale-[1.02] transition-transform duration-200"
+              disabled={isSubmitting || value.length !== 6}
+            >
+              {isSubmitting ? "Verifying..." : "Verify Code"}
+            </button>
+          </fetcher.Form>
+
+          {errors && (
+            <p className="text-sm text-red-500 text-center">{errors}</p>
           )}
-        </p>
-      </div>
 
-      <fetcher.Form method="post" className="space-y-4">
-        <input
-          minLength={6}
-          maxLength={6}
-          required
-          name="code"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          disabled={isSubmitting}
-          placeholder="Enter the 6-digit code"
-          className="h-10 rounded-lg w-full border-2 border-gray-200 bg-transparent px-4 text-sm font-medium placeholder:text-gray-400"
-        />
-        <button
-          type="submit"
-          className="flex h-9 items-center justify-center disabled:opacity-50 font-medium bg-gray-800 text-white w-full rounded-lg"
-          disabled={isSubmitting || value.length !== 6}
-        >
-          {isSubmitting ? "Verifying..." : "Verify Code"}
-        </button>
-      </fetcher.Form>
-
-      {errors && <p className="text-sm text-red-500 text-center">{errors}</p>}
-
-      {/* Request New Code. */}
-      {/* Email is already in session, so no input it's required. */}
-      <div className="flex flex-col">
-        <p className="text-sm text-gray-600 text-center font-normal">
-          Didn't receive the code?
-        </p>
-        <fetcher.Form
-          method="POST"
-          action="/auth/login"
-          autoComplete="off"
-          className="flex w-full flex-col gap-2"
-        >
-          <button
-            type="submit"
-            className="flex h-8 items-center justify-center font-medium bg-transparent text-gray-800 w-full"
-          >
-            Request a new code
-          </button>
-        </fetcher.Form>
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-base-content/70 text-sm">
+              Didn't receive the code?
+            </p>
+            <fetcher.Form
+              method="POST"
+              action="/auth/login"
+              autoComplete="off"
+              className="w-full"
+            >
+              <button
+                type="submit"
+                className="w-full text-base-content/70 hover:text-base-content transition-colors duration-200"
+              >
+                Request a new code
+              </button>
+            </fetcher.Form>
+          </div>
+        </div>
       </div>
     </div>
   );

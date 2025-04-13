@@ -3,6 +3,7 @@ import { useFetcher } from "react-router";
 import { getSession } from "~/modules/auth/session.server";
 import { authenticator } from "~/modules/auth/auth.server";
 import type { Route } from "../+types/root";
+import { useState } from "react";
 
 export async function loader({ request }: Route.LoaderArgs) {
   // Check for existing session.
@@ -36,39 +37,70 @@ export default function Route() {
   const fetcher = useFetcher();
   const isSubmitting = fetcher.state !== "idle" || fetcher.formData != null;
   const errors = fetcher.data?.error;
+  const [emailError, setEmailError] = useState("");
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const email = formData.get("email") as string;
+    const pattern = /^[a-zA-Z0-9._%+-]+@student\.monash\.edu$/;
+
+    if (!pattern.test(email)) {
+      setEmailError(
+        "Please use your Monash student email (example@student.monash.edu)"
+      );
+      return;
+    }
+
+    setEmailError("");
+    fetcher.submit(formData, { method: "POST" });
+  };
 
   return (
-    <div className="w-full max-w-80 relative bottom-8 flex flex-col justify-center gap-6">
-      <div className="flex w-full flex-col items-center gap-1">
-        <span className="mb-4 h-full text-6xl animate-bounce transition text-center duration-200 hover:-translate-y-1">
-          👋
-        </span>
-        <h1 className="text-center text-2xl font-semibold tracking-tight">
-          Welcome back!
-        </h1>
-        <p className="text-center text-base font-normal text-gray-600">
-          Log in or sign in to your account
-        </p>
+    <div className="max-w-4xl mx-auto px-4 py-8 flex-grow flex items-center justify-center">
+      <div className="card bg-base-100 shadow-lg rounded-xl overflow-hidden w-full max-w-md">
+        <div className="card-body gap-8 p-6 md:p-8">
+          <div className="flex flex-col items-center gap-4">
+            <span className="text-6xl animate-bounce transition duration-200 hover:-translate-y-1">
+              👋
+            </span>
+            <div className="text-center">
+              <h1 className="text-2xl font-semibold mb-2">Welcome back!</h1>
+              <p className="text-base-content/70">
+                Sign in with your Monash email
+              </p>
+            </div>
+          </div>
+
+          <fetcher.Form
+            method="POST"
+            className="space-y-6"
+            onSubmit={handleSubmit}
+          >
+            {errors && <p className="text-red-500 text-center">{errors}</p>}
+            <div className="space-y-2">
+              <input
+                type="email"
+                name="email"
+                placeholder="Enter your Monash student email"
+                className={`input w-full ${emailError ? "border-red-400" : ""}`}
+                required
+                disabled={isSubmitting}
+              />
+              {emailError && (
+                <p className="text-sm text-red-500">{emailError}</p>
+              )}
+            </div>
+            <button
+              type="submit"
+              className="btn btn-primary w-full hover:scale-[1.02] transition-transform duration-200"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Sending..." : "Continue"}
+            </button>
+          </fetcher.Form>
+        </div>
       </div>
-      <fetcher.Form method="POST" className="space-y-2">
-        {errors && <p style={{ color: "red" }}>{errors}</p>}
-        <input
-          type="email"
-          name="email"
-          pattern="^[a-zA-Z0-9._%+-]+@student\.monash\.edu$"
-          placeholder="Enter your email"
-          className="h-10 rounded-lg w-full border-2 border-gray-200 bg-transparent px-4 text-sm font-medium placeholder:text-gray-400"
-          required
-          disabled={isSubmitting}
-        />
-        <button
-          type="submit"
-          className="flex h-9 items-center justify-center font-medium bg-gray-800 text-white w-full rounded-lg"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "Sending..." : "Continue with Email"}
-        </button>
-      </fetcher.Form>
     </div>
   );
 }
