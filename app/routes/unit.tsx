@@ -10,7 +10,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
 
   const unit = await db.unit.findUnique({
     where: {
-      id: parseInt(params.unitId),
+      code: params.unitCode,
     },
     include: {
       reviews: {
@@ -60,7 +60,7 @@ export async function action({ request, params }: Route.ActionArgs) {
     difficultyRating?: string;
     workloadRating?: string;
     attendanceRequired?: string;
-    unitId?: string;
+    unitCode?: string;
     userId?: string;
   } = {};
 
@@ -96,13 +96,24 @@ export async function action({ request, params }: Route.ActionArgs) {
     errors.attendanceRequired = "Requires attendance is required";
   }
 
-  if (!parseInt(params.unitId)) {
-    errors.unitId = "Unit ID is required";
+  if (!params.unitCode) {
+    errors.unitCode = "Unit Code is required";
   }
 
   if (Object.keys(errors).length > 0) {
     return data({ errors }, { status: 400 });
   }
+
+  // Find the unit ID by its unit code
+  const unit = await db.unit.findUnique({
+    where: {
+      code: params.unitCode,
+    },
+  });
+  if (!unit) {
+    return data({ error: "Unit not found" }, { status: 404 });
+  }
+  const unitId = unit.id;
 
   try {
     await db.review.create({
@@ -115,7 +126,7 @@ export async function action({ request, params }: Route.ActionArgs) {
         difficultyRating: parseInt(difficultyRating as string),
         workloadRating: parseInt(workloadRating as string),
         requiresAttendance: attendanceRequired === "true",
-        unitId: parseInt(params.unitId),
+        unitId,
         userId,
       },
     });
@@ -221,7 +232,7 @@ export default function Unit({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
         </div>
-        <div id="addReview" className="space-y-6">
+        <div className="space-y-6">
           <div className="flex justify-between items-center">
             <h2 className="text-3xl font-bold">Reviews</h2>
             {user && !hasReviewed && (

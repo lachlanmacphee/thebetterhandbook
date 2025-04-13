@@ -11,8 +11,18 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import { LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
+import { LogOutIcon, UserIcon } from "lucide-react";
 import { getSession } from "~/modules/auth/session.server";
+
+export function meta({}: Route.MetaArgs) {
+  return [
+    { title: "MonReview" },
+    {
+      name: "description",
+      content: "The independent Monash unit reviewing platform.",
+    },
+  ];
+}
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },

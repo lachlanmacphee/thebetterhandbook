@@ -32,7 +32,7 @@ model Semester {
 model Unit {
   id        Int            @id @default(autoincrement())
   name      String
-  code      String
+  code      String @unique
   reviews   Review[]
   campuses  UnitCampus[]
   semesters UnitSemester[]
