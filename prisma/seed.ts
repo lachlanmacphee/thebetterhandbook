@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import processedUnits from "../imports/processed_units.json";
 
 const prisma = new PrismaClient();
 
@@ -12,87 +13,100 @@ async function main() {
     data: { name: "Malaysia" },
   });
 
+  const peninsula = await prisma.campus.create({
+    data: { name: "Peninsula" },
+  });
+
+  const caulfield = await prisma.campus.create({
+    data: { name: "Caulfield" },
+  });
+
   // Create semesters
-  const sem1 = await prisma.semester.create({
-    data: { name: "Sem 1" },
+  const firstSem = await prisma.semester.create({
+    data: { name: "First semester" },
   });
 
-  const sem2 = await prisma.semester.create({
-    data: { name: "Sem 2" },
+  const secondSem = await prisma.semester.create({
+    data: { name: "Second semester" },
   });
 
-  // Create users
-  const user1 = await prisma.user.create({
-    data: {
-      email: "user1@example.com",
-      name: "User One",
-    },
-  });
+  const mappedUnits = Object.values(processedUnits)
+    .map((unit: any) => ({
+      code: unit.code,
+      name: unit.title,
+      level: unit.level,
+      facultyName: unit.school,
+      creditPoints: unit.credit_points,
+      offerings: unit.offerings?.map((offering: any) => ({
+        location: offering.location,
+        period: offering.period,
+      })),
+    }))
+    // Only include units with offerings
+    .filter((unit) => unit.offerings?.length > 0);
 
-  const user2 = await prisma.user.create({
-    data: {
-      email: "user2@example.com",
-      name: "User Two",
-    },
-  });
-
-  // Create units
-  const unit1 = await prisma.unit.create({
-    data: {
-      name: "IT Professional Practice",
-      code: "FIT1049",
-      campuses: {
-        create: [{ campusId: clayton.id }, { campusId: malaysia.id }],
+  // Create the units in the database
+  for (const unit of mappedUnits) {
+    const faculty = await prisma.faculty.upsert({
+      select: {
+        id: true,
       },
-      semesters: {
-        create: [{ semesterId: sem1.id }, { semesterId: sem2.id }],
+      where: {
+        name: unit.facultyName,
       },
-    },
-  });
-
-  const unit2 = await prisma.unit.create({
-    data: {
-      name: "Theory of Computation",
-      code: "FIT2014",
-      campuses: {
-        create: [{ campusId: clayton.id }],
+      create: {
+        name: unit.facultyName,
       },
-      semesters: {
-        create: [{ semesterId: sem2.id }],
+      update: {},
+    });
+
+    const createdUnit = await prisma.unit.create({
+      data: {
+        code: unit.code,
+        name: unit.name,
+        level: unit.level,
+        creditPoints: parseInt(unit.creditPoints),
+        facultyId: faculty.id,
       },
-    },
-  });
+    });
 
-  // Create reviews
-  await prisma.review.create({
-    data: {
-      title: "Practical",
-      text: "Great unit with practical insights.",
-      overallRating: 4,
-      teachingRating: 5,
-      contentRating: 4,
-      difficultyRating: 3,
-      workloadRating: 3,
-      requiresAttendance: true,
-      userId: user1.id,
-      unitId: unit1.id,
-    },
-  });
-
-  await prisma.review.create({
-    data: {
-      title: "Crazy",
-      text: "One of the most challenging units I have done, but definitely rewarding.",
-      overallRating: 5,
-      teachingRating: 5,
-      contentRating: 5,
-      difficultyRating: 4,
-      workloadRating: 4,
-      requiresAttendance: false,
-      userId: user2.id,
-      unitId: unit2.id,
-    },
-  });
+    for (const offering of unit.offerings) {
+      const campus =
+        offering.location === "Clayton"
+          ? clayton.id
+          : offering.location === "Malaysia"
+          ? malaysia.id
+          : offering.location === "Peninsula"
+          ? peninsula.id
+          : caulfield.id;
+      const semester =
+        offering.period === "First semester"
+          ? firstSem.id
+          : offering.period === "Second semester"
+          ? secondSem.id
+          : null;
+      if (semester) {
+        try {
+          await prisma.unitSemester.create({
+            data: {
+              unitId: createdUnit.id,
+              semesterId: semester,
+            },
+          });
+        } catch (error) {}
+      }
+      if (campus) {
+        try {
+          await prisma.unitCampus.create({
+            data: {
+              unitId: createdUnit.id,
+              campusId: campus,
+            },
+          });
+        } catch (error) {}
+      }
+    }
+  }
 }
 
 main()

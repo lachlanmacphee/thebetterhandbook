@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router";
 import type { Route } from "./+types/home";
 import db from "~/modules/db/db.server";
 import { getSession } from "~/modules/auth/session.server";
+import { SearchIcon } from "lucide-react";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
@@ -64,7 +65,8 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                 Welcome to MonReview
               </h1>
               <p className="text-lg text-base-content/70 mb-6">
-                The <strong>independent</strong> unit reviewing platform.
+                The <strong>independent</strong> and{" "}
+                <strong>open-source</strong> unit reviewing platform.
               </p>
               <form
                 onSubmit={handleUnitSearch}
@@ -73,7 +75,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                 <input
                   type="text"
                   name="unitCode"
-                  placeholder="Enter unit code (e.g. FIT1008)"
+                  placeholder="Enter a unit code (e.g. FIT1008)"
                   className="input input-bordered flex-1"
                   required
                 />
@@ -81,6 +83,13 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                   Go
                 </button>
               </form>
+              <Link
+                to="/search"
+                className="mt-4 text-primary hover:text-primary-focus flex items-center gap-2 transition-colors duration-200"
+              >
+                <SearchIcon />
+                Want to search for units instead? Click here!
+              </Link>
             </div>
           </div>
         </div>

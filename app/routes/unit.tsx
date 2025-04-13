@@ -173,7 +173,7 @@ export async function action({ request, params }: Route.ActionArgs) {
     return { error: "Failed to save review" };
   }
 
-  return redirect("/units/" + params.unitId);
+  return redirect("/units/" + params.unitCode);
 }
 
 function OverallRating({ rating }: { rating: number }) {

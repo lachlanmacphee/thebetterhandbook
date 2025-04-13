@@ -10,3 +10,6 @@
 
 # Prisma
 prisma/dev.db
+
+# Imporst
+imports/*.json

@@ -11,11 +11,17 @@ datasource db {
 }
 
 model User {
-  id                   Int                  @id @default(autoincrement())
-  email                String               @unique
+  id                   Int                   @id @default(autoincrement())
+  email                String                @unique
   name                 String?
   reviews              Review[]
   unitAdditionRequests UnitAdditionRequest[]
+}
+
+model Faculty {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  Unit Unit[]
 }
 
 model Campus {
@@ -33,10 +39,14 @@ model Semester {
 model Unit {
   id        Int            @id @default(autoincrement())
   name      String
-  code      String @unique
+  code      String         @unique
+  level     Int
+  creditPoints Int
   reviews   Review[]
   campuses  UnitCampus[]
   semesters UnitSemester[]
+  facultyId Int
+  faculty   Faculty        @relation(fields: [facultyId], references: [id])
 }
 
 model UnitCampus {
@@ -45,6 +55,7 @@ model UnitCampus {
   unit     Unit   @relation(fields: [unitId], references: [id])
   campusId Int
   campus   Campus @relation(fields: [campusId], references: [id])
+  @@unique([unitId, campusId])
 }
 
 model UnitSemester {
@@ -53,6 +64,7 @@ model UnitSemester {
   unit       Unit     @relation(fields: [unitId], references: [id])
   semesterId Int
   semester   Semester @relation(fields: [semesterId], references: [id])
+  @@unique([unitId, semesterId])
 }
 
 model UnitAdditionRequest {
@@ -77,5 +89,6 @@ model Review {
   user               User    @relation(fields: [userId], references: [id])
   unitId             Int
   unit               Unit    @relation(fields: [unitId], references: [id])
+
   @@unique([userId, unitId])
 }
