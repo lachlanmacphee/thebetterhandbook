@@ -21,17 +21,65 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     },
   });
 
-  if (!unit) {
-    return data({ unit: null, user, hasReviewed: false });
-  }
-  const hasReviewed = unit.reviews.some((review) => review.userId === user);
+  const existingUnitAdditionRequest = await db.unitAdditionRequest.findFirst({
+    where: {
+      code: params.unitCode,
+    },
+  });
 
-  return { unit, user, hasReviewed };
+  if (!unit) {
+    return data({
+      unit: null,
+      user,
+      hasReviewed: false,
+      existingUnitAdditionRequest,
+    });
+  }
+
+  const hasReviewed =
+    (await db.review.findFirst({
+      where: {
+        unitId: unit.id,
+        userId: user,
+      },
+    })) !== null;
+
+  return {
+    unit,
+    user,
+    hasReviewed,
+    existingUnitAdditionRequest,
+  };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
   const formData = await request.formData();
+  const intent = formData.get("intent");
 
+  let session = await getSession(request.headers.get("cookie"));
+  let userId = session.get("id");
+  if (!userId)
+    return data(
+      { error: "You must be logged in to perform this action" },
+      { status: 400 }
+    );
+
+  if (intent === "request-unit") {
+    try {
+      await db.unitAdditionRequest.create({
+        data: {
+          code: params.unitCode!,
+          userId,
+        },
+      });
+      return data({ success: true });
+    } catch (error) {
+      console.error("Error creating unit request:", error);
+      return data({ error: "Failed to submit unit request" }, { status: 500 });
+    }
+  }
+
+  // Handle review submission
   const title = formData.get("title");
   const description = formData.get("description");
   const overallRating = formData.get("overallRating");
@@ -40,16 +88,6 @@ export async function action({ request, params }: Route.ActionArgs) {
   const difficultyRating = formData.get("difficultyRating");
   const workloadRating = formData.get("workloadRating");
   const attendanceRequired = formData.get("attendanceRequired");
-
-  let session = await getSession(request.headers.get("cookie"));
-  let userId = session.get("id");
-  if (!userId)
-    return data(
-      { error: "You must be logged in to post a review" },
-      { status: 400 }
-    );
-
-  // Need to verify that this user doesn't already have a review
 
   const errors: {
     title?: string;
@@ -183,11 +221,74 @@ function Rating({
   );
 }
 
-export default function Unit({ loaderData }: Route.ComponentProps) {
-  const { unit, user, hasReviewed } = loaderData;
+export default function Unit({ loaderData, params }: Route.ComponentProps) {
+  const { unit, user, hasReviewed, existingUnitAdditionRequest } = loaderData;
 
   if (!unit) {
-    return <h1>Unit not found</h1>;
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className="card bg-base-100 shadow-lg rounded-xl overflow-hidden">
+          <div className="card-body p-6 md:p-8 text-center">
+            <div className="space-y-6">
+              <div className="space-y-4">
+                <h1 className="text-4xl font-bold">Unit Not Found</h1>
+                <p className="text-xl text-base-content/70">
+                  Sorry, we couldn't find the unit {params.unitCode}
+                </p>
+              </div>
+
+              {user && !existingUnitAdditionRequest && (
+                <div className="space-y-4">
+                  <p className="text-base-content/70">
+                    If you think this unit should be in our system, you can
+                    request it to be added.
+                  </p>
+                  <Form method="post">
+                    <input type="hidden" name="intent" value="request-unit" />
+                    <button
+                      type="submit"
+                      className="btn btn-primary btn-lg hover:scale-105 transition-transform duration-200"
+                    >
+                      Request Unit Addition
+                    </button>
+                  </Form>
+                </div>
+              )}
+
+              {existingUnitAdditionRequest && (
+                <div className="space-y-4">
+                  <p className="text-base-content/70">
+                    We currently have a pending request to add this unit. Please
+                    check back again soon.
+                  </p>
+                  <p className="text-sm text-base-content/50">
+                    Requested on{" "}
+                    {new Date(
+                      existingUnitAdditionRequest.createdAt
+                    ).toLocaleDateString()}
+                  </p>
+                </div>
+              )}
+
+              {!user && (
+                <div className="space-y-4">
+                  <p className="text-base-content/70">
+                    Please sign in to request this unit to be added to our
+                    system.
+                  </p>
+                  <a
+                    href="/auth/login"
+                    className="btn btn-primary btn-lg hover:scale-105 transition-transform duration-200"
+                  >
+                    Sign In
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const overallRating =
