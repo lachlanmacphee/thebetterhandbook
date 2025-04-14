@@ -18,6 +18,16 @@ export async function loader({ params, request }: Route.LoaderArgs) {
           user: true,
         },
       },
+      campuses: {
+        include: {
+          campus: true,
+        },
+      },
+      semesters: {
+        include: {
+          semester: true,
+        },
+      },
     },
   });
 
@@ -367,6 +377,24 @@ export default function Unit({ loaderData, params }: Route.ComponentProps) {
                   {unit.code}
                 </h1>
                 <p className="text-lg text-base-content/70">{unit.name}</p>
+                <div className="flex flex-wrap gap-2 mt-4">
+                  {unit.campuses.map((campus) => (
+                    <span
+                      key={campus.campus.id}
+                      className="badge badge-primary"
+                    >
+                      {campus.campus.name}
+                    </span>
+                  ))}
+                  {unit.semesters.map((semester) => (
+                    <span
+                      key={semester.semester.id}
+                      className="badge badge-secondary"
+                    >
+                      {semester.semester.name}
+                    </span>
+                  ))}
+                </div>
               </div>
               <OverallRating rating={overallRating} />
             </div>
