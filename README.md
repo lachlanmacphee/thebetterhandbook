@@ -1,6 +1,19 @@
 # The Better Handbook
 
-See the About page for details.
+See the [About page](https://thebetterhandbook.fly.dev/about) for details.
+
+## Todo
+
+- [ ] Implement (pre/co/post)requisites visualisation
+- [ ] Include links to actual Monash handbook with current year pre-loaded
+- [ ] Include WAM Booster tag
+- [ ] Sort reviews by likes/dislikes, controversial, latest/oldest etc
+- [ ] Add likes/dislikes to reviews
+- [ ] View all your reviews on your profile page
+- [ ] Edit your name on your profile page
+- [ ] Sort units on the search page by rating
+- [ ] Improve the metrics around how much oncampus is required for the unit
+- [ ] Implement course maps
 
 ## Deployment
 
