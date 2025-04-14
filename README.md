@@ -10,6 +10,7 @@ See the [About page](https://thebetterhandbook.fly.dev/about) for details.
 - [x] Add likes/dislikes to reviews
 - [x] View all your reviews on your profile page
 - [x] Edit your name on your profile page
+- [ ] Add a year completed input to the review form
 - [ ] Implement (pre/co/post)requisites visualisation
 - [ ] Sort units on the search page by rating
 - [ ] Improve the metrics around how much oncampus is required for the unit
