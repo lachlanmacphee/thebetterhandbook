@@ -167,7 +167,6 @@ export async function action({ request, params }: Route.ActionArgs) {
   const contentRating = formData.get("contentRating");
   const difficultyRating = formData.get("difficultyRating");
   const workloadRating = formData.get("workloadRating");
-  const attendanceRequired = formData.get("attendanceRequired");
 
   const errors: {
     title?: string;
@@ -177,7 +176,6 @@ export async function action({ request, params }: Route.ActionArgs) {
     contentRating?: string;
     difficultyRating?: string;
     workloadRating?: string;
-    attendanceRequired?: string;
     unitCode?: string;
     userId?: string;
   } = {};
@@ -210,10 +208,6 @@ export async function action({ request, params }: Route.ActionArgs) {
     errors.workloadRating = "Workload rating is required";
   }
 
-  if (!attendanceRequired) {
-    errors.attendanceRequired = "Requires attendance is required";
-  }
-
   if (!params.unitCode) {
     errors.unitCode = "Unit Code is required";
   }
@@ -242,7 +236,7 @@ export async function action({ request, params }: Route.ActionArgs) {
         contentRating: parseInt(contentRating as string),
         difficultyRating: parseInt(difficultyRating as string),
         workloadRating: parseInt(workloadRating as string),
-        requiresAttendance: attendanceRequired === "true",
+        requiresAttendance: formData.get("attendanceRequired") === "true",
         isWamBooster: formData.get("isWamBooster") === "true",
         unitId,
         userId,
