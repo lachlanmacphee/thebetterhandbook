@@ -108,7 +108,7 @@ export default function About() {
                 transparency and community-driven development, which is why the
                 entire project is available on{" "}
                 <a
-                  href="https://github.com/lachlanmacphee/the-better-handbook"
+                  href="https://github.com/lachlanmacphee/thebetterhandbook"
                   className="text-primary hover:underline"
                   target="_blank"
                   rel="noopener noreferrer"

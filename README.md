@@ -15,10 +15,10 @@ See the About page for details.
 To build and run using Docker:
 
 ```bash
-docker build -t the-better-handbook .
+docker build -t thebetterhandbook .
 
 # Run the container
-docker run -p 3000:3000 my-app
+docker run -p 3000:3000 thebetterhandbook
 ```
 
 The containerised application can be deployed to any platform that supports Docker, including:

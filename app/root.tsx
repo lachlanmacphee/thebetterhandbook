@@ -96,7 +96,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               </p>
               <span className="text-base-content/70">•</span>
               <a
-                href="https://github.com/lachlanmacphee/the-better-handbook"
+                href="https://github.com/lachlanmacphee/thebetterhandbook"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm text-base-content/70 hover:text-base-content transition-colors duration-200"

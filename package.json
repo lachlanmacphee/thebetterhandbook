@@ -1,5 +1,5 @@
 {
-  "name": "the-better-handbook",
+  "name": "thebetterhandbook",
   "private": true,
   "type": "module",
   "scripts": {
@@ -7,8 +7,7 @@
     "dev": "react-router dev",
     "setup": "prisma generate && prisma migrate deploy",
     "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc",
-    "postinstall": "prisma generate"
+    "typecheck": "react-router typegen && tsc"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -28,6 +27,7 @@
     "tsx": "^4.19.3"
   },
   "devDependencies": {
+    "@flydotio/dockerfile": "^0.7.10",
     "@react-router/dev": "^7.3.0",
     "@tailwindcss/vite": "^4.0.0",
     "@types/node": "^20",

@@ -1,5 +1,10 @@
+.git
+.github
 .react-router
 build
-node_modules
-README.md
 imports
+node_modules
+.gitignore
+README.md
+.env
+.env.example
