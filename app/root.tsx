@@ -11,7 +11,7 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import { LogOutIcon, UserIcon, UserCircleIcon } from "lucide-react";
+import { LogOutIcon, UserCircleIcon, LogInIcon } from "lucide-react";
 import { getSession } from "~/modules/auth/session.server";
 
 export function meta({}: Route.MetaArgs) {
@@ -70,17 +70,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   <>
                     <Link to="/profile" className="btn btn-secondary btn-sm">
                       <UserCircleIcon className="w-4 h-4" />
-                      <span className="ml-2">Profile</span>
+                      <span className="ml-2 hidden sm:block">Profile</span>
                     </Link>
                     <Link to="/auth/logout" className="btn btn-primary btn-sm">
                       <LogOutIcon className="w-4 h-4" />
-                      <span className="ml-2">Sign Out</span>
+                      <span className="ml-2 hidden sm:block">Sign Out</span>
                     </Link>
                   </>
                 ) : (
                   <Link to="/auth/login" className="btn btn-primary btn-sm">
-                    <UserIcon className="w-4 h-4" />
-                    <span className="ml-2">Sign In</span>
+                    <LogInIcon className="w-4 h-4" />
+                    <span className="ml-2 hidden sm:block">Sign In</span>
                   </Link>
                 )}
               </div>
