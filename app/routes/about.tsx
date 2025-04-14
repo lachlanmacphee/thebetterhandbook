@@ -3,9 +3,7 @@ export default function About() {
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="card bg-base-100 shadow-lg rounded-xl overflow-hidden">
         <div className="card-body p-6 md:p-8">
-          <h1 className="text-4xl font-bold mb-8 text-center">
-            About The Better Handbook
-          </h1>
+          <h1 className="text-4xl font-bold mb-8 text-center">About</h1>
 
           <div className="grid md:grid-cols-[1fr,2fr] gap-8 mb-8">
             <div className="flex flex-col items-center space-y-4">
@@ -35,7 +33,31 @@ export default function About() {
               </div>
             </div>
 
+            <div className="p-4 bg-warning/20 border-2 border-warning rounded-lg">
+              <h2 className="text-2xl font-bold mb-2 text-warning">
+                Important Disclaimer
+              </h2>
+              <p className="text-lg font-semibold">
+                This website has absolutely zero affiliation with Monash
+                University. This is an independent, student-created platform.
+              </p>
+            </div>
+
             <div className="space-y-6">
+              <section>
+                <h2 className="text-2xl font-semibold mb-3">About Me</h2>
+                <p className="text-base-content/80">
+                  Hi! I'm Lachlan MacPhee, a Monash University student who
+                  created The Better Handbook to address the challenges around
+                  finding units you'll like. I noticed that while the handbook
+                  has important information, it's hard to search through and
+                  doesn't capture the real student experience. The Better
+                  Handbook aims to bridge this gap by providing advanced search
+                  functionality, peer insights about workload, teaching quality,
+                  and overall unit experience.
+                </p>
+              </section>
+
               <section>
                 <h2 className="text-2xl font-semibold mb-3">The Project</h2>
                 <p className="text-base-content/80">
@@ -49,18 +71,29 @@ export default function About() {
               </section>
 
               <section>
-                <h2 className="text-2xl font-semibold mb-3">
-                  The Creator's Story
-                </h2>
-                <p className="text-base-content/80">
-                  Hi! I'm Lachlan MacPhee, a Monash University student who
-                  created The Better Handbook to address the challenges around
-                  finding units you'll like. I noticed that while the handbook
-                  has important information, it's hard to search through and
-                  doesn't capture the real student experience. The Better
-                  Handbook aims to bridge this gap by providing advanced search
-                  functionality, peer insights about workload, teaching quality,
-                  and overall unit experience.
+                <h2 className="text-2xl font-semibold mb-3">Credits</h2>
+                <p>
+                  Shoutout to{" "}
+                  <a
+                    href="https://www.saikumarmk.com/"
+                    className="text-primary hover:underline font-medium"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Sai
+                  </a>{" "}
+                  whose work to develop the{" "}
+                  <a
+                    href="https://github.com/saikumarmk/monash-handbook-scraper"
+                    className="text-primary hover:underline font-medium"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    handbook scraper
+                  </a>{" "}
+                  is the reason this is possible. Another shoutout to the
+                  MonSTAR team for giving me the idea and the go-ahead to create
+                  an independent, open-source alternative.
                 </p>
               </section>
             </div>
@@ -95,11 +128,6 @@ export default function About() {
                 requiring a valid Monash student email to participate. This
                 ensures that reviews come from actual students who have taken
                 the units they're reviewing.{" "}
-                <strong>
-                  This site has no affiliation with Monash University and I am
-                  more than happy to chat with them if they see any potential
-                  issues with it.
-                </strong>
               </p>
             </section>
           </div>
