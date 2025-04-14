@@ -11,6 +11,7 @@ See the [About page](https://thebetterhandbook.fly.dev/about) for details.
 - [x] View all your reviews on your profile page
 - [x] Edit your name on your profile page
 - [x] Sort units on the search page by rating
+- [ ] Disable like/dislike buttons when not logged in
 - [ ] Add a year completed input to the review form
 - [ ] Ability to edit reviews from either profile page or unit page
 - [ ] Back button on unit page to go back to home or advanced search depending on where they came from
