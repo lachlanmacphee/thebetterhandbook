@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { data, Form, redirect, useFetcher, Link } from "react-router";
 import { getSession } from "~/modules/auth/session.server";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export async function loader({ params, request }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
@@ -454,8 +454,13 @@ function UnitDetails({
 
 function Review({ review, user }: { review: any; user?: number }) {
   const fetcher = useFetcher();
-  const isSubmitting = fetcher.state !== "idle";
   const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    if (fetcher.state === "idle" && fetcher.data?.success) {
+      setIsEditing(false);
+    }
+  }, [fetcher.state, fetcher.data]);
 
   const userReaction = review.reactions?.find((r: any) => r.userId === user);
   const likes = review.reactions?.filter((r: any) => r.isLike).length || 0;
@@ -648,9 +653,9 @@ function Review({ review, user }: { review: any; user?: number }) {
               <button
                 type="submit"
                 className="btn btn-primary"
-                disabled={isSubmitting}
+                disabled={fetcher.state !== "idle"}
               >
-                {isSubmitting ? "Saving..." : "Save Changes"}
+                {fetcher.state !== "idle" ? "Saving..." : "Save Changes"}
               </button>
             </div>
           </fetcher.Form>
@@ -715,7 +720,7 @@ function Review({ review, user }: { review: any; user?: number }) {
                     type="submit"
                     name="reaction"
                     value="like"
-                    disabled={isSubmitting}
+                    disabled={fetcher.state !== "idle"}
                     className={`btn btn-sm gap-2 ${
                       userReaction?.isLike ? "btn-primary" : "btn-ghost"
                     }`}
@@ -727,7 +732,7 @@ function Review({ review, user }: { review: any; user?: number }) {
                     type="submit"
                     name="reaction"
                     value="dislike"
-                    disabled={isSubmitting}
+                    disabled={fetcher.state !== "idle"}
                     className={`btn btn-sm gap-2 ${
                       userReaction?.isLike === false
                         ? "btn-primary"

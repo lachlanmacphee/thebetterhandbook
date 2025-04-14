@@ -102,6 +102,12 @@ function ReviewCard({ review }: { review: any }) {
   const [isEditing, setIsEditing] = useState(false);
   const fetcher = useFetcher();
 
+  useEffect(() => {
+    if (fetcher.state === "idle" && fetcher.data?.success) {
+      setIsEditing(false);
+    }
+  }, [fetcher.state, fetcher.data]);
+
   if (isEditing) {
     return (
       <div className="card bg-base-100 shadow-md hover:shadow-xl transition-all duration-300 rounded-xl overflow-hidden">
