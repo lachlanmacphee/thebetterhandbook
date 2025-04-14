@@ -7,7 +7,8 @@
     "dev": "react-router dev",
     "setup": "prisma generate && prisma migrate deploy",
     "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc"
+    "typecheck": "react-router typegen && tsc",
+    "postinstall": "prisma generate"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
