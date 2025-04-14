@@ -3,8 +3,11 @@ import type { Route } from "./+types/search";
 import db from "~/modules/db/db.server";
 import { getSession } from "~/modules/auth/session.server";
 import { Form } from "react-router";
+import { Prisma } from "@prisma/client";
 
-const ITEMS_PER_PAGE = 12;
+// Default and allowed page sizes
+const DEFAULT_PAGE_SIZE = 12;
+const ALLOWED_PAGE_SIZES = [12, 24, 36];
 
 export async function loader({ request }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
@@ -19,7 +22,16 @@ export async function loader({ request }: Route.LoaderArgs) {
   const creditPoints = url.searchParams.get("creditPoints") || "";
   const campus = url.searchParams.get("campus") || "";
   const semester = url.searchParams.get("semester") || "";
+  const sortBy = url.searchParams.get("sortBy") || "code";
   const page = parseInt(url.searchParams.get("page") || "1");
+  const pageSize = parseInt(
+    url.searchParams.get("pageSize") || String(DEFAULT_PAGE_SIZE)
+  );
+
+  // Validate page size
+  const validPageSize = ALLOWED_PAGE_SIZES.includes(pageSize)
+    ? pageSize
+    : DEFAULT_PAGE_SIZE;
 
   // Fetch reference data for dropdowns
   const [faculties, campuses, semesters] = await Promise.all([
@@ -59,41 +71,113 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   // Get total count for pagination
   const totalCount = await db.unit.count({ where });
-  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(totalCount / validPageSize);
 
-  // Fetch paginated units
-  const units = await db.unit.findMany({
-    where,
-    include: {
-      faculty: true,
-      campuses: {
-        include: {
-          campus: true,
+  let units;
+  if (sortBy === "rating" || sortBy === "reviews") {
+    // For rating and review count sort, we need to use raw queries
+    const unitsWithStats = await db.$queryRaw`
+      SELECT u.*, 
+             COALESCE(AVG(CAST(r."overallRating" AS FLOAT)), 0) as "avgRating",
+             COUNT(r.id) as "reviewCount"
+      FROM "Unit" u
+      LEFT JOIN "Review" r ON u.id = r."unitId"
+      GROUP BY u.id
+      ORDER BY ${
+        sortBy === "rating"
+          ? Prisma.sql`"avgRating" DESC`
+          : Prisma.sql`"reviewCount" DESC`
+      }
+      OFFSET ${(page - 1) * validPageSize}
+      LIMIT ${validPageSize}
+    `;
+
+    // Then fetch the full unit data for the sorted units
+    const unitIds = (unitsWithStats as any[]).map((u: any) => u.id);
+    units = await db.unit.findMany({
+      where: {
+        id: {
+          in: unitIds,
         },
       },
-      semesters: {
-        include: {
-          semester: true,
+      include: {
+        faculty: true,
+        campuses: {
+          include: {
+            campus: true,
+          },
+        },
+        semesters: {
+          include: {
+            semester: true,
+          },
+        },
+        reviews: {
+          include: {
+            user: true,
+          },
+          where: {
+            userId: user,
+          },
+        },
+        _count: {
+          select: { reviews: true },
         },
       },
-      reviews: {
-        include: {
-          user: true,
+      orderBy: {
+        id: "asc",
+      },
+    });
+
+    // Reorder the units to match the sorted order from the raw query
+    const unitMap = new Map(units.map((u) => [u.id, u]));
+    units = unitIds
+      .map((id) => unitMap.get(id)!)
+      .filter((unit): unit is NonNullable<typeof unit> => unit !== undefined);
+  } else {
+    // For other sorts, we can use regular Prisma queries
+    const orderBy: any = {};
+    switch (sortBy) {
+      case "name":
+        orderBy.name = "asc";
+        break;
+      case "code":
+      default:
+        orderBy.code = "asc";
+        break;
+    }
+
+    units = await db.unit.findMany({
+      where,
+      include: {
+        faculty: true,
+        campuses: {
+          include: {
+            campus: true,
+          },
         },
-        where: {
-          userId: user,
+        semesters: {
+          include: {
+            semester: true,
+          },
+        },
+        reviews: {
+          include: {
+            user: true,
+          },
+          where: {
+            userId: user,
+          },
+        },
+        _count: {
+          select: { reviews: true },
         },
       },
-      _count: {
-        select: { reviews: true },
-      },
-    },
-    orderBy: {
-      code: "asc",
-    },
-    skip: (page - 1) * ITEMS_PER_PAGE,
-    take: ITEMS_PER_PAGE,
-  });
+      orderBy,
+      skip: (page - 1) * validPageSize,
+      take: validPageSize,
+    });
+  }
 
   return {
     units,
@@ -104,6 +188,7 @@ export async function loader({ request }: Route.LoaderArgs) {
       currentPage: page,
       totalPages,
       totalCount,
+      pageSize: validPageSize,
     },
     filters: {
       code,
@@ -113,6 +198,8 @@ export async function loader({ request }: Route.LoaderArgs) {
       creditPoints,
       campus,
       semester,
+      sortBy,
+      pageSize: validPageSize,
     },
   };
 }
@@ -120,13 +207,17 @@ export async function loader({ request }: Route.LoaderArgs) {
 export default function Search({ loaderData }: Route.ComponentProps) {
   const { units, faculties, campuses, semesters, filters, pagination } =
     loaderData;
-  const { currentPage, totalPages, totalCount } = pagination;
+  const { currentPage, totalPages, totalCount, pageSize } = pagination;
   const location = useLocation();
 
   // Create URL with current filters for pagination
   const createPageUrl = (pageNum: number) => {
     const searchParams = new URLSearchParams(location.search);
     searchParams.set("page", pageNum.toString());
+    // Ensure pageSize is preserved in pagination links
+    if (!searchParams.has("pageSize")) {
+      searchParams.set("pageSize", String(pageSize));
+    }
     return `${location.pathname}?${searchParams.toString()}`;
   };
 
@@ -251,6 +342,39 @@ export default function Search({ loaderData }: Route.ComponentProps) {
                     {semesters.map((semester) => (
                       <option key={semester.id} value={semester.id}>
                         {semester.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-control">
+                  <label className="label py-1">
+                    <span className="label-text text-sm">Sort By</span>
+                  </label>
+                  <select
+                    name="sortBy"
+                    defaultValue={filters.sortBy}
+                    className="select select-bordered select-sm md:select-md w-full"
+                  >
+                    <option value="code">Unit Code</option>
+                    <option value="name">Unit Name</option>
+                    <option value="rating">Average Rating</option>
+                    <option value="reviews">Number of Reviews</option>
+                  </select>
+                </div>
+
+                <div className="form-control">
+                  <label className="label py-1">
+                    <span className="label-text text-sm">Items per Page</span>
+                  </label>
+                  <select
+                    name="pageSize"
+                    defaultValue={filters.pageSize}
+                    className="select select-bordered select-sm md:select-md w-full"
+                  >
+                    {ALLOWED_PAGE_SIZES.map((size) => (
+                      <option key={size} value={size}>
+                        {size} Items
                       </option>
                     ))}
                   </select>
