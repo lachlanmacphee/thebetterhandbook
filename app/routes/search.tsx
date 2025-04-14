@@ -131,47 +131,49 @@ export default function Search({ loaderData }: Route.ComponentProps) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-2 sm:px-4 py-8">
       <div className="space-y-8">
         <div className="card bg-base-100 shadow-lg rounded-xl overflow-hidden">
-          <div className="card-body p-6 md:p-8">
-            <h1 className="text-3xl font-bold mb-6">Advanced Unit Search</h1>
+          <div className="card-body p-4 md:p-8">
+            <h1 className="text-2xl md:text-3xl font-bold mb-6">
+              Advanced Unit Search
+            </h1>
             <Form method="get" className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                 <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">Unit Code</span>
+                  <label className="label py-1">
+                    <span className="label-text text-sm">Unit Code</span>
                   </label>
                   <input
                     type="text"
                     name="code"
                     defaultValue={filters.code}
                     placeholder="e.g. FIT1008"
-                    className="input input-bordered w-full"
+                    className="input input-bordered input-sm md:input-md w-full"
                   />
                 </div>
 
                 <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">Unit Name</span>
+                  <label className="label py-1">
+                    <span className="label-text text-sm">Unit Name</span>
                   </label>
                   <input
                     type="text"
                     name="name"
                     defaultValue={filters.name}
-                    placeholder="e.g. Introduction to Computer Science"
-                    className="input input-bordered w-full"
+                    placeholder="e.g. Introduction to CS"
+                    className="input input-bordered input-sm md:input-md w-full"
                   />
                 </div>
 
                 <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">Faculty</span>
+                  <label className="label py-1">
+                    <span className="label-text text-sm">Faculty</span>
                   </label>
                   <select
                     name="faculty"
                     defaultValue={filters.faculty}
-                    className="select select-bordered w-full"
+                    className="select select-bordered select-sm md:select-md w-full"
                   >
                     <option value="">All Faculties</option>
                     {faculties.map((faculty) => (
@@ -183,13 +185,13 @@ export default function Search({ loaderData }: Route.ComponentProps) {
                 </div>
 
                 <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">Level</span>
+                  <label className="label py-1">
+                    <span className="label-text text-sm">Level</span>
                   </label>
                   <select
                     name="level"
                     defaultValue={filters.level}
-                    className="select select-bordered w-full"
+                    className="select select-bordered select-sm md:select-md w-full"
                   >
                     <option value="">All Levels</option>
                     {[1, 2, 3, 4, 5].map((level) => (
@@ -201,13 +203,13 @@ export default function Search({ loaderData }: Route.ComponentProps) {
                 </div>
 
                 <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">Credit Points</span>
+                  <label className="label py-1">
+                    <span className="label-text text-sm">Credit Points</span>
                   </label>
                   <select
                     name="creditPoints"
                     defaultValue={filters.creditPoints}
-                    className="select select-bordered w-full"
+                    className="select select-bordered select-sm md:select-md w-full"
                   >
                     <option value="">Any Credit Points</option>
                     {[6, 12].map((points) => (
@@ -219,13 +221,13 @@ export default function Search({ loaderData }: Route.ComponentProps) {
                 </div>
 
                 <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">Campus</span>
+                  <label className="label py-1">
+                    <span className="label-text text-sm">Campus</span>
                   </label>
                   <select
                     name="campus"
                     defaultValue={filters.campus}
-                    className="select select-bordered w-full"
+                    className="select select-bordered select-sm md:select-md w-full"
                   >
                     <option value="">All Campuses</option>
                     {campuses.map((campus) => (
@@ -237,13 +239,13 @@ export default function Search({ loaderData }: Route.ComponentProps) {
                 </div>
 
                 <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">Semester</span>
+                  <label className="label py-1">
+                    <span className="label-text text-sm">Semester</span>
                   </label>
                   <select
                     name="semester"
                     defaultValue={filters.semester}
-                    className="select select-bordered w-full"
+                    className="select select-bordered select-sm md:select-md w-full"
                   >
                     <option value="">All Semesters</option>
                     {semesters.map((semester) => (
