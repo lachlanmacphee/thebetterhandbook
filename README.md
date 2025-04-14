@@ -10,11 +10,11 @@ See the [About page](https://thebetterhandbook.fly.dev/about) for details.
 - [x] Add likes/dislikes to reviews
 - [x] View all your reviews on your profile page
 - [x] Edit your name on your profile page
+- [x] Sort units on the search page by rating
 - [ ] Add a year completed input to the review form
 - [ ] Ability to edit reviews from either profile page or unit page
 - [ ] Back button on unit page to go back to home or advanced search depending on where they came from
 - [ ] Implement (pre/co/post)requisites visualisation
-- [ ] Sort units on the search page by rating
 - [ ] Improve the metrics around how much oncampus is required for the unit
 - [ ] Implement course maps
 
