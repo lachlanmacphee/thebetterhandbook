@@ -83,7 +83,11 @@ function ReviewCard({ review }: { review: any }) {
             </p>
           </div>
           <div className="flex items-center justify-between text-sm text-base-content/60">
-            <span>{new Date(review.createdAt).toLocaleDateString()}</span>
+            <div className="flex items-center gap-2">
+              <span>{new Date(review.createdAt).toLocaleDateString()}</span>
+              <span>•</span>
+              <span>Completed {review.yearCompleted}</span>
+            </div>
             <div className="flex items-center gap-4">
               <span>{likes} likes</span>
               <span>{dislikes} dislikes</span>

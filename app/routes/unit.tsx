@@ -1,6 +1,11 @@
 import db from "~/modules/db/db.server";
 import type { Route } from "./+types/unit";
-import { StarIcon, ThumbsUpIcon, ThumbsDownIcon } from "lucide-react";
+import {
+  StarIcon,
+  ThumbsUpIcon,
+  ThumbsDownIcon,
+  ArrowLeftIcon,
+} from "lucide-react";
 import { data, Form, redirect, useFetcher, Link } from "react-router";
 import { getSession } from "~/modules/auth/session.server";
 import { useState } from "react";
@@ -8,6 +13,7 @@ import { useState } from "react";
 export async function loader({ params, request }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
   const user = session.get("id");
+  const previousPage = new URL(request.url).searchParams.get("from") || "/";
 
   const unit = await db.unit.findUnique({
     where: {
@@ -65,6 +71,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
       user,
       hasReviewed: false,
       existingUnitAdditionRequest,
+      previousPage,
     });
   }
 
@@ -81,6 +88,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     user,
     hasReviewed,
     existingUnitAdditionRequest,
+    previousPage,
   };
 }
 
@@ -162,6 +170,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 
   const title = formData.get("title");
   const description = formData.get("description");
+  const yearCompleted = formData.get("yearCompleted");
   const overallRating = formData.get("overallRating");
   const teachingRating = formData.get("teachingRating");
   const contentRating = formData.get("contentRating");
@@ -171,6 +180,7 @@ export async function action({ request, params }: Route.ActionArgs) {
   const errors: {
     title?: string;
     description?: string;
+    yearCompleted?: string;
     overallRating?: string;
     teachingRating?: string;
     contentRating?: string;
@@ -186,6 +196,18 @@ export async function action({ request, params }: Route.ActionArgs) {
 
   if (!description) {
     errors.description = "Description is required";
+  }
+
+  if (!yearCompleted) {
+    errors.yearCompleted = "Year completed is required";
+  }
+
+  if (
+    yearCompleted &&
+    (Number(yearCompleted) < 2000 ||
+      Number(yearCompleted) > new Date().getFullYear())
+  ) {
+    errors.yearCompleted = "Please enter a valid year";
   }
 
   if (!overallRating) {
@@ -231,6 +253,7 @@ export async function action({ request, params }: Route.ActionArgs) {
       data: {
         title: title as string,
         text: description as string,
+        yearCompleted: parseInt(yearCompleted as string),
         overallRating: parseInt(overallRating as string),
         teachingRating: parseInt(teachingRating as string),
         contentRating: parseInt(contentRating as string),
@@ -399,10 +422,15 @@ function Review({ review, user }: { review: any; user?: number }) {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
             <div className="space-y-2">
               <h3 className="text-2xl font-semibold">{review.title}</h3>
-              <div className="flex items-center gap-2">
-                <p className="text-sm text-base-content/70 font-medium">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm text-base-content/70 font-medium">
                   {review.user.name || "Anonymous"}
-                </p>
+                </span>
+                {review.yearCompleted && (
+                  <span className="text-sm text-base-content/70">
+                    • Completed {review.yearCompleted}
+                  </span>
+                )}
                 {review.isWamBooster && (
                   <span className="badge badge-success">WAM Booster</span>
                 )}
@@ -465,14 +493,20 @@ function Review({ review, user }: { review: any; user?: number }) {
               </fetcher.Form>
             ) : (
               <div className="flex items-center gap-4">
-                <span className="btn btn-sm btn-ghost gap-2">
+                <Link
+                  to="/auth/login"
+                  className="btn btn-sm btn-ghost gap-2 cursor-not-allowed opacity-60"
+                >
                   <ThumbsUpIcon className="w-4 h-4" />
                   <span>{likes}</span>
-                </span>
-                <span className="btn btn-sm btn-ghost gap-2">
+                </Link>
+                <Link
+                  to="/auth/login"
+                  className="btn btn-sm btn-ghost gap-2 cursor-not-allowed opacity-60"
+                >
                   <ThumbsDownIcon className="w-4 h-4" />
                   <span>{dislikes}</span>
-                </span>
+                </Link>
               </div>
             )}
             <span className="text-sm text-base-content/60">
@@ -499,8 +533,14 @@ function ReviewsList({ reviews, user }: { reviews: any[]; user?: number }) {
       return bLikes - bDislikes - (aLikes - aDislikes);
     }
     if (sortBy === "latest") {
+      // Sort by year completed first, then by creation date
+      const yearDiff = b.yearCompleted - a.yearCompleted;
+      if (yearDiff !== 0) return yearDiff;
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     }
+    // For oldest, do the same but reversed
+    const yearDiff = a.yearCompleted - b.yearCompleted;
+    if (yearDiff !== 0) return yearDiff;
     return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
   });
 
@@ -547,7 +587,8 @@ function ReviewsList({ reviews, user }: { reviews: any[]; user?: number }) {
 }
 
 export default function Unit({ loaderData, params }: Route.ComponentProps) {
-  const { unit, user, hasReviewed, existingUnitAdditionRequest } = loaderData;
+  const { unit, user, hasReviewed, existingUnitAdditionRequest, previousPage } =
+    loaderData;
 
   if (!unit) {
     return (
@@ -639,6 +680,12 @@ export default function Unit({ loaderData, params }: Route.ComponentProps) {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="space-y-10">
+        <div className="flex justify-between items-start">
+          <Link to={previousPage} className="btn btn-ghost btn-sm gap-2">
+            <ArrowLeftIcon size={16} /> <span>Back</span>
+          </Link>
+        </div>
+
         <div className="card bg-base-100 shadow-lg rounded-xl overflow-hidden">
           <div className="card-body gap-8 p-6 md:p-8">
             <UnitDetails unit={unit} overallRating={overallRating} />
@@ -693,6 +740,21 @@ export default function Unit({ loaderData, params }: Route.ComponentProps) {
                     className="textarea textarea-bordered w-full min-h-[160px]"
                     required
                   ></textarea>
+                </div>
+                <div className="form-control">
+                  <label className="label mb-1">
+                    <span className="label-text text-base font-semibold">
+                      Year Completed
+                    </span>
+                  </label>
+                  <input
+                    name="yearCompleted"
+                    type="number"
+                    min="2000"
+                    max={new Date().getFullYear()}
+                    className="input input-bordered w-full"
+                    required
+                  />
                 </div>
               </div>
 

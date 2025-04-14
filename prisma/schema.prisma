@@ -38,27 +38,27 @@ model Semester {
 }
 
 model Unit {
-  id        Int            @id @default(autoincrement())
-  name      String
-  code      String         @unique
-  level     Int
+  id           Int            @id @default(autoincrement())
+  name         String
+  code         String         @unique
+  level        Int
   creditPoints Int
-  reviews   Review[]
-  campuses  UnitCampus[]
-  semesters UnitSemester[]
-  facultyId Int
-  faculty   Faculty        @relation(fields: [facultyId], references: [id])
-  
+  reviews      Review[]
+  campuses     UnitCampus[]
+  semesters    UnitSemester[]
+  facultyId    Int
+  faculty      Faculty        @relation(fields: [facultyId], references: [id])
+
   // New relations for prerequisites
-  prerequisites    UnitPrerequisite[] @relation("prerequisite")
+  prerequisites     UnitPrerequisite[] @relation("prerequisite")
   isPrerequisiteFor UnitPrerequisite[] @relation("isPrerequisiteFor")
-  
+
   // New relations for corequisites
-  corequisites    UnitCorequisite[] @relation("corequisite")
+  corequisites     UnitCorequisite[] @relation("corequisite")
   isCorequisiteFor UnitCorequisite[] @relation("isCorequisiteFor")
-  
+
   // Link to Monash handbook
-  handbookUrl     String?
+  handbookUrl String?
 }
 
 model UnitCampus {
@@ -67,6 +67,7 @@ model UnitCampus {
   unit     Unit   @relation(fields: [unitId], references: [id])
   campusId Int
   campus   Campus @relation(fields: [campusId], references: [id])
+
   @@unique([unitId, campusId])
 }
 
@@ -76,27 +77,28 @@ model UnitSemester {
   unit       Unit     @relation(fields: [unitId], references: [id])
   semesterId Int
   semester   Semester @relation(fields: [semesterId], references: [id])
+
   @@unique([unitId, semesterId])
 }
 
 // New model for prerequisites
 model UnitPrerequisite {
-  id              Int      @id @default(autoincrement())
-  unitId          Int      
-  unit            Unit     @relation("prerequisite", fields: [unitId], references: [id])
-  prerequisiteId  Int
-  prerequisite    Unit     @relation("isPrerequisiteFor", fields: [prerequisiteId], references: [id])
+  id             Int  @id @default(autoincrement())
+  unitId         Int
+  unit           Unit @relation("prerequisite", fields: [unitId], references: [id])
+  prerequisiteId Int
+  prerequisite   Unit @relation("isPrerequisiteFor", fields: [prerequisiteId], references: [id])
 
   @@unique([unitId, prerequisiteId])
 }
 
 // New model for corequisites
 model UnitCorequisite {
-  id              Int      @id @default(autoincrement())
-  unitId          Int      
-  unit            Unit     @relation("corequisite", fields: [unitId], references: [id])
-  corequisiteId   Int
-  corequisite     Unit     @relation("isCorequisiteFor", fields: [corequisiteId], references: [id])
+  id            Int  @id @default(autoincrement())
+  unitId        Int
+  unit          Unit @relation("corequisite", fields: [unitId], references: [id])
+  corequisiteId Int
+  corequisite   Unit @relation("isCorequisiteFor", fields: [corequisiteId], references: [id])
 
   @@unique([unitId, corequisiteId])
 }
@@ -110,21 +112,22 @@ model UnitAdditionRequest {
 }
 
 model Review {
-  id                 Int     @id @default(autoincrement())
+  id                 Int              @id @default(autoincrement())
   title              String
   text               String
+  yearCompleted      Int              @default(2025)
   overallRating      Int
   teachingRating     Int
   contentRating      Int
   difficultyRating   Int
   workloadRating     Int
   requiresAttendance Boolean
-  isWamBooster      Boolean @default(false)
-  createdAt         DateTime @default(now())
+  isWamBooster       Boolean          @default(false)
+  createdAt          DateTime         @default(now())
   userId             Int
-  user               User    @relation(fields: [userId], references: [id])
+  user               User             @relation(fields: [userId], references: [id])
   unitId             Int
-  unit               Unit    @relation(fields: [unitId], references: [id])
+  unit               Unit             @relation(fields: [unitId], references: [id])
   reactions          ReviewReaction[]
 
   @@unique([userId, unitId])
@@ -132,12 +135,12 @@ model Review {
 
 // New model for review reactions
 model ReviewReaction {
-  id       Int      @id @default(autoincrement())
-  isLike   Boolean  // true for like, false for dislike
-  reviewId Int
-  review   Review   @relation(fields: [reviewId], references: [id])
-  userId   Int
-  user     User     @relation(fields: [userId], references: [id])
+  id        Int      @id @default(autoincrement())
+  isLike    Boolean // true for like, false for dislike
+  reviewId  Int
+  review    Review   @relation(fields: [reviewId], references: [id])
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
 
   @@unique([userId, reviewId])
