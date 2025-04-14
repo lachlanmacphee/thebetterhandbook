@@ -17,8 +17,11 @@ export async function sendEmail(body: SendEmailBody) {
     },
   });
 
+  // Verify SMTP connection configuration
+  await transporter.verify();
+
   const email = await transporter.sendMail({
-    from: process.env.EMAIL_USER,
+    from: `"The Better Handbook" <${process.env.EMAIL_USER}>`,
     to: body.to,
     subject: body.subject,
     html: body.html,

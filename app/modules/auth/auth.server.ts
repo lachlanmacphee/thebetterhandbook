@@ -66,8 +66,9 @@ authenticator.use(
 
       // Create a new user if it doesn't exist.
       if (!user) {
+        const name = email.split("@")[0];
         user = await db.user.create({
-          data: { email },
+          data: { email, name },
         });
       }
 
