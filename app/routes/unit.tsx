@@ -1,8 +1,9 @@
 import db from "~/modules/db/db.server";
 import type { Route } from "./+types/unit";
-import { StarIcon } from "lucide-react";
-import { data, Form, redirect } from "react-router";
+import { StarIcon, ThumbsUpIcon, ThumbsDownIcon } from "lucide-react";
+import { data, Form, redirect, useFetcher, Link } from "react-router";
 import { getSession } from "~/modules/auth/session.server";
+import { useState } from "react";
 
 export async function loader({ params, request }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
@@ -16,6 +17,12 @@ export async function loader({ params, request }: Route.LoaderArgs) {
       reviews: {
         include: {
           user: true,
+          reactions: true,
+        },
+        orderBy: {
+          reactions: {
+            _count: "desc",
+          },
         },
       },
       campuses: {
@@ -26,6 +33,21 @@ export async function loader({ params, request }: Route.LoaderArgs) {
       semesters: {
         include: {
           semester: true,
+        },
+      },
+      prerequisites: {
+        include: {
+          prerequisite: true,
+        },
+      },
+      corequisites: {
+        include: {
+          corequisite: true,
+        },
+      },
+      isPrerequisiteFor: {
+        include: {
+          unit: true,
         },
       },
     },
@@ -89,7 +111,55 @@ export async function action({ request, params }: Route.ActionArgs) {
     }
   }
 
-  // Handle review submission
+  if (intent === "react-to-review") {
+    const reviewId = parseInt(formData.get("reviewId") as string);
+    const reaction = formData.get("reaction") as "like" | "dislike";
+    const isLike = reaction === "like";
+
+    try {
+      const existingReaction = await db.reviewReaction.findUnique({
+        where: {
+          userId_reviewId: {
+            userId,
+            reviewId,
+          },
+        },
+      });
+
+      if (existingReaction) {
+        if (existingReaction.isLike === isLike) {
+          await db.reviewReaction.delete({
+            where: {
+              id: existingReaction.id,
+            },
+          });
+        } else {
+          await db.reviewReaction.update({
+            where: {
+              id: existingReaction.id,
+            },
+            data: {
+              isLike,
+            },
+          });
+        }
+      } else {
+        await db.reviewReaction.create({
+          data: {
+            isLike,
+            reviewId,
+            userId,
+          },
+        });
+      }
+
+      return null;
+    } catch (error) {
+      console.error("Error handling review reaction:", error);
+      return data({ error: "Failed to save reaction" }, { status: 500 });
+    }
+  }
+
   const title = formData.get("title");
   const description = formData.get("description");
   const overallRating = formData.get("overallRating");
@@ -152,7 +222,6 @@ export async function action({ request, params }: Route.ActionArgs) {
     return data({ errors }, { status: 400 });
   }
 
-  // Find the unit ID by its unit code
   const unit = await db.unit.findUnique({
     where: {
       code: params.unitCode,
@@ -174,6 +243,7 @@ export async function action({ request, params }: Route.ActionArgs) {
         difficultyRating: parseInt(difficultyRating as string),
         workloadRating: parseInt(workloadRating as string),
         requiresAttendance: attendanceRequired === "true",
+        isWamBooster: formData.get("isWamBooster") === "true",
         unitId,
         userId,
       },
@@ -276,6 +346,212 @@ function Rating({
   );
 }
 
+function UnitDetails({
+  unit,
+  overallRating,
+}: {
+  unit: any;
+  overallRating: number;
+}) {
+  const handbookUrl =
+    unit.handbookUrl ||
+    `https://handbook.monash.edu/current/units/${unit.code}`;
+
+  return (
+    <div className="flex gap-6 sm:gap-8 flex-col sm:flex-row items-center justify-between">
+      <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
+        <h1 className="card-title text-4xl md:text-5xl font-bold mb-2">
+          {unit.code}
+        </h1>
+        <p className="text-lg text-base-content/70">{unit.name}</p>
+        <div className="flex flex-wrap gap-2 mt-4">
+          {unit.campuses.map((campus: any) => (
+            <span key={campus.campus.id} className="badge badge-primary">
+              {campus.campus.name}
+            </span>
+          ))}
+          {unit.semesters.map((semester: any) => (
+            <span key={semester.semester.id} className="badge badge-secondary">
+              {semester.semester.name}
+            </span>
+          ))}
+        </div>
+        <a
+          href={handbookUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-4 text-primary hover:text-primary-focus transition-colors duration-200"
+        >
+          View in Monash Handbook →
+        </a>
+      </div>
+      <OverallRating rating={overallRating} />
+    </div>
+  );
+}
+
+function Review({ review, user }: { review: any; user?: number }) {
+  const fetcher = useFetcher();
+  const isSubmitting = fetcher.state !== "idle";
+
+  const userReaction = review.reactions?.find((r: any) => r.userId === user);
+  const likes = review.reactions?.filter((r: any) => r.isLike).length || 0;
+  const dislikes = review.reactions?.filter((r: any) => !r.isLike).length || 0;
+
+  return (
+    <div className="card bg-base-100 shadow-md hover:shadow-xl transition-all duration-300 rounded-xl overflow-hidden">
+      <div className="card-body p-6">
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+            <div className="space-y-2">
+              <h3 className="text-2xl font-semibold">{review.title}</h3>
+              <div className="flex items-center gap-2">
+                <p className="text-sm text-base-content/70 font-medium">
+                  {review.user.name || "Anonymous"}
+                </p>
+                {review.isWamBooster && (
+                  <span className="badge badge-success">WAM Booster</span>
+                )}
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Rating
+                rating={review.teachingRating}
+                title="Teaching"
+                size="sm"
+              />
+              <Rating rating={review.contentRating} title="Content" size="sm" />
+              <Rating
+                rating={review.difficultyRating}
+                title="Difficulty"
+                size="sm"
+                type="difficulty"
+              />
+              <Rating
+                rating={review.workloadRating}
+                title="Workload"
+                size="sm"
+                type="workload"
+              />
+            </div>
+          </div>
+          <div className="divider my-1"></div>
+          <p className="text-base-content/80 whitespace-pre-wrap leading-relaxed">
+            {review.text}
+          </p>
+          <div className="flex items-center gap-4 pt-2">
+            {user ? (
+              <fetcher.Form method="post" className="flex items-center gap-4">
+                <input type="hidden" name="intent" value="react-to-review" />
+                <input type="hidden" name="reviewId" value={review.id} />
+                <button
+                  type="submit"
+                  name="reaction"
+                  value="like"
+                  disabled={isSubmitting}
+                  className={`btn btn-sm gap-2 ${
+                    userReaction?.isLike ? "btn-primary" : "btn-ghost"
+                  }`}
+                >
+                  <ThumbsUpIcon className="w-4 h-4" />
+                  <span>{likes}</span>
+                </button>
+                <button
+                  type="submit"
+                  name="reaction"
+                  value="dislike"
+                  disabled={isSubmitting}
+                  className={`btn btn-sm gap-2 ${
+                    userReaction?.isLike === false ? "btn-primary" : "btn-ghost"
+                  }`}
+                >
+                  <ThumbsDownIcon className="w-4 h-4" />
+                  <span>{dislikes}</span>
+                </button>
+              </fetcher.Form>
+            ) : (
+              <div className="flex items-center gap-4">
+                <span className="btn btn-sm btn-ghost gap-2">
+                  <ThumbsUpIcon className="w-4 h-4" />
+                  <span>{likes}</span>
+                </span>
+                <span className="btn btn-sm btn-ghost gap-2">
+                  <ThumbsDownIcon className="w-4 h-4" />
+                  <span>{dislikes}</span>
+                </span>
+              </div>
+            )}
+            <span className="text-sm text-base-content/60">
+              {new Date(review.createdAt).toLocaleDateString()}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReviewsList({ reviews, user }: { reviews: any[]; user?: number }) {
+  const [sortBy, setSortBy] = useState<"helpful" | "latest" | "oldest">(
+    "helpful"
+  );
+
+  const sortedReviews = [...reviews].sort((a, b) => {
+    if (sortBy === "helpful") {
+      const aLikes = a.reactions?.filter((r: any) => r.isLike).length || 0;
+      const aDislikes = a.reactions?.filter((r: any) => !r.isLike).length || 0;
+      const bLikes = b.reactions?.filter((r: any) => r.isLike).length || 0;
+      const bDislikes = b.reactions?.filter((r: any) => !r.isLike).length || 0;
+      return bLikes - bDislikes - (aLikes - aDislikes);
+    }
+    if (sortBy === "latest") {
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    }
+    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+  });
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div className="space-y-1">
+          <h2 className="text-3xl font-bold">Reviews</h2>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setSortBy("helpful")}
+              className={`btn btn-xs ${
+                sortBy === "helpful" ? "btn-primary" : "btn-ghost"
+              }`}
+            >
+              Most Helpful
+            </button>
+            <button
+              onClick={() => setSortBy("latest")}
+              className={`btn btn-xs ${
+                sortBy === "latest" ? "btn-primary" : "btn-ghost"
+              }`}
+            >
+              Latest
+            </button>
+            <button
+              onClick={() => setSortBy("oldest")}
+              className={`btn btn-xs ${
+                sortBy === "oldest" ? "btn-primary" : "btn-ghost"
+              }`}
+            >
+              Oldest
+            </button>
+          </div>
+        </div>
+      </div>
+      <div className="space-y-6">
+        {sortedReviews.map((review) => (
+          <Review key={review.id} review={review} user={user} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Unit({ loaderData, params }: Route.ComponentProps) {
   const { unit, user, hasReviewed, existingUnitAdditionRequest } = loaderData;
 
@@ -371,33 +647,7 @@ export default function Unit({ loaderData, params }: Route.ComponentProps) {
       <div className="space-y-10">
         <div className="card bg-base-100 shadow-lg rounded-xl overflow-hidden">
           <div className="card-body gap-8 p-6 md:p-8">
-            <div className="flex gap-6 sm:gap-8 flex-col sm:flex-row items-center justify-between">
-              <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
-                <h1 className="card-title text-4xl md:text-5xl font-bold mb-2">
-                  {unit.code}
-                </h1>
-                <p className="text-lg text-base-content/70">{unit.name}</p>
-                <div className="flex flex-wrap gap-2 mt-4">
-                  {unit.campuses.map((campus) => (
-                    <span
-                      key={campus.campus.id}
-                      className="badge badge-primary"
-                    >
-                      {campus.campus.name}
-                    </span>
-                  ))}
-                  {unit.semesters.map((semester) => (
-                    <span
-                      key={semester.semester.id}
-                      className="badge badge-secondary"
-                    >
-                      {semester.semester.name}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <OverallRating rating={overallRating} />
-            </div>
+            <UnitDetails unit={unit} overallRating={overallRating} />
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <Rating rating={teachingRating} title="Teaching" />
               <Rating rating={contentRating} title="Content" />
@@ -414,74 +664,9 @@ export default function Unit({ loaderData, params }: Route.ComponentProps) {
             </div>
           </div>
         </div>
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h2 className="text-3xl font-bold">Reviews</h2>
-            {user && !hasReviewed && (
-              <button
-                className="btn btn-primary hover:scale-105 transition-transform duration-200"
-                onClick={() =>
-                  document
-                    .getElementById("review-form")
-                    ?.scrollIntoView({ behavior: "smooth" })
-                }
-              >
-                Add Review
-              </button>
-            )}
-          </div>
-          <div className="space-y-6">
-            {unit.reviews.map((review) => (
-              <div
-                key={review.id}
-                className="card bg-base-100 shadow-md hover:shadow-xl transition-all duration-300 rounded-xl overflow-hidden"
-              >
-                <div className="card-body p-6">
-                  <div className="space-y-6">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
-                      <div className="space-y-2">
-                        <h3 className="text-2xl font-semibold">
-                          {review.title}
-                        </h3>
-                        <p className="text-sm text-base-content/70 font-medium">
-                          {review.user.name}
-                        </p>
-                      </div>
-                      <div className="flex flex-wrap gap-3">
-                        <Rating
-                          rating={review.teachingRating}
-                          title="Teaching"
-                          size="sm"
-                        />
-                        <Rating
-                          rating={review.contentRating}
-                          title="Content"
-                          size="sm"
-                        />
-                        <Rating
-                          rating={review.difficultyRating}
-                          title="Difficulty"
-                          size="sm"
-                          type="difficulty"
-                        />
-                        <Rating
-                          rating={review.workloadRating}
-                          title="Workload"
-                          size="sm"
-                          type="workload"
-                        />
-                      </div>
-                    </div>
-                    <div className="divider my-1"></div>
-                    <p className="text-base-content/80 whitespace-pre-wrap leading-relaxed">
-                      {review.text}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+
+        <ReviewsList reviews={unit.reviews} user={user} />
+
         {user && !hasReviewed && (
           <div
             className="space-y-8 bg-base-100 shadow-lg p-6 md:p-8 rounded-xl"
@@ -611,7 +796,7 @@ export default function Unit({ loaderData, params }: Route.ComponentProps) {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 pt-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                 <label className="cursor-pointer hover:text-primary transition-colors duration-200">
                   <span className="font-semibold mr-3">
                     In Person Attendance Required
@@ -620,6 +805,14 @@ export default function Unit({ loaderData, params }: Route.ComponentProps) {
                     type="checkbox"
                     name="attendanceRequired"
                     className="checkbox checkbox-primary checkbox-sm"
+                  />
+                </label>
+                <label className="cursor-pointer hover:text-primary transition-colors duration-200">
+                  <span className="font-semibold mr-3">WAM Booster</span>
+                  <input
+                    type="checkbox"
+                    name="isWamBooster"
+                    className="checkbox checkbox-success checkbox-sm"
                   />
                 </label>
               </div>

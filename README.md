@@ -4,13 +4,13 @@ See the [About page](https://thebetterhandbook.fly.dev/about) for details.
 
 ## Todo
 
+- [x] Include links to unit on Monash handbook for the current year
+- [x] Include WAM Booster tag and checkbox on review
+- [x] Sort reviews by likes/dislikes, controversial, latest/oldest etc
+- [x] Add likes/dislikes to reviews
+- [x] View all your reviews on your profile page
+- [x] Edit your name on your profile page
 - [ ] Implement (pre/co/post)requisites visualisation
-- [ ] Include links to actual Monash handbook with current year pre-loaded
-- [ ] Include WAM Booster tag
-- [ ] Sort reviews by likes/dislikes, controversial, latest/oldest etc
-- [ ] Add likes/dislikes to reviews
-- [ ] View all your reviews on your profile page
-- [ ] Edit your name on your profile page
 - [ ] Sort units on the search page by rating
 - [ ] Improve the metrics around how much oncampus is required for the unit
 - [ ] Implement course maps

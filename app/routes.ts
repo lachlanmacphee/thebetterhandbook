@@ -7,5 +7,6 @@ export default [
   route("auth/verify", "routes/auth.verify.tsx"),
   route("search", "routes/search.tsx"),
   route("about", "routes/about.tsx"),
+  route("profile", "routes/profile.tsx"),
   route("units/:unitCode", "routes/unit.tsx"),
 ] satisfies RouteConfig;
