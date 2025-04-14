@@ -19,7 +19,8 @@ export function meta({}: Route.MetaArgs) {
     { title: "The Better Handbook" },
     {
       name: "description",
-      content: "The independent Monash unit reviewing platform.",
+      content:
+        "An independent site designed to help Monash University students make informed decisions about their unit selections.",
     },
   ];
 }
