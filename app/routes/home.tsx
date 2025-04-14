@@ -62,11 +62,12 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           <div className="card-body gap-6 p-6 md:p-8">
             <div className="flex flex-col items-center text-center">
               <h1 className="text-4xl md:text-5xl font-bold mb-2">
-                Welcome to MonReview
+                Welcome to TBH
               </h1>
               <p className="text-lg text-base-content/70 mb-6">
                 The <strong>independent</strong> and{" "}
-                <strong>open-source</strong> unit reviewing platform.
+                <strong>open-source</strong> handbook and unit reviewing
+                platform.
               </p>
               <form
                 onSubmit={handleUnitSearch}

@@ -30,6 +30,54 @@ async function main() {
     data: { name: "Second semester" },
   });
 
+  const summerSemA = await prisma.semester.create({
+    data: { name: "Summer semester A" },
+  });
+  const summerSemB = await prisma.semester.create({
+    data: { name: "Summer semester B" },
+  });
+  const winterSem = await prisma.semester.create({
+    data: { name: "Winter semester" },
+  });
+
+  const fullYear = await prisma.semester.create({
+    data: { name: "Full year" },
+  });
+
+  const getSemesterId = (period: string) => {
+    switch (period) {
+      case "First semester":
+        return firstSem.id;
+      case "Second semester":
+        return secondSem.id;
+      case "Summer semester A":
+        return summerSemA.id;
+      case "Summer semester B":
+        return summerSemB.id;
+      case "Winter semester":
+        return winterSem.id;
+      case "Full year":
+        return fullYear.id;
+      default:
+        return null;
+    }
+  };
+
+  const getCampusId = (location: string) => {
+    switch (location) {
+      case "Clayton":
+        return clayton.id;
+      case "Malaysia":
+        return malaysia.id;
+      case "Peninsula":
+        return peninsula.id;
+      case "Caulfield":
+        return caulfield.id;
+      default:
+        return null;
+    }
+  };
+
   const mappedUnits = Object.values(processedUnits)
     .map((unit: any) => ({
       code: unit.code,
@@ -71,20 +119,9 @@ async function main() {
     });
 
     for (const offering of unit.offerings) {
-      const campus =
-        offering.location === "Clayton"
-          ? clayton.id
-          : offering.location === "Malaysia"
-          ? malaysia.id
-          : offering.location === "Peninsula"
-          ? peninsula.id
-          : caulfield.id;
-      const semester =
-        offering.period === "First semester"
-          ? firstSem.id
-          : offering.period === "Second semester"
-          ? secondSem.id
-          : null;
+      const campus = getCampusId(offering.location);
+      const semester = getSemesterId(offering.period);
+
       if (semester) {
         try {
           await prisma.unitSemester.create({

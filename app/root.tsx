@@ -16,7 +16,7 @@ import { getSession } from "~/modules/auth/session.server";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "MonReview" },
+    { title: "The Better Handbook" },
     {
       name: "description",
       content: "The independent Monash unit reviewing platform.",
@@ -62,7 +62,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 to="/"
                 className="flex items-center gap-2 text-lg font-semibold hover:text-base-content/70 transition-colors duration-200"
               >
-                MonReview
+                The Better Handbook
               </Link>
               <div className="flex gap-2">
                 {user ? (
@@ -83,10 +83,26 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <main className="flex-grow flex">{children}</main>
         <footer>
           <div className="max-w-4xl mx-auto px-4">
-            <div className="flex h-[80px] items-center justify-center">
+            <div className="flex h-[80px] items-center justify-center gap-4">
+              <Link
+                to="/about"
+                className="text-sm text-base-content/70 hover:text-base-content transition-colors duration-200"
+              >
+                About
+              </Link>
+              <span className="text-base-content/70">•</span>
               <p className="text-sm text-base-content/70">
-                &copy; {new Date().getFullYear()} MonReview
+                &copy; {new Date().getFullYear()} The Better Handbook
               </p>
+              <span className="text-base-content/70">•</span>
+              <a
+                href="https://github.com/lachlanmacphee/the-better-handbook"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-base-content/70 hover:text-base-content transition-colors duration-200"
+              >
+                Source Code
+              </a>
             </div>
           </div>
         </footer>

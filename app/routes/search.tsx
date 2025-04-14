@@ -256,7 +256,7 @@ export default function Search({ loaderData }: Route.ComponentProps) {
               </div>
 
               <div className="flex justify-end gap-4">
-                <Link to="/search" className="btn btn-ghost">
+                <Link to="/search" reloadDocument className="btn btn-ghost">
                   Clear
                 </Link>
                 <button type="submit" className="btn btn-primary">
@@ -296,7 +296,7 @@ export default function Search({ loaderData }: Route.ComponentProps) {
                       {unit.campuses.map((uc) => (
                         <span
                           key={uc.campus.id}
-                          className="badge badge-outline"
+                          className="badge badge-primary"
                         >
                           {uc.campus.name}
                         </span>
@@ -307,7 +307,7 @@ export default function Search({ loaderData }: Route.ComponentProps) {
                       {unit.semesters.map((us) => (
                         <span
                           key={us.semester.id}
-                          className="badge badge-outline"
+                          className="badge badge-secondary"
                         >
                           {us.semester.name}
                         </span>
