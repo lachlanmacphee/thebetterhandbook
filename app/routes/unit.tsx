@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { data, Form, redirect, useFetcher, Link } from "react-router";
 import { getSession } from "~/modules/auth/session.server";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ReviewForm from "~/components/ReviewForm";
 import Rating, { OverallRating } from "~/components/Rating";
 
@@ -377,11 +377,19 @@ function DeprecateForm({
   onClose: () => void;
   unitId: number;
 }) {
+  const fetcher = useFetcher();
+
+  useEffect(() => {
+    if (fetcher.data?.success) {
+      onClose();
+    }
+  }, [fetcher.data, onClose]);
+
   return (
     <dialog className="modal modal-open">
       <div className="modal-box">
         <h3 className="font-bold text-lg mb-4">Mark Unit as Deprecated</h3>
-        <Form method="post">
+        <fetcher.Form method="post">
           <input type="hidden" name="intent" value="deprecate-unit" />
           <input type="hidden" name="unitId" value={unitId} />
           <fieldset className="fieldset">
@@ -401,7 +409,7 @@ function DeprecateForm({
               Submit
             </button>
           </div>
-        </Form>
+        </fetcher.Form>
       </div>
       <div className="modal-backdrop" onClick={onClose} />
     </dialog>
@@ -415,11 +423,19 @@ function SuggestChangesForm({
   onClose: () => void;
   unitId: number;
 }) {
+  const fetcher = useFetcher();
+
+  useEffect(() => {
+    if (fetcher.data?.success) {
+      onClose();
+    }
+  }, [fetcher.data, onClose]);
+
   return (
     <dialog className="modal modal-open">
       <div className="modal-box">
         <h3 className="font-bold text-lg mb-4">Suggest Changes</h3>
-        <Form method="post" className="space-y-4">
+        <fetcher.Form method="post" className="space-y-4">
           <input type="hidden" name="intent" value="suggest-change" />
           <input type="hidden" name="unitId" value={unitId} />
           <fieldset className="form-control w-full">
@@ -456,7 +472,7 @@ function SuggestChangesForm({
               Submit
             </button>
           </div>
-        </Form>
+        </fetcher.Form>
       </div>
       <div className="modal-backdrop" onClick={onClose} />
     </dialog>

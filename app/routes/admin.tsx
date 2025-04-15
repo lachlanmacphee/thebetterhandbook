@@ -204,42 +204,36 @@ export default function Admin() {
     <div className="max-w-4xl mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold mb-8">Admin Dashboard</h1>
 
-      <div className="space-y-8">
-        {(deprecationRequests.length > 0 ||
-          suggestions.length > 0 ||
-          additionRequests.length > 0) && (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold">Pending Requests</h2>
-            <div className="grid gap-4">
-              {deprecationRequests.map((request) => (
-                <RequestCard
-                  key={request.id}
-                  type="deprecation"
-                  data={request}
-                />
-              ))}
-              {suggestions.map((suggestion) => (
-                <RequestCard
-                  key={suggestion.id}
-                  type="suggestion"
-                  data={suggestion}
-                />
-              ))}
-              {additionRequests.map((request) => (
-                <RequestCard key={request.id} type="addition" data={request} />
-              ))}
-            </div>
+      {(deprecationRequests.length > 0 ||
+        suggestions.length > 0 ||
+        additionRequests.length > 0) && (
+        <div className="space-y-6">
+          <h2 className="text-2xl font-bold">Pending Requests</h2>
+          <div className="grid grid-cols-3 gap-4">
+            {deprecationRequests.map((request) => (
+              <RequestCard key={request.id} type="deprecation" data={request} />
+            ))}
+            {suggestions.map((suggestion) => (
+              <RequestCard
+                key={suggestion.id}
+                type="suggestion"
+                data={suggestion}
+              />
+            ))}
+            {additionRequests.map((request) => (
+              <RequestCard key={request.id} type="addition" data={request} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {deprecationRequests.length === 0 &&
+        suggestions.length === 0 &&
+        additionRequests.length === 0 && (
+          <div className="text-center py-12 text-base-content/70">
+            <p className="text-xl">No pending requests</p>
           </div>
         )}
-
-        {deprecationRequests.length === 0 &&
-          suggestions.length === 0 &&
-          additionRequests.length === 0 && (
-            <div className="text-center py-12 text-base-content/70">
-              <p className="text-xl">No pending requests</p>
-            </div>
-          )}
-      </div>
     </div>
   );
 }
