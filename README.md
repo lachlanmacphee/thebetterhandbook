@@ -46,7 +46,7 @@ MonPlan already has this functionality and I don't see any particular reason to 
 To build and run using Docker, set your environment variables on the machine, and then run:
 
 ```bash
-docker compose up -D
+docker compose up --detach
 ```
 
 The containerised application can be deployed to any platform that supports Docker, including:
