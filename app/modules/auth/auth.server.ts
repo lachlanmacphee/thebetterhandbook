@@ -44,11 +44,11 @@ authenticator.use(
         });
 
         // Development Only.
-        // console.log({
-        //   email,
-        //   code,
-        //   magicLink,
-        // });
+        if (process.env.NODE_ENV === "development") {
+          console.log("Magic link sent to:", email);
+          console.log("Magic link:", magicLink);
+          console.log("Code:", code);
+        }
       },
     },
     async ({ email, request }) => {
