@@ -420,16 +420,16 @@ function SuggestChangesForm({
   unitId: number;
 }) {
   return (
-    <div className="modal modal-open">
+    <dialog className="modal modal-open">
       <div className="modal-box">
         <h3 className="font-bold text-lg mb-4">Suggest Changes</h3>
         <Form method="post" className="space-y-4">
           <input type="hidden" name="intent" value="suggest-change" />
           <input type="hidden" name="unitId" value={unitId} />
-          <div className="form-control w-full">
-            <label className="label">
-              <span className="label-text">What would you like to change?</span>
-            </label>
+          <fieldset className="form-control w-full">
+            <legend className="font-semibold mb-2">
+              What would you like to change?
+            </legend>
             <select
               name="field"
               className="select select-bordered w-full"
@@ -440,11 +440,10 @@ function SuggestChangesForm({
               <option value="semester">Semester</option>
               <option value="name">Unit Name</option>
             </select>
-          </div>
-          <div className="form-control w-full">
-            <label className="label">
-              <span className="label-text">Current Value</span>
-            </label>
+          </fieldset>
+
+          <fieldset className="form-control w-full">
+            <legend className="font-semibold mb-2">Current Value</legend>
             <input
               type="text"
               name="oldValue"
@@ -452,11 +451,10 @@ function SuggestChangesForm({
               required
               placeholder="Current value"
             />
-          </div>
-          <div className="form-control w-full">
-            <label className="label">
-              <span className="label-text">Suggested Value</span>
-            </label>
+          </fieldset>
+
+          <fieldset className="form-control w-full">
+            <legend className="font-semibold mb-2">Suggested Value</legend>
             <input
               type="text"
               name="newValue"
@@ -464,16 +462,18 @@ function SuggestChangesForm({
               required
               placeholder="Suggested value"
             />
-          </div>
+          </fieldset>
+
           <fieldset className="fieldset">
             <legend className="fieldset-legend">Reason for change</legend>
             <textarea
               name="reason"
-              className="textarea h-24 w-full"
+              className="textarea textarea-bordered h-24 w-full"
               required
               placeholder="Why should this change be made?"
             ></textarea>
           </fieldset>
+
           <div className="modal-action">
             <button type="button" className="btn btn-ghost" onClick={onClose}>
               Cancel
@@ -485,7 +485,7 @@ function SuggestChangesForm({
         </Form>
       </div>
       <div className="modal-backdrop" onClick={onClose} />
-    </div>
+    </dialog>
   );
 }
 

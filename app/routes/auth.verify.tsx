@@ -99,17 +99,20 @@ export default function VerifyPage() {
           </div>
 
           <fetcher.Form method="post" className="space-y-6">
-            <input
-              minLength={6}
-              maxLength={6}
-              required
-              name="code"
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              disabled={isSubmitting}
-              placeholder="Enter the 6-digit code"
-              className="input w-full text-center text-lg tracking-wider"
-            />
+            <fieldset className="form-control">
+              <legend className="sr-only">Verification Code</legend>
+              <input
+                minLength={6}
+                maxLength={6}
+                required
+                name="code"
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                disabled={isSubmitting}
+                placeholder="Enter the 6-digit code"
+                className="input w-full text-center text-lg tracking-wider"
+              />
+            </fieldset>
             <button
               type="submit"
               className="btn btn-primary w-full hover:scale-[1.02] transition-transform duration-200"

@@ -32,37 +32,33 @@ export default function ReviewForm({
       )}
 
       <div className="space-y-6">
-        <div className="form-control">
-          <label className="label mb-1">
-            <span className="label-text text-base font-semibold">Title</span>
-          </label>
+        <fieldset className="form-control">
+          <legend className="text-base font-semibold mb-2">Title</legend>
           <input
             name="title"
             type="text"
             defaultValue={review?.title}
             className="input input-bordered w-full"
             required
+            placeholder="Enter a title for your review"
           />
-        </div>
-        <div className="form-control">
-          <label className="label mb-1">
-            <span className="label-text text-base font-semibold">
-              Description
-            </span>
-          </label>
+        </fieldset>
+
+        <fieldset className="form-control">
+          <legend className="text-base font-semibold mb-2">Description</legend>
           <textarea
             name="description"
             defaultValue={review?.text}
             className="textarea textarea-bordered w-full min-h-[160px]"
             required
+            placeholder="Write your review here"
           ></textarea>
-        </div>
-        <div className="form-control">
-          <label className="label mb-1">
-            <span className="label-text text-base font-semibold">
-              Year Completed
-            </span>
-          </label>
+        </fieldset>
+
+        <fieldset className="form-control">
+          <legend className="text-base font-semibold mb-2">
+            Year Completed
+          </legend>
           <input
             name="yearCompleted"
             type="number"
@@ -71,13 +67,14 @@ export default function ReviewForm({
             max={new Date().getFullYear()}
             className="input input-bordered w-full"
             required
+            placeholder="Enter the year you completed this unit"
           />
-        </div>
+        </fieldset>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-        <div className="space-y-3">
-          <label className="block font-semibold">Overall Rating</label>
+        <fieldset className="space-y-3">
+          <legend className="font-semibold">Overall Rating</legend>
           <div className="rating rating-lg gap-2">
             {[...Array(5)].map((_, i) => (
               <input
@@ -91,9 +88,10 @@ export default function ReviewForm({
               />
             ))}
           </div>
-        </div>
-        <div className="space-y-3">
-          <label className="block font-semibold">Teaching Rating</label>
+        </fieldset>
+
+        <fieldset className="space-y-3">
+          <legend className="font-semibold">Teaching Rating</legend>
           <div className="rating rating-lg gap-2">
             {[...Array(5)].map((_, i) => (
               <input
@@ -107,9 +105,10 @@ export default function ReviewForm({
               />
             ))}
           </div>
-        </div>
-        <div className="space-y-3">
-          <label className="block font-semibold">Content Rating</label>
+        </fieldset>
+
+        <fieldset className="space-y-3">
+          <legend className="font-semibold">Content Rating</legend>
           <div className="rating rating-lg gap-2">
             {[...Array(5)].map((_, i) => (
               <input
@@ -123,10 +122,10 @@ export default function ReviewForm({
               />
             ))}
           </div>
-        </div>
+        </fieldset>
 
-        <div className="space-y-4">
-          <label className="block font-semibold">Difficulty</label>
+        <fieldset className="space-y-4">
+          <legend className="font-semibold">Difficulty</legend>
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
             {["Very Easy", "Easy", "Medium", "Hard", "Very Hard"].map(
               (label, i) => (
@@ -147,10 +146,10 @@ export default function ReviewForm({
               )
             )}
           </div>
-        </div>
+        </fieldset>
 
-        <div className="space-y-4">
-          <label className="block font-semibold">Workload</label>
+        <fieldset className="space-y-4">
+          <legend className="font-semibold">Workload</legend>
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
             {["Very Low", "Low", "Moderate", "High", "Very High"].map(
               (label, i) => (
@@ -171,10 +170,11 @@ export default function ReviewForm({
               )
             )}
           </div>
-        </div>
+        </fieldset>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+      <fieldset className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <legend className="sr-only">Additional Options</legend>
         <label className="cursor-pointer hover:text-primary transition-colors duration-200">
           <span className="font-semibold mr-3">
             In Person Attendance Required
@@ -186,7 +186,7 @@ export default function ReviewForm({
             className="checkbox checkbox-primary checkbox-sm"
           />
         </label>
-        <label className="cursor-pointer hover:text-primary transition-colors duration-200">
+        <label className="cursor-pointer hover:text-success transition-colors duration-200">
           <span className="font-semibold mr-3">WAM Booster</span>
           <input
             type="checkbox"
@@ -195,7 +195,7 @@ export default function ReviewForm({
             className="checkbox checkbox-success checkbox-sm"
           />
         </label>
-      </div>
+      </fieldset>
 
       <div className="flex justify-end gap-4">
         {onCancel && (

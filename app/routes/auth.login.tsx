@@ -78,7 +78,8 @@ export default function Route() {
             onSubmit={handleSubmit}
           >
             {errors && <p className="text-red-500 text-center">{errors}</p>}
-            <div className="space-y-2">
+            <fieldset className="form-control space-y-2">
+              <legend className="sr-only">Email Address</legend>
               <input
                 type="email"
                 name="email"
@@ -90,7 +91,7 @@ export default function Route() {
               {emailError && (
                 <p className="text-sm text-red-500">{emailError}</p>
               )}
-            </div>
+            </fieldset>
             <button
               type="submit"
               className="btn btn-primary w-full hover:scale-[1.02] transition-transform duration-200"

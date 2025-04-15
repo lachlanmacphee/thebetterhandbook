@@ -184,14 +184,17 @@ export default function Profile() {
                   method="post"
                   className="flex items-center gap-4 w-full"
                 >
-                  <input
-                    type="text"
-                    name="name"
-                    defaultValue={user.name || ""}
-                    className="input input-bordered flex-1"
-                    placeholder="Enter your name"
-                    required
-                  />
+                  <fieldset className="form-control flex-1">
+                    <legend className="sr-only">Display Name</legend>
+                    <input
+                      type="text"
+                      name="name"
+                      defaultValue={user.name || ""}
+                      className="input input-bordered flex-1"
+                      placeholder="Enter your name"
+                      required
+                    />
+                  </fieldset>
                   <div className="space-x-2">
                     <button type="submit" className="btn btn-primary btn-sm">
                       Save
