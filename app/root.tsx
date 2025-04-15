@@ -11,7 +11,12 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import { LogOutIcon, UserCircleIcon, LogInIcon } from "lucide-react";
+import {
+  LogOutIcon,
+  UserCircleIcon,
+  LogInIcon,
+  HammerIcon,
+} from "lucide-react";
 import { getSession } from "~/modules/auth/session.server";
 
 export function meta({}: Route.MetaArgs) {
@@ -41,11 +46,13 @@ export const links: Route.LinksFunction = () => [
 export async function loader({ request }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
   const user = session.get("id");
-  return { user };
+  const role = session.get("role");
+
+  return { user, role };
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const { user } = useLoaderData<typeof loader>();
+  const { user, role } = useLoaderData<typeof loader>();
 
   return (
     <html lang="en">
@@ -68,6 +75,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <div className="flex gap-2">
                 {user ? (
                   <>
+                    {role == "admin" && (
+                      <Link to="/admin" className="btn btn-accent btn-sm">
+                        <HammerIcon className="w-4 h-4" />
+                        <span className="ml-2 hidden sm:block">Admin</span>
+                      </Link>
+                    )}
                     <Link to="/profile" className="btn btn-secondary btn-sm">
                       <UserCircleIcon className="w-4 h-4" />
                       <span className="ml-2 hidden sm:block">Profile</span>

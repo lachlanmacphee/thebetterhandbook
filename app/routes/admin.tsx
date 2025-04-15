@@ -203,13 +203,12 @@ export default function Admin() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold mb-8">Admin Dashboard</h1>
-
       {(deprecationRequests.length > 0 ||
         suggestions.length > 0 ||
         additionRequests.length > 0) && (
         <div className="space-y-6">
           <h2 className="text-2xl font-bold">Pending Requests</h2>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {deprecationRequests.map((request) => (
               <RequestCard key={request.id} type="deprecation" data={request} />
             ))}

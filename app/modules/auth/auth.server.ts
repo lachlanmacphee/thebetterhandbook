@@ -78,6 +78,7 @@ authenticator.use(
       );
 
       session.set("id", user.id);
+      session.set("role", user.role);
       session.set("name", user.name);
       session.set("email", user.email);
 
