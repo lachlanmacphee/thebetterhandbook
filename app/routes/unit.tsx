@@ -248,16 +248,12 @@ export async function action({ request, params }: Route.ActionArgs) {
 
   if (intent === "suggest-change") {
     const field = formData.get("field") as string;
-    const oldValue = formData.get("oldValue") as string;
-    const newValue = formData.get("newValue") as string;
     const reason = formData.get("reason") as string;
 
     try {
       await db.unitSuggestion.create({
         data: {
           field,
-          oldValue,
-          newValue,
           reason,
           unitId: parseInt(formData.get("unitId") as string),
           userId,
@@ -442,35 +438,13 @@ function SuggestChangesForm({
             </select>
           </fieldset>
 
-          <fieldset className="form-control w-full">
-            <legend className="font-semibold mb-2">Current Value</legend>
-            <input
-              type="text"
-              name="oldValue"
-              className="input input-bordered w-full"
-              required
-              placeholder="Current value"
-            />
-          </fieldset>
-
-          <fieldset className="form-control w-full">
-            <legend className="font-semibold mb-2">Suggested Value</legend>
-            <input
-              type="text"
-              name="newValue"
-              className="input input-bordered w-full"
-              required
-              placeholder="Suggested value"
-            />
-          </fieldset>
-
           <fieldset className="fieldset">
-            <legend className="fieldset-legend">Reason for change</legend>
+            <legend className="fieldset-legend">Description of change</legend>
             <textarea
               name="reason"
               className="textarea textarea-bordered h-24 w-full"
               required
-              placeholder="Why should this change be made?"
+              placeholder="Describe what needs to be adjusted - such as the semester that should be added/removed or what the new unit name should be"
             ></textarea>
           </fieldset>
 
