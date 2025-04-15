@@ -43,13 +43,10 @@ MonPlan already has this functionality and I don't see any particular reason to 
 
 ### App
 
-To build and run using Docker:
+To build and run using Docker, set your environment variables on the machine, and then run:
 
 ```bash
-docker build -t thebetterhandbook .
-
-# Run the container
-docker run -p 3000:3000 thebetterhandbook
+docker compose up -D
 ```
 
 The containerised application can be deployed to any platform that supports Docker, including:
