@@ -374,6 +374,121 @@ export async function action({ request, params }: Route.ActionArgs) {
   return redirect("/units/" + params.unitCode);
 }
 
+function DeprecateForm({
+  onClose,
+  unitId,
+}: {
+  onClose: () => void;
+  unitId: number;
+}) {
+  return (
+    <dialog className="modal modal-open">
+      <div className="modal-box">
+        <h3 className="font-bold text-lg mb-4">Mark Unit as Deprecated</h3>
+        <Form method="post">
+          <input type="hidden" name="intent" value="deprecate-unit" />
+          <input type="hidden" name="unitId" value={unitId} />
+          <fieldset className="fieldset">
+            <legend className="fieldset-legend">Reason for deprecation</legend>
+            <textarea
+              className="textarea h-24 w-full"
+              required
+              placeholder="Why should this unit be marked as deprecated?"
+              name="reason"
+            ></textarea>
+          </fieldset>
+          <div className="modal-action">
+            <button type="button" className="btn btn-ghost" onClick={onClose}>
+              Cancel
+            </button>
+            <button type="submit" className="btn btn-primary">
+              Submit
+            </button>
+          </div>
+        </Form>
+      </div>
+      <div className="modal-backdrop" onClick={onClose} />
+    </dialog>
+  );
+}
+
+function SuggestChangesForm({
+  onClose,
+  unitId,
+}: {
+  onClose: () => void;
+  unitId: number;
+}) {
+  return (
+    <div className="modal modal-open">
+      <div className="modal-box">
+        <h3 className="font-bold text-lg mb-4">Suggest Changes</h3>
+        <Form method="post" className="space-y-4">
+          <input type="hidden" name="intent" value="suggest-change" />
+          <input type="hidden" name="unitId" value={unitId} />
+          <div className="form-control w-full">
+            <label className="label">
+              <span className="label-text">What would you like to change?</span>
+            </label>
+            <select
+              name="field"
+              className="select select-bordered w-full"
+              required
+            >
+              <option value="">Select a field</option>
+              <option value="campus">Campus</option>
+              <option value="semester">Semester</option>
+              <option value="name">Unit Name</option>
+            </select>
+          </div>
+          <div className="form-control w-full">
+            <label className="label">
+              <span className="label-text">Current Value</span>
+            </label>
+            <input
+              type="text"
+              name="oldValue"
+              className="input input-bordered w-full"
+              required
+              placeholder="Current value"
+            />
+          </div>
+          <div className="form-control w-full">
+            <label className="label">
+              <span className="label-text">Suggested Value</span>
+            </label>
+            <input
+              type="text"
+              name="newValue"
+              className="input input-bordered w-full"
+              required
+              placeholder="Suggested value"
+            />
+          </div>
+          <fieldset className="fieldset">
+            <legend className="fieldset-legend">Reason for change</legend>
+            <textarea
+              name="reason"
+              className="textarea h-24 w-full"
+              required
+              placeholder="Why should this change be made?"
+            ></textarea>
+          </fieldset>
+          <div className="modal-action">
+            <button type="button" className="btn btn-ghost" onClick={onClose}>
+              Cancel
+            </button>
+            <button type="submit" className="btn btn-primary">
+              Submit
+            </button>
+          </div>
+        </Form>
+      </div>
+      <div className="modal-backdrop" onClick={onClose} />
+    </div>
+  );
+}
+
 function UnitDetails({
   unit,
   user,
@@ -441,125 +556,17 @@ function UnitDetails({
             </div>
           </div>
           <OverallRating rating={overallRating} />
-          {/* Deprecate Modal */}
           {showDeprecateModal && (
-            <div className="modal modal-open">
-              <div className="modal-box">
-                <h3 className="font-bold text-lg">Mark Unit as Deprecated</h3>
-                <Form method="post" className="space-y-4 mt-4">
-                  <input type="hidden" name="intent" value="deprecate-unit" />
-                  <input type="hidden" name="unitId" value={unit.id} />
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Reason for deprecation</span>
-                    </label>
-                    <textarea
-                      name="reason"
-                      className="textarea textarea-bordered"
-                      required
-                      placeholder="Why should this unit be marked as deprecated?"
-                    />
-                  </div>
-                  <div className="modal-action">
-                    <button type="submit" className="btn btn-primary">
-                      Submit
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-ghost"
-                      onClick={() => setShowDeprecateModal(false)}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </Form>
-              </div>
-              <div
-                className="modal-backdrop"
-                onClick={() => setShowDeprecateModal(false)}
-              />
-            </div>
+            <DeprecateForm
+              onClose={() => setShowDeprecateModal(false)}
+              unitId={unit.id}
+            />
           )}
-
-          {/* Suggest Changes Modal */}
           {showSuggestModal && (
-            <div className="modal modal-open">
-              <div className="modal-box">
-                <h3 className="font-bold text-lg">Suggest Changes</h3>
-                <Form method="post" className="space-y-4 mt-4">
-                  <input type="hidden" name="intent" value="suggest-change" />
-                  <input type="hidden" name="unitId" value={unit.id} />
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">
-                        What would you like to change?
-                      </span>
-                    </label>
-                    <select
-                      name="field"
-                      className="select select-bordered"
-                      required
-                    >
-                      <option value="">Select a field</option>
-                      <option value="campus">Campus</option>
-                      <option value="semester">Semester</option>
-                      <option value="name">Unit Name</option>
-                    </select>
-                  </div>
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Current Value</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="oldValue"
-                      className="input input-bordered"
-                      required
-                      placeholder="Current value"
-                    />
-                  </div>
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Suggested Value</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="newValue"
-                      className="input input-bordered"
-                      required
-                      placeholder="Suggested value"
-                    />
-                  </div>
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Reason for change</span>
-                    </label>
-                    <textarea
-                      name="reason"
-                      className="textarea textarea-bordered"
-                      required
-                      placeholder="Why should this change be made?"
-                    />
-                  </div>
-                  <div className="modal-action">
-                    <button type="submit" className="btn btn-primary">
-                      Submit
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-ghost"
-                      onClick={() => setShowSuggestModal(false)}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </Form>
-              </div>
-              <div
-                className="modal-backdrop"
-                onClick={() => setShowSuggestModal(false)}
-              />
-            </div>
+            <SuggestChangesForm
+              onClose={() => setShowSuggestModal(false)}
+              unitId={unit.id}
+            />
           )}
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
