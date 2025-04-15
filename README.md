@@ -15,9 +15,21 @@ See the [About page](https://thebetterhandbook.fly.dev/about) for details.
 - [x] Add a year completed input to the review form
 - [x] Ability to edit reviews from either profile page or unit page
 - [x] Back button on unit page to go back to home or advanced search depending on where they came from
-- [ ] Implement (pre/co/post)requisites visualisation
+- [x] Ability for students to mark units deprecated
+- [x] Ability for students to suggest changes to a unit (e.g. campus, location, semester)
+- [x] Role-based permissioning to help maintain the site
+- [x] Admins can see unit addition requests and approve the unit to be added
 - [ ] Improve the metrics around how much oncampus is required for the unit
-- [ ] Implement course maps
+
+## Future Features
+
+### Visualisations
+
+It'd be really nice to have a pre/co requisites visualisation like MonSTAR has, but unfortunately the dataset doesn't seem too strong at this time. I think there will be more work to perhaps use an LLM to parse the requisites description of each unit and add them later. Regardless, it's on the future features list.
+
+### Course Maps
+
+MonPlan already has this functionality and I don't see any particular reason to duplicate work unless there is a core feature that's missing or major improvements to be made. Will have to investigate further whether having this would be useful or not.
 
 ## Deployment
 

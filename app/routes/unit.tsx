@@ -1,6 +1,11 @@
 import db from "~/modules/db/db.server";
 import type { Route } from "./+types/unit";
-import { ThumbsUpIcon, ThumbsDownIcon, ArrowLeftIcon } from "lucide-react";
+import {
+  ThumbsUpIcon,
+  ThumbsDownIcon,
+  ArrowLeftIcon,
+  AlertTriangleIcon,
+} from "lucide-react";
 import { data, Form, redirect, useFetcher, Link } from "react-router";
 import { getSession } from "~/modules/auth/session.server";
 import { useState } from "react";
@@ -9,7 +14,10 @@ import Rating, { OverallRating } from "~/components/Rating";
 
 export async function loader({ params, request }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
-  const user = session.get("id");
+  const user = await db.user.findUnique({
+    where: { id: session.get("id") },
+    select: { id: true, role: true },
+  });
   const previousPage = new URL(request.url).searchParams.get("from") || "/";
 
   const unit = await db.unit.findUnique({
@@ -53,6 +61,14 @@ export async function loader({ params, request }: Route.LoaderArgs) {
           unit: true,
         },
       },
+      deprecations: {
+        where: { status: "approved" },
+        include: { user: true },
+      },
+      suggestions: {
+        where: { status: "pending" },
+        include: { user: true },
+      },
     },
   });
 
@@ -76,7 +92,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     (await db.review.findFirst({
       where: {
         unitId: unit.id,
-        userId: user,
+        userId: user?.id,
       },
     })) !== null;
 
@@ -210,6 +226,49 @@ export async function action({ request, params }: Route.ActionArgs) {
     }
   }
 
+  if (intent === "deprecate-unit") {
+    const reason = formData.get("reason") as string;
+
+    try {
+      await db.unitDeprecation.create({
+        data: {
+          reason,
+          unitId: parseInt(formData.get("unitId") as string),
+          userId,
+        },
+      });
+      return data({ success: true });
+    } catch (error) {
+      return data(
+        { error: "Failed to submit deprecation request" },
+        { status: 500 }
+      );
+    }
+  }
+
+  if (intent === "suggest-change") {
+    const field = formData.get("field") as string;
+    const oldValue = formData.get("oldValue") as string;
+    const newValue = formData.get("newValue") as string;
+    const reason = formData.get("reason") as string;
+
+    try {
+      await db.unitSuggestion.create({
+        data: {
+          field,
+          oldValue,
+          newValue,
+          reason,
+          unitId: parseInt(formData.get("unitId") as string),
+          userId,
+        },
+      });
+      return data({ success: true });
+    } catch (error) {
+      return data({ error: "Failed to submit suggestion" }, { status: 500 });
+    }
+  }
+
   const title = formData.get("title");
   const description = formData.get("description");
   const yearCompleted = formData.get("yearCompleted");
@@ -317,44 +376,217 @@ export async function action({ request, params }: Route.ActionArgs) {
 
 function UnitDetails({
   unit,
+  user,
   overallRating,
+  teachingRating,
+  contentRating,
+  difficultyRating,
+  workloadRating,
 }: {
   unit: any;
+  user?: number;
   overallRating: number;
+  teachingRating: number;
+  contentRating: number;
+  difficultyRating: number;
+  workloadRating: number;
 }) {
+  const [showDeprecateModal, setShowDeprecateModal] = useState(false);
+  const [showSuggestModal, setShowSuggestModal] = useState(false);
   const handbookUrl =
     unit.handbookUrl ||
     `https://handbook.monash.edu/current/units/${unit.code}`;
 
   return (
-    <div className="flex gap-6 sm:gap-8 flex-col sm:flex-row items-center justify-between">
-      <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
-        <h1 className="card-title text-4xl md:text-5xl font-bold mb-2">
-          {unit.code}
-        </h1>
-        <p className="text-lg text-base-content/70">{unit.name}</p>
-        <div className="flex flex-wrap gap-2 mt-4">
-          {unit.campuses.map((campus: any) => (
-            <span key={campus.campus.id} className="badge badge-primary">
-              {campus.campus.name}
-            </span>
-          ))}
-          {unit.semesters.map((semester: any) => (
-            <span key={semester.semester.id} className="badge badge-secondary">
-              {semester.semester.name}
-            </span>
-          ))}
+    <div className="card bg-base-100 shadow-lg rounded-xl overflow-hidden">
+      <div className="card-body gap-8 p-6 md:p-8">
+        <div className="flex gap-6 sm:gap-8 flex-col items-center sm:items-start sm:flex-row justify-between">
+          <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
+            <h1 className="card-title text-4xl md:text-5xl font-bold mb-2">
+              {unit.code}
+            </h1>
+            <p className="text-lg text-base-content/70">{unit.name}</p>
+            <div className="flex flex-wrap gap-2 mt-4">
+              {unit.isDeprecated && (
+                <div className="badge badge-warning gap-2">
+                  <AlertTriangleIcon className="w-4 h-4" />
+                  Deprecated
+                </div>
+              )}
+              {unit.campuses.map((campus: any) => (
+                <span key={campus.campus.id} className="badge badge-primary">
+                  {campus.campus.name}
+                </span>
+              ))}
+              {unit.semesters.map((semester: any) => (
+                <span
+                  key={semester.semester.id}
+                  className="badge badge-secondary"
+                >
+                  {semester.semester.name}
+                </span>
+              ))}
+            </div>
+            <div className="flex gap-4 mt-4">
+              <a
+                href={handbookUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:text-primary-focus transition-colors duration-200"
+              >
+                View in Monash Handbook →
+              </a>
+            </div>
+          </div>
+          <OverallRating rating={overallRating} />
+          {/* Deprecate Modal */}
+          {showDeprecateModal && (
+            <div className="modal modal-open">
+              <div className="modal-box">
+                <h3 className="font-bold text-lg">Mark Unit as Deprecated</h3>
+                <Form method="post" className="space-y-4 mt-4">
+                  <input type="hidden" name="intent" value="deprecate-unit" />
+                  <input type="hidden" name="unitId" value={unit.id} />
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">Reason for deprecation</span>
+                    </label>
+                    <textarea
+                      name="reason"
+                      className="textarea textarea-bordered"
+                      required
+                      placeholder="Why should this unit be marked as deprecated?"
+                    />
+                  </div>
+                  <div className="modal-action">
+                    <button type="submit" className="btn btn-primary">
+                      Submit
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-ghost"
+                      onClick={() => setShowDeprecateModal(false)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </Form>
+              </div>
+              <div
+                className="modal-backdrop"
+                onClick={() => setShowDeprecateModal(false)}
+              />
+            </div>
+          )}
+
+          {/* Suggest Changes Modal */}
+          {showSuggestModal && (
+            <div className="modal modal-open">
+              <div className="modal-box">
+                <h3 className="font-bold text-lg">Suggest Changes</h3>
+                <Form method="post" className="space-y-4 mt-4">
+                  <input type="hidden" name="intent" value="suggest-change" />
+                  <input type="hidden" name="unitId" value={unit.id} />
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">
+                        What would you like to change?
+                      </span>
+                    </label>
+                    <select
+                      name="field"
+                      className="select select-bordered"
+                      required
+                    >
+                      <option value="">Select a field</option>
+                      <option value="campus">Campus</option>
+                      <option value="semester">Semester</option>
+                      <option value="name">Unit Name</option>
+                    </select>
+                  </div>
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">Current Value</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="oldValue"
+                      className="input input-bordered"
+                      required
+                      placeholder="Current value"
+                    />
+                  </div>
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">Suggested Value</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="newValue"
+                      className="input input-bordered"
+                      required
+                      placeholder="Suggested value"
+                    />
+                  </div>
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">Reason for change</span>
+                    </label>
+                    <textarea
+                      name="reason"
+                      className="textarea textarea-bordered"
+                      required
+                      placeholder="Why should this change be made?"
+                    />
+                  </div>
+                  <div className="modal-action">
+                    <button type="submit" className="btn btn-primary">
+                      Submit
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-ghost"
+                      onClick={() => setShowSuggestModal(false)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </Form>
+              </div>
+              <div
+                className="modal-backdrop"
+                onClick={() => setShowSuggestModal(false)}
+              />
+            </div>
+          )}
         </div>
-        <a
-          href={handbookUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-4 text-primary hover:text-primary-focus transition-colors duration-200"
-        >
-          View in Monash Handbook →
-        </a>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <Rating rating={teachingRating} title="Teaching" />
+          <Rating rating={contentRating} title="Content" />
+          <Rating
+            rating={difficultyRating}
+            title="Difficulty"
+            type="difficulty"
+          />
+          <Rating rating={workloadRating} title="Workload" type="workload" />
+        </div>
+        {user && (
+          <div className="flex justify-center sm:justify-end gap-4">
+            <button
+              onClick={() => setShowDeprecateModal(true)}
+              className="btn btn-sm btn-warning"
+            >
+              Mark as Deprecated
+            </button>
+            <button
+              onClick={() => setShowSuggestModal(true)}
+              className="btn btn-sm btn-accent"
+            >
+              Suggest Changes
+            </button>
+          </div>
+        )}
       </div>
-      <OverallRating rating={overallRating} />
     </div>
   );
 }
@@ -665,28 +897,17 @@ export default function Unit({ loaderData, params }: Route.ComponentProps) {
             <ArrowLeftIcon size={16} /> <span>Back</span>
           </Link>
         </div>
+        <UnitDetails
+          unit={unit}
+          user={user?.id}
+          overallRating={overallRating}
+          teachingRating={teachingRating}
+          contentRating={contentRating}
+          difficultyRating={difficultyRating}
+          workloadRating={workloadRating}
+        />
 
-        <div className="card bg-base-100 shadow-lg rounded-xl overflow-hidden">
-          <div className="card-body gap-8 p-6 md:p-8">
-            <UnitDetails unit={unit} overallRating={overallRating} />
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <Rating rating={teachingRating} title="Teaching" />
-              <Rating rating={contentRating} title="Content" />
-              <Rating
-                rating={difficultyRating}
-                title="Difficulty"
-                type="difficulty"
-              />
-              <Rating
-                rating={workloadRating}
-                title="Workload"
-                type="workload"
-              />
-            </div>
-          </div>
-        </div>
-
-        <ReviewsList reviews={unit.reviews} user={user} />
+        <ReviewsList reviews={unit.reviews} user={user?.id} />
 
         {user && !hasReviewed && (
           <div

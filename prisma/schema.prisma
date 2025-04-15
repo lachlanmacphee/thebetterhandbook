@@ -14,9 +14,12 @@ model User {
   id                   Int                   @id @default(autoincrement())
   email                String                @unique
   name                 String?
+  role                 String                @default("user") // can be "user" or "admin"
   reviews              Review[]
   reviewReactions      ReviewReaction[]
   unitAdditionRequests UnitAdditionRequest[]
+  unitSuggestions      UnitSuggestion[]
+  unitDeprecations     UnitDeprecation[]
 }
 
 model Faculty {
@@ -48,6 +51,9 @@ model Unit {
   semesters    UnitSemester[]
   facultyId    Int
   faculty      Faculty        @relation(fields: [facultyId], references: [id])
+  isDeprecated Boolean        @default(false)
+  deprecations UnitDeprecation[]
+  suggestions  UnitSuggestion[]
 
   // New relations for prerequisites
   prerequisites     UnitPrerequisite[] @relation("prerequisite")
@@ -109,6 +115,31 @@ model UnitAdditionRequest {
   createdAt DateTime @default(now())
   userId    Int
   user      User     @relation(fields: [userId], references: [id])
+}
+
+model UnitDeprecation {
+  id        Int      @id @default(autoincrement())
+  reason    String
+  createdAt DateTime @default(now())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  unitId    Int
+  unit      Unit     @relation(fields: [unitId], references: [id])
+  status    String   @default("pending") // can be "pending", "approved", or "rejected"
+}
+
+model UnitSuggestion {
+  id          Int      @id @default(autoincrement())
+  field       String   // e.g. "campus", "semester"
+  oldValue    String
+  newValue    String
+  reason      String
+  createdAt   DateTime @default(now())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  unitId      Int
+  unit        Unit     @relation(fields: [unitId], references: [id])
+  status      String   @default("pending") // can be "pending", "approved", or "rejected"
 }
 
 model Review {

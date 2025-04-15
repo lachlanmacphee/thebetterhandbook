@@ -9,7 +9,7 @@ type RatingProps = {
 
 export function OverallRating({ rating }: { rating: number }) {
   return (
-    <div className="flex gap-1.5 bg-base-200/50 p-3 rounded-xl">
+    <div className="flex w-min h-min gap-1.5 bg-base-200/50 p-3 rounded-xl">
       {[...Array(5)].map((_, i) => (
         <StarIcon
           key={i}
