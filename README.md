@@ -18,8 +18,8 @@ See the [About page](https://thebetterhandbook.fly.dev/about) for details.
 - [x] Ability for students to mark units deprecated
 - [x] Ability for students to suggest changes to a unit (e.g. campus, location, semester)
 - [x] Role-based permissioning to help maintain the site
-- [x] Admins can see unit addition requests and approve the unit to be added
-- [ ] Improve the metrics around how much oncampus is required for the unit
+- [x] Admins can see suggestions and approve them (once actioned), or reject them if they are invalid
+- [ ] Improve the metrics around how much a unit requires on-campus attendance
 
 ## Future Features
 
