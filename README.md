@@ -23,7 +23,7 @@ See the [About page](https://thebetterhandbook.fly.dev/about) for details.
 
 ### Database
 
-1. Set the DATABASE_URL inside .env
+1. Set the `DATABASE_URL` inside .env
 2. Run `npx prisma db push --skip-generate`
 3. If the database is fresh, ensure you seed it with `npx prisma db seed`. This script will take a while to run.
 

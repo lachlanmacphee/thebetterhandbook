@@ -11,5 +11,5 @@
 # Prisma
 prisma/dev.db
 
-# Imporst
-imports/*.json
+# Imports
+imports/*/*.json

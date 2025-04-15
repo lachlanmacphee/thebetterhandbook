@@ -27,13 +27,13 @@ model Faculty {
 
 model Campus {
   id         Int          @id @default(autoincrement())
-  name       String
+  name       String       @unique
   UnitCampus UnitCampus[]
 }
 
 model Semester {
   id           Int            @id @default(autoincrement())
-  name         String
+  name         String         @unique
   UnitSemester UnitSemester[]
 }
 

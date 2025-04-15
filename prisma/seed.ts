@@ -1,83 +1,9 @@
 import { PrismaClient } from "@prisma/client";
-import processedUnits from "../imports/processed_units.json";
+import processedUnits from "../imports/monash/processed_units.json";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  // Create campuses
-  const clayton = await prisma.campus.create({
-    data: { name: "Clayton" },
-  });
-
-  const malaysia = await prisma.campus.create({
-    data: { name: "Malaysia" },
-  });
-
-  const peninsula = await prisma.campus.create({
-    data: { name: "Peninsula" },
-  });
-
-  const caulfield = await prisma.campus.create({
-    data: { name: "Caulfield" },
-  });
-
-  // Create semesters
-  const firstSem = await prisma.semester.create({
-    data: { name: "First semester" },
-  });
-
-  const secondSem = await prisma.semester.create({
-    data: { name: "Second semester" },
-  });
-
-  const summerSemA = await prisma.semester.create({
-    data: { name: "Summer semester A" },
-  });
-  const summerSemB = await prisma.semester.create({
-    data: { name: "Summer semester B" },
-  });
-  const winterSem = await prisma.semester.create({
-    data: { name: "Winter semester" },
-  });
-
-  const fullYear = await prisma.semester.create({
-    data: { name: "Full year" },
-  });
-
-  const getSemesterId = (period: string) => {
-    switch (period) {
-      case "First semester":
-        return firstSem.id;
-      case "Second semester":
-        return secondSem.id;
-      case "Summer semester A":
-        return summerSemA.id;
-      case "Summer semester B":
-        return summerSemB.id;
-      case "Winter semester":
-        return winterSem.id;
-      case "Full year":
-        return fullYear.id;
-      default:
-        return null;
-    }
-  };
-
-  const getCampusId = (location: string) => {
-    switch (location) {
-      case "Clayton":
-        return clayton.id;
-      case "Malaysia":
-        return malaysia.id;
-      case "Peninsula":
-        return peninsula.id;
-      case "Caulfield":
-        return caulfield.id;
-      default:
-        return null;
-    }
-  };
-
   const mappedUnits = Object.values(processedUnits)
     .map((unit: any) => ({
       code: unit.code,
@@ -90,58 +16,102 @@ async function main() {
         period: offering.period,
       })),
     }))
-    // Only include units with offerings
     .filter((unit) => unit.offerings?.length > 0);
 
-  // Create the units in the database
+  // Get all unique values
+  const uniqueLocations = new Set<string>();
+  const uniquePeriods = new Set<string>();
+  const uniqueSchools = new Set<string>();
   for (const unit of mappedUnits) {
+    uniqueSchools.add(unit.facultyName);
+    for (const offering of unit.offerings) {
+      uniqueLocations.add(offering.location);
+      uniquePeriods.add(offering.period);
+    }
+  }
+
+  // Upsert campuses and store their IDs
+  const campusMap: { [key: string]: number } = {};
+  for (const location of uniqueLocations) {
+    const campus = await prisma.campus.upsert({
+      where: { name: location },
+      update: {},
+      create: { name: location },
+    });
+    campusMap[location] = campus.id;
+  }
+
+  // Upsert semesters and store their IDs
+  const semesterMap: { [key: string]: number } = {};
+  for (const period of uniquePeriods) {
+    const semester = await prisma.semester.upsert({
+      where: { name: period },
+      update: {},
+      create: { name: period },
+    });
+    semesterMap[period] = semester.id;
+  }
+
+  // Upsert faculties and store their IDs
+  const facultyMap: { [key: string]: number } = {};
+  for (const school of uniqueSchools) {
     const faculty = await prisma.faculty.upsert({
-      select: {
-        id: true,
-      },
-      where: {
-        name: unit.facultyName,
+      where: { name: school },
+      update: {},
+      create: { name: school },
+    });
+    facultyMap[school] = faculty.id;
+  }
+
+  // Upsert units and their relationships
+  for (const unit of mappedUnits) {
+    const createdUnit = await prisma.unit.upsert({
+      where: { code: unit.code },
+      update: {
+        name: unit.name,
+        level: unit.level,
+        creditPoints: parseInt(unit.creditPoints),
+        facultyId: facultyMap[unit.facultyName],
       },
       create: {
-        name: unit.facultyName,
-      },
-      update: {},
-    });
-
-    const createdUnit = await prisma.unit.create({
-      data: {
         code: unit.code,
         name: unit.name,
         level: unit.level,
         creditPoints: parseInt(unit.creditPoints),
-        facultyId: faculty.id,
+        facultyId: facultyMap[unit.facultyName],
       },
     });
 
+    // Update unit-semester relationships
     for (const offering of unit.offerings) {
-      const campus = getCampusId(offering.location);
-      const semester = getSemesterId(offering.period);
+      await prisma.unitSemester.upsert({
+        where: {
+          unitId_semesterId: {
+            unitId: createdUnit.id,
+            semesterId: semesterMap[offering.period],
+          },
+        },
+        update: {},
+        create: {
+          unitId: createdUnit.id,
+          semesterId: semesterMap[offering.period],
+        },
+      });
 
-      if (semester) {
-        try {
-          await prisma.unitSemester.create({
-            data: {
-              unitId: createdUnit.id,
-              semesterId: semester,
-            },
-          });
-        } catch (error) {}
-      }
-      if (campus) {
-        try {
-          await prisma.unitCampus.create({
-            data: {
-              unitId: createdUnit.id,
-              campusId: campus,
-            },
-          });
-        } catch (error) {}
-      }
+      // Update unit-campus relationships
+      await prisma.unitCampus.upsert({
+        where: {
+          unitId_campusId: {
+            unitId: createdUnit.id,
+            campusId: campusMap[offering.location],
+          },
+        },
+        update: {},
+        create: {
+          unitId: createdUnit.id,
+          campusId: campusMap[offering.location],
+        },
+      });
     }
   }
 }

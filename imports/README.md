@@ -1,3 +1,1 @@
-This is where we put any import files we need to update units.
-
-To get `processed_units.json`, check out [this repo](https://github.com/saikumarmk/monash-handbook-scraper) by `saikumarmk`
+This directory contains all of the universities that are currently supported by TBH and the methods required to import units from their handbooks, APIs, etc.
