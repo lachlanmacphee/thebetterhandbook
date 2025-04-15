@@ -14,10 +14,14 @@ import Rating, { OverallRating } from "~/components/Rating";
 
 export async function loader({ params, request }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
-  const user = await db.user.findUnique({
-    where: { id: session.get("id") },
-    select: { id: true, role: true },
-  });
+  let user;
+  if (session.has("id")) {
+    user = await db.user.findUnique({
+      where: { id: session.get("id") },
+      select: { id: true, role: true },
+    });
+  }
+
   const previousPage = new URL(request.url).searchParams.get("from") || "/";
 
   const unit = await db.unit.findUnique({
@@ -88,13 +92,14 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     });
   }
 
-  const hasReviewed =
-    (await db.review.findFirst({
-      where: {
-        unitId: unit.id,
-        userId: user?.id,
-      },
-    })) !== null;
+  const hasReviewed = user
+    ? (await db.review.findFirst({
+        where: {
+          unitId: unit.id,
+          userId: user?.id,
+        },
+      })) !== null
+    : false;
 
   return {
     unit,
