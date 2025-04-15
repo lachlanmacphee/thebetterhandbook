@@ -164,15 +164,7 @@ function RequestCard({
                 <p className="text-base-content/80">{data.field}</p>
               </div>
               <div>
-                <h4 className="font-medium">Current value:</h4>
-                <p className="text-base-content/80">{data.oldValue}</p>
-              </div>
-              <div>
-                <h4 className="font-medium">Suggested value:</h4>
-                <p className="text-base-content/80">{data.newValue}</p>
-              </div>
-              <div>
-                <h4 className="font-medium">Reason:</h4>
+                <h4 className="font-medium">Description:</h4>
                 <p className="text-base-content/80">{data.reason}</p>
               </div>
             </div>
