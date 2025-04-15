@@ -377,6 +377,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 function UnitDetails({
   unit,
   user,
+  previousPage,
   overallRating,
   teachingRating,
   contentRating,
@@ -385,6 +386,7 @@ function UnitDetails({
 }: {
   unit: any;
   user?: number;
+  previousPage: string;
   overallRating: number;
   teachingRating: number;
   contentRating: number;
@@ -571,19 +573,28 @@ function UnitDetails({
           <Rating rating={workloadRating} title="Workload" type="workload" />
         </div>
         {user && (
-          <div className="flex justify-center sm:justify-end gap-4">
-            <button
-              onClick={() => setShowDeprecateModal(true)}
-              className="btn btn-sm btn-warning"
+          <div className="flex flex-wrap-reverse justify-center sm:flex-nowrap sm:justify-between items-center">
+            <Link
+              to={previousPage}
+              className="btn btn-ghost btn-sm mt-4 sm:mt-0 gap-2"
             >
-              Mark as Deprecated
-            </button>
-            <button
-              onClick={() => setShowSuggestModal(true)}
-              className="btn btn-sm btn-accent"
-            >
-              Suggest Changes
-            </button>
+              <ArrowLeftIcon size={16} />
+              <span>Back</span>
+            </Link>
+            <div className="flex justify-center sm:justify-end gap-4">
+              <button
+                onClick={() => setShowDeprecateModal(true)}
+                className="btn btn-sm btn-warning"
+              >
+                Mark as Deprecated
+              </button>
+              <button
+                onClick={() => setShowSuggestModal(true)}
+                className="btn btn-sm btn-accent"
+              >
+                Suggest Changes
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -757,36 +768,34 @@ function ReviewsList({ reviews, user }: { reviews: any[]; user?: number }) {
   });
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div className="space-y-1">
-          <h2 className="text-3xl font-bold">Reviews</h2>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setSortBy("helpful")}
-              className={`btn btn-xs ${
-                sortBy === "helpful" ? "btn-primary" : "btn-ghost"
-              }`}
-            >
-              Most Helpful
-            </button>
-            <button
-              onClick={() => setSortBy("latest")}
-              className={`btn btn-xs ${
-                sortBy === "latest" ? "btn-primary" : "btn-ghost"
-              }`}
-            >
-              Latest
-            </button>
-            <button
-              onClick={() => setSortBy("oldest")}
-              className={`btn btn-xs ${
-                sortBy === "oldest" ? "btn-primary" : "btn-ghost"
-              }`}
-            >
-              Oldest
-            </button>
-          </div>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
+        <h2 className="text-3xl font-bold">Reviews</h2>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setSortBy("helpful")}
+            className={`btn btn-xs ${
+              sortBy === "helpful" ? "btn-primary" : "btn-ghost"
+            }`}
+          >
+            Most Helpful
+          </button>
+          <button
+            onClick={() => setSortBy("latest")}
+            className={`btn btn-xs ${
+              sortBy === "latest" ? "btn-primary" : "btn-ghost"
+            }`}
+          >
+            Latest
+          </button>
+          <button
+            onClick={() => setSortBy("oldest")}
+            className={`btn btn-xs ${
+              sortBy === "oldest" ? "btn-primary" : "btn-ghost"
+            }`}
+          >
+            Oldest
+          </button>
         </div>
       </div>
       <div className="space-y-6">
@@ -890,16 +899,12 @@ export default function Unit({ loaderData, params }: Route.ComponentProps) {
     unit.reviews.length;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl py-0 mx-auto px-4 sm:py-8">
       <div className="space-y-10">
-        <div className="flex justify-between items-start">
-          <Link to={previousPage} className="btn btn-ghost btn-sm gap-2">
-            <ArrowLeftIcon size={16} /> <span>Back</span>
-          </Link>
-        </div>
         <UnitDetails
           unit={unit}
           user={user?.id}
+          previousPage={previousPage}
           overallRating={overallRating}
           teachingRating={teachingRating}
           contentRating={contentRating}
