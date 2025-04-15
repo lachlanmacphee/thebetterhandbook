@@ -51,8 +51,8 @@ export async function action({ request }: any) {
     const contentRating = formData.get("contentRating");
     const difficultyRating = formData.get("difficultyRating");
     const workloadRating = formData.get("workloadRating");
-    const requiresAttendance = formData.get("attendanceRequired") === "true";
-    const isWamBooster = formData.get("isWamBooster") === "true";
+    const requiresAttendance = formData.get("attendanceRequired") === "on";
+    const isWamBooster = formData.get("isWamBooster") === "on";
 
     // Validate that the review belongs to the user
     const review = await db.review.findUnique({

@@ -132,8 +132,8 @@ export async function action({ request, params }: Route.ActionArgs) {
     const contentRating = formData.get("contentRating");
     const difficultyRating = formData.get("difficultyRating");
     const workloadRating = formData.get("workloadRating");
-    const requiresAttendance = formData.get("attendanceRequired") === "true";
-    const isWamBooster = formData.get("isWamBooster") === "true";
+    const requiresAttendance = formData.get("attendanceRequired") === "on";
+    const isWamBooster = formData.get("isWamBooster") === "on";
 
     // Validate that the review belongs to the user
     const review = await db.review.findUnique({
@@ -361,8 +361,8 @@ export async function action({ request, params }: Route.ActionArgs) {
         contentRating: parseInt(contentRating as string),
         difficultyRating: parseInt(difficultyRating as string),
         workloadRating: parseInt(workloadRating as string),
-        requiresAttendance: formData.get("attendanceRequired") === "true",
-        isWamBooster: formData.get("isWamBooster") === "true",
+        requiresAttendance: formData.get("attendanceRequired") === "on",
+        isWamBooster: formData.get("isWamBooster") === "on",
         unitId,
         userId,
       },
