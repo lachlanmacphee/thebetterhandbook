@@ -1,16 +1,24 @@
-version: "3.8"
-
 services:
-  app:
+  backend:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "80:3000" # Map container port 8080 to host port 8080
+      - "3000:3000"
     environment:
+      - NODE_ENV=${NODE_ENV}
       - DATABASE_URL=${DATABASE_URL}
       - EMAIL_USER=${EMAIL_USER}
       - EMAIL_PASS=${EMAIL_PASS}
       - EMAIL_HOST=${EMAIL_HOST}
       - SESSION_SECRET=${SESSION_SECRET}
       - ENCRYPTION_SECRET=${ENCRYPTION_SECRET}
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./static:/usr/share/nginx/html
+    depends_on:
+      - backend
