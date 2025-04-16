@@ -13,12 +13,19 @@ services:
       - EMAIL_HOST=${EMAIL_HOST}
       - SESSION_SECRET=${SESSION_SECRET}
       - ENCRYPTION_SECRET=${ENCRYPTION_SECRET}
-  nginx:
-    image: nginx:latest
+  caddy:
+    image: caddy:latest
     ports:
       - "80:80"
+      - "443:443"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - ./static:/usr/share/nginx/html
+      - caddy_data:/data
+      - caddy_config:/config
     depends_on:
       - backend
+
+volumes:
+  caddy_data:
+  caddy_config:
