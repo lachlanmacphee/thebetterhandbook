@@ -74,6 +74,9 @@ jobs:
           EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
           SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
           ENCRYPTION_SECRET: ${{ secrets.ENCRYPTION_SECRET }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USERNAME: ${{ secrets.VPS_USERNAME }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
