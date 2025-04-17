@@ -1,18 +1,10 @@
 services:
   backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/lachlanmacphee/thebetterhandbook:latest
     ports:
       - "3000:3000"
-    environment:
-      - NODE_ENV=${NODE_ENV}
-      - DATABASE_URL=${DATABASE_URL}
-      - EMAIL_USER=${EMAIL_USER}
-      - EMAIL_PASS=${EMAIL_PASS}
-      - EMAIL_HOST=${EMAIL_HOST}
-      - SESSION_SECRET=${SESSION_SECRET}
-      - ENCRYPTION_SECRET=${ENCRYPTION_SECRET}
+    env_file:
+      - .env
   caddy:
     image: caddy:latest
     ports:
