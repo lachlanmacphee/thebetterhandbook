@@ -4,7 +4,7 @@ services:
     # this is for github actions and a vps
     image: ghcr.io/lachlanmacphee/thebetterhandbook:sha-${GITHUB_SHA}
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     networks:
       - network
     env_file:
@@ -18,7 +18,10 @@ services:
     networks:
       - network
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - type: bind
+        source: ./Caddyfile
+        target: /etc/caddy/Caddyfile
+        read_only: true
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
