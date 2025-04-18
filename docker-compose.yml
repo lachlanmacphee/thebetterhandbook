@@ -5,13 +5,18 @@ services:
     image: ghcr.io/lachlanmacphee/thebetterhandbook:sha-${GITHUB_SHA}
     ports:
       - "3000:3000"
+    networks:
+      - network
     env_file:
       - .env
+
   caddy:
     image: caddy:latest
     ports:
       - "80:80"
       - "443:443"
+    networks:
+      - network
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
@@ -22,3 +27,7 @@ services:
 volumes:
   caddy_data:
   caddy_config:
+
+networks:
+  network:
+    driver: bridge
