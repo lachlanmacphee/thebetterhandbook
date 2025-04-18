@@ -1,6 +1,8 @@
 services:
   backend:
-    image: ghcr.io/lachlanmacphee/thebetterhandbook:latest
+    # swap sha-${GITHUB_SHA} to latest to deploy elsewhere
+    # this is for github actions and a vps
+    image: ghcr.io/lachlanmacphee/thebetterhandbook:sha-${GITHUB_SHA}
     ports:
       - "3000:3000"
     env_file:
