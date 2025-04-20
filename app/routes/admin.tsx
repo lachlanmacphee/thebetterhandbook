@@ -119,6 +119,26 @@ export async function action({ request }: any) {
     return data({ success: true });
   }
 
+  if (intent === "handle-addition") {
+    const id = parseInt(formData.get("id") as string);
+    const action = formData.get("action") as "approve" | "reject";
+    const addition = await db.unitAdditionRequest.findUnique({
+      where: { id },
+    });
+
+    if (!addition) {
+      return data({ error: "Addition request not found" }, { status: 404 });
+    }
+
+    if (action === "reject") {
+      await db.unitAdditionRequest.delete({
+        where: { id },
+      });
+    }
+
+    return data({ success: true });
+  }
+
   return null;
 }
 
