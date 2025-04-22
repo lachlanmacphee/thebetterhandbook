@@ -1,3 +1,0 @@
-tbh.lachlanmacphee.com {
-    reverse_proxy backend:3000
-}
