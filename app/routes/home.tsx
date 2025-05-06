@@ -127,7 +127,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                         {unit.semesters.map((semester) => (
                           <span
                             key={semester.id}
-                            className="badge badge-secondary"
+                            className="badge badge-secondary h-min"
                           >
                             {semester.semester.name}
                           </span>
