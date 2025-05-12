@@ -22,6 +22,7 @@ See the [About page](https://tbh.lachlanmacphee.com/about) for details.
 - [x] Fix bug with attendance required checkbox
 - [ ] Toast popups after any submission of a modal, review, etc
 - [ ] Improve the metrics around how much a unit requires on-campus attendance
+- [ ] Back button on login page
 
 ## Future Features
 
@@ -32,6 +33,10 @@ It'd be really nice to have a pre/co requisites visualisation like MonSTAR has, 
 ### Course Maps
 
 MonPlan already has this functionality and I don't see any particular reason to duplicate work unless there is a core feature that's missing or major improvements to be made. Will have to investigate further whether having this would be useful or not.
+
+### SETU
+
+Might be worth incorporating some SETU metrics in.
 
 ## Deployment
 
