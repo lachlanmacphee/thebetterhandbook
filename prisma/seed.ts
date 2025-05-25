@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import processedUnits from "../imports/monash/processed_units.json";
+import processedUnits from "../imports/monash/units.json";
 
 const prisma = new PrismaClient();
 
@@ -11,10 +11,7 @@ async function main() {
       level: unit.level,
       facultyName: unit.school,
       creditPoints: unit.credit_points,
-      offerings: unit.offerings?.map((offering: any) => ({
-        location: offering.location,
-        period: offering.period,
-      })),
+      offerings: unit.offerings,
     }))
     .filter((unit) => unit.offerings?.length > 0);
 
