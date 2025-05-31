@@ -1,25 +1,17 @@
 import { PrismaClient } from "@prisma/client";
-import processedUnits from "../imports/monash/units.json";
+import MonashImporter from "../imports/universities/monash";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  const mappedUnits = Object.values(processedUnits)
-    .map((unit: any) => ({
-      code: unit.code,
-      name: unit.title,
-      level: unit.level,
-      facultyName: unit.school,
-      creditPoints: unit.credit_points,
-      offerings: unit.offerings,
-    }))
-    .filter((unit) => unit.offerings?.length > 0);
+  const monashImporter = new MonashImporter();
+  const units = await monashImporter.getUnits();
 
   // Get all unique values
   const uniqueLocations = new Set<string>();
   const uniquePeriods = new Set<string>();
   const uniqueSchools = new Set<string>();
-  for (const unit of mappedUnits) {
+  for (const unit of units) {
     uniqueSchools.add(unit.facultyName);
     for (const offering of unit.offerings) {
       uniqueLocations.add(offering.location);
@@ -61,20 +53,20 @@ async function main() {
   }
 
   // Upsert units and their relationships
-  for (const unit of mappedUnits) {
+  for (const unit of units) {
     const createdUnit = await prisma.unit.upsert({
       where: { code: unit.code },
       update: {
         name: unit.name,
         level: unit.level,
-        creditPoints: parseInt(unit.creditPoints),
+        creditPoints: unit.creditPoints,
         facultyId: facultyMap[unit.facultyName],
       },
       create: {
         code: unit.code,
         name: unit.name,
         level: unit.level,
-        creditPoints: parseInt(unit.creditPoints),
+        creditPoints: unit.creditPoints,
         facultyId: facultyMap[unit.facultyName],
       },
     });

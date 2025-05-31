@@ -12,4 +12,4 @@
 prisma/dev.db
 
 # Imports
-imports/*/*.json
+imports/**/*.json
