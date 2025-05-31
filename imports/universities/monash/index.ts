@@ -8,12 +8,6 @@ const COURSELOOP_INTER_BATCH_DELAY = 10000;
 const HANDBOOK_API_URL = "https://handbook.monash.edu/_next/data";
 const HANDBOOK_BUILD_ID = "x72Bg6G_Gp9JqA01tHcsD";
 
-type IndexResult = {
-  unitCodes: string[];
-  aos: string[];
-  courses: string[];
-};
-
 export default class MonashImporter extends Importer {
   constructor() {
     super("Monash University");
@@ -48,6 +42,12 @@ export default class MonashImporter extends Importer {
     return units;
   }
 }
+
+type IndexResult = {
+  unitCodes: string[];
+  aos: string[];
+  courses: string[];
+};
 
 async function fetchIndex(): Promise<IndexResult> {
   const pageSize = 100;
