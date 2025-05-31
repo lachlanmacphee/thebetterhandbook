@@ -72,7 +72,6 @@ async function fetchIndex(): Promise<IndexResult> {
         break;
       }
     } catch (error) {
-      console.error(`Error fetching page ${start / pageSize + 1}:`, error);
       throw error;
     }
   }
@@ -114,7 +113,6 @@ async function fetchUnitContent(unitCode: string): Promise<null | ImportUnit> {
     // This likely indicates rate limiting.
     // CourseLoop seems to return a 403 Forbidden
     // status code instead of a 429 Too Many Requests.
-    console.warn(`Rate limited for unit ${unitCode}`);
     await new Promise((resolve) =>
       setTimeout(resolve, COURSELOOP_INTER_BATCH_DELAY)
     );
