@@ -1,5 +1,6 @@
 import { Importer, type ImportUnit } from "imports/importer";
 import pino from "pino";
+import fs from "fs";
 
 const COURSELOOP_API_URL =
   "https://api-ap-southeast-2.prod.courseloop.com/publisher/search-all";
@@ -15,6 +16,13 @@ export default class MonashImporter extends Importer {
   }
 
   async getUnits(): Promise<ImportUnit[]> {
+    if (fs.existsSync(this.unitOutputPath)) {
+      this.logger.info(
+        `Unit data already exists at ${this.unitOutputPath}, skipping import`
+      );
+      return JSON.parse(fs.readFileSync(this.unitOutputPath, "utf-8"));
+    }
+
     this.logger.info("Starting unit import process");
 
     const { unitCodes } = await this.fetchIndex();
@@ -58,6 +66,9 @@ export default class MonashImporter extends Importer {
     this.logger.info(
       `Import process completed: ${units.length} total units imported`
     );
+
+    fs.writeFileSync(this.unitOutputPath, JSON.stringify(units, null, 2));
+    this.logger.info(`Unit data written to ${this.unitOutputPath}`);
     return units;
   }
 
