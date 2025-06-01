@@ -1,10 +1,22 @@
 import { PrismaClient } from "@prisma/client";
 import MonashImporter from "../imports/universities/monash";
-
+import pino from "pino";
 const prisma = new PrismaClient();
 
 async function main() {
-  const monashImporter = new MonashImporter();
+  const logger = pino({
+    level: "info",
+    transport: {
+      target: "pino-pretty",
+      options: {
+        colorize: true,
+        translateTime: "YY-MM-DD HH:mm:ss",
+        ignore: "pid,hostname",
+      },
+    },
+  });
+
+  const monashImporter = new MonashImporter(logger);
   const units = await monashImporter.getUnits();
 
   // Get all unique values
