@@ -182,24 +182,3 @@ type IndexResult = {
   aos: string[];
   courses: string[];
 };
-
-async function main() {
-  const logger = pino({
-    level: "info",
-    transport: {
-      target: "pino-pretty",
-      options: {
-        colorize: true,
-        translateTime: "yyyy-MM-dd HH:mm:ss",
-        ignore: "pid,hostname",
-      },
-    },
-  });
-  const importer = new MonashImporter(logger);
-  await importer.getUnits();
-}
-
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
