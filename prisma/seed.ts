@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import MonashImporter from "../imports/universities/monash";
 import pino from "pino";
+
 const prisma = new PrismaClient();
 
 async function main() {
@@ -10,7 +11,7 @@ async function main() {
       target: "pino-pretty",
       options: {
         colorize: true,
-        translateTime: "YY-MM-DD HH:mm:ss",
+        translateTime: "yyyy-MM-dd HH:mm:ss",
         ignore: "pid,hostname",
       },
     },
