@@ -11,7 +11,7 @@ async function main() {
       target: "pino-pretty",
       options: {
         colorize: true,
-        translateTime: "yyyy-MM-dd HH:mm:ss",
+        translateTime: "SYS:standard",
         ignore: "pid,hostname",
       },
     },
