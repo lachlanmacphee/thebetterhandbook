@@ -32,7 +32,7 @@ export default class MonashImporter extends Importer {
       );
 
       const batchPromises = batch.map(async (unitCode) => {
-        const unitContent = await this.fetchUnitContent(unitCode);
+        const unitContent = await this.fetchUnitContent(unitCode.trim());
         return unitContent;
       });
 
@@ -159,7 +159,7 @@ export default class MonashImporter extends Importer {
         };
 
         this.logger.debug(
-          `Successfully fetched unit: ${unit.code} - ${unit.name}`
+          `Successfully fetched unit: ${unit.code.trim()} - ${unit.name}`
         );
         return unit;
       }
