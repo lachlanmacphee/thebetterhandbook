@@ -1,4 +1,5 @@
 import { Importer, type ImportUnit } from "imports/importer";
+import pino from "pino";
 
 const COURSELOOP_API_URL =
   "https://api-ap-southeast-2.prod.courseloop.com/publisher/search-all";
@@ -9,37 +10,170 @@ const HANDBOOK_API_URL = "https://handbook.monash.edu/_next/data";
 const HANDBOOK_BUILD_ID = "x72Bg6G_Gp9JqA01tHcsD";
 
 export default class MonashImporter extends Importer {
-  constructor() {
-    super("Monash University");
+  constructor(logger: pino.Logger) {
+    super("Monash University", logger);
   }
 
   async getUnits(): Promise<ImportUnit[]> {
-    const { unitCodes } = await fetchIndex();
+    this.logger.info("Starting unit import process");
+
+    const { unitCodes } = await this.fetchIndex();
+    this.logger.info(`Found ${unitCodes.length} unit codes to process`);
 
     const units: ImportUnit[] = [];
+    const totalBatches = Math.ceil(unitCodes.length / COURSELOOP_BATCH_SIZE);
 
     for (let i = 0; i < unitCodes.length; i += COURSELOOP_BATCH_SIZE) {
+      const currentBatch = Math.floor(i / COURSELOOP_BATCH_SIZE) + 1;
       const batch = unitCodes.slice(i, i + COURSELOOP_BATCH_SIZE);
 
+      this.logger.info(
+        `Processing batch ${currentBatch}/${totalBatches} (${batch.length} units)`
+      );
+
       const batchPromises = batch.map(async (unitCode) => {
-        const unitContent = await fetchUnitContent(unitCode);
+        const unitContent = await this.fetchUnitContent(unitCode);
         return unitContent;
       });
 
       const batchResults = await Promise.all(batchPromises);
-      units.push(
-        ...batchResults
-          .filter((unit) => unit !== null)
-          .filter((unit) => unit.offerings.length > 0)
+      const validUnits = batchResults
+        .filter((unit) => unit !== null)
+        .filter((unit) => unit.offerings.length > 0);
+
+      units.push(...validUnits);
+
+      this.logger.info(
+        `Batch ${currentBatch} completed: ${validUnits.length}/${batch.length} valid units found`
       );
 
       if (i + COURSELOOP_BATCH_SIZE < unitCodes.length) {
+        this.logger.debug(
+          `Waiting ${COURSELOOP_INTER_BATCH_DELAY}ms before next batch to respect rate limits`
+        );
         await new Promise((resolve) =>
           setTimeout(resolve, COURSELOOP_INTER_BATCH_DELAY)
         );
       }
     }
+
+    this.logger.info(
+      `Import process completed: ${units.length} total units imported`
+    );
     return units;
+  }
+
+  private async fetchIndex(): Promise<IndexResult> {
+    this.logger.info("Fetching unit index from CourseLoop API");
+    const pageSize = 100;
+    let start = 0;
+    let results: any[] = [];
+
+    while (true) {
+      const url = `${COURSELOOP_API_URL}?from=${start}&query=&searchType=advanced&siteId=${COURSELOOP_SITE_ID}&siteYear=current&size=${pageSize}`;
+
+      try {
+        this.logger.debug(`Fetching page starting at ${start}`);
+        const response = await fetch(url);
+        const pageData = await response.json();
+
+        if (pageData?.data?.results && Array.isArray(pageData.data.results)) {
+          results = [...results, ...pageData.data.results];
+        }
+
+        const total = pageData?.data?.total || 0;
+        start += pageSize;
+
+        if (start >= total) {
+          break;
+        }
+      } catch (error) {
+        this.logger.error({ error }, "Failed to fetch index page");
+        throw error;
+      }
+    }
+
+    const index: IndexResult = results.reduce(
+      (acc, result) => {
+        if (result && typeof result === "object") {
+          const uri = result.uri;
+          if (typeof uri === "string") {
+            const parts = uri.split("/");
+            const contentType = parts[2];
+            const code = result.code;
+
+            if (code && typeof code === "string") {
+              if (contentType === "units") {
+                acc.unitCodes.push(code.trim());
+              } else if (contentType === "aos") {
+                acc.aos.push(code.trim());
+              } else if (contentType === "courses") {
+                acc.courses.push(code.trim());
+              }
+            }
+          }
+        }
+        return acc;
+      },
+      { unitCodes: [], aos: [], courses: [] }
+    );
+
+    this.logger.info(
+      `Index fetch completed: ${index.unitCodes.length} units, ${index.aos.length} AOS, ${index.courses.length} courses`
+    );
+    return index;
+  }
+
+  private async fetchUnitContent(unitCode: string): Promise<null | ImportUnit> {
+    const url = `${HANDBOOK_API_URL}/${HANDBOOK_BUILD_ID}/current/units/${unitCode}.json?year=current&catchAll=current&catchAll=units&catchAll=${unitCode}`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data?.status === 403) {
+        // This likely indicates rate limiting.
+        // CourseLoop seems to return a 403 Forbidden
+        // status code instead of a 429 Too Many Requests.
+        this.logger.warn(
+          `Rate limited for unit ${unitCode}, retrying after delay`
+        );
+        await new Promise((resolve) =>
+          setTimeout(resolve, COURSELOOP_INTER_BATCH_DELAY)
+        );
+        return this.fetchUnitContent(unitCode);
+      }
+
+      const unitData = data?.pageProps?.pageContent;
+
+      if (unitData) {
+        const unit = {
+          code: unitData.code.trim(),
+          name: unitData.title.trim(),
+          facultyName: unitData.school.value.trim(),
+          level: parseInt(unitData.level.value) - 1,
+          offerings: unitData.unit_offering?.map((offering: any) => ({
+            location: offering.location.value.trim(),
+            period: offering.teaching_period.value.trim(),
+          })),
+          creditPoints: parseInt(unitData.credit_points),
+        };
+
+        this.logger.debug(
+          `Successfully fetched unit: ${unit.code} - ${unit.name}`
+        );
+        return unit;
+      }
+
+      this.logger.warn(`No unit data found for ${unitCode}`);
+      return null;
+    } catch (error) {
+      this.logger.error(
+        { error, unitCode },
+        `Failed to fetch unit content for ${unitCode}`
+      );
+      return null;
+    }
   }
 }
 
@@ -49,90 +183,23 @@ type IndexResult = {
   courses: string[];
 };
 
-async function fetchIndex(): Promise<IndexResult> {
-  const pageSize = 100;
-  let start = 0;
-  let results: any[] = [];
-
-  while (true) {
-    const url = `${COURSELOOP_API_URL}?from=${start}&query=&searchType=advanced&siteId=${COURSELOOP_SITE_ID}&siteYear=current&size=${pageSize}`;
-
-    try {
-      const response = await fetch(url);
-      const pageData = await response.json();
-
-      if (pageData?.data?.results && Array.isArray(pageData.data.results)) {
-        results = [...results, ...pageData.data.results];
-      }
-
-      const total = pageData?.data?.total || 0;
-      start += pageSize;
-
-      if (start >= total) {
-        break;
-      }
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  const index: IndexResult = results.reduce(
-    (result) => {
-      if (result && typeof result === "object") {
-        const uri = result.uri;
-        if (typeof uri === "string") {
-          const parts = uri.split("/");
-          const contentType = parts[2];
-          const code = result.code;
-
-          if (code && typeof code === "string") {
-            if (contentType === "units") {
-              result.unitCodes.push(code.trim());
-            } else if (contentType === "aos") {
-              result.aos.push(code.trim());
-            } else if (contentType === "courses") {
-              result.courses.push(code.trim());
-            }
-          }
-        }
-      }
+async function main() {
+  const logger = pino({
+    level: "info",
+    transport: {
+      target: "pino-pretty",
+      options: {
+        colorize: true,
+        translateTime: "yyyy-MM-dd HH:mm:ss",
+        ignore: "pid,hostname",
+      },
     },
-    { unitCodes: [], aos: [], courses: [] }
-  );
-
-  return index;
+  });
+  const importer = new MonashImporter(logger);
+  await importer.getUnits();
 }
 
-async function fetchUnitContent(unitCode: string): Promise<null | ImportUnit> {
-  const url = `${HANDBOOK_API_URL}/${HANDBOOK_BUILD_ID}/current/units/${unitCode}.json?year=current&catchAll=current&catchAll=units&catchAll=${unitCode}`;
-  const response = await fetch(url);
-
-  const data = await response.json();
-
-  if (data?.status === 403) {
-    // This likely indicates rate limiting.
-    // CourseLoop seems to return a 403 Forbidden
-    // status code instead of a 429 Too Many Requests.
-    await new Promise((resolve) =>
-      setTimeout(resolve, COURSELOOP_INTER_BATCH_DELAY)
-    );
-    return fetchUnitContent(unitCode);
-  }
-
-  const unitData = data?.pageProps?.pageContent;
-
-  if (unitData)
-    return {
-      code: unitData.code.trim(),
-      name: unitData.title.trim(),
-      facultyName: unitData.school.value.trim(),
-      level: parseInt(unitData.level.value) - 1,
-      offerings: unitData.unit_offering?.map((offering: any) => ({
-        location: offering.location.value.trim(),
-        period: offering.teaching_period.value.trim(),
-      })),
-      creditPoints: parseInt(unitData.credit_points),
-    };
-
-  return null;
-}
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});
