@@ -37,9 +37,7 @@ export default class MonashImporter extends Importer {
       });
 
       const batchResults = await Promise.all(batchPromises);
-      const validUnits = batchResults
-        .filter((unit) => unit !== null)
-        .filter((unit) => unit.offerings.length > 0);
+      const validUnits = batchResults.filter((unit) => unit !== null);
 
       units.push(...validUnits);
 
@@ -152,10 +150,11 @@ export default class MonashImporter extends Importer {
           name: unitData.title.trim(),
           facultyName: unitData.school.value.trim(),
           level: parseInt(unitData.level.value) - 1,
-          offerings: unitData.unit_offering?.map((offering: any) => ({
-            location: offering.location.value.trim(),
-            period: offering.teaching_period.value.trim(),
-          })),
+          offerings:
+            unitData.unit_offering?.map((offering: any) => ({
+              location: offering.location.value.trim(),
+              period: offering.teaching_period.value.trim(),
+            })) || [],
           creditPoints: parseInt(unitData.credit_points),
         };
 
