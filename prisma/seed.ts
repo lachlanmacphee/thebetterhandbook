@@ -71,32 +71,27 @@ async function main() {
       },
     });
 
-    // Update unit-semester relationships
+    // First, delete all the existing semester and campus relationships
+    // so we can re-create them fresh. This makes it easy to remove
+    // any old campuses/semesters for this unit that no longer exist
+    // in the new handbook data.
+    await prisma.unitSemester.deleteMany({
+      where: { unitId: createdUnit.id },
+    });
+    await prisma.unitCampus.deleteMany({
+      where: { unitId: createdUnit.id },
+    });
+
     for (const offering of unit.offerings) {
-      await prisma.unitSemester.upsert({
-        where: {
-          unitId_semesterId: {
-            unitId: createdUnit.id,
-            semesterId: semesterMap[offering.period],
-          },
-        },
-        update: {},
-        create: {
+      await prisma.unitSemester.create({
+        data: {
           unitId: createdUnit.id,
           semesterId: semesterMap[offering.period],
         },
       });
 
-      // Update unit-campus relationships
-      await prisma.unitCampus.upsert({
-        where: {
-          unitId_campusId: {
-            unitId: createdUnit.id,
-            campusId: campusMap[offering.location],
-          },
-        },
-        update: {},
-        create: {
+      await prisma.unitCampus.create({
+        data: {
           unitId: createdUnit.id,
           campusId: campusMap[offering.location],
         },
