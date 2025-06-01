@@ -95,18 +95,28 @@ async function main() {
       where: { unitId: createdUnit.id },
     });
 
+    const uniqueSemesters = new Set<number>();
+    const uniqueCampuses = new Set<number>();
+
     for (const offering of unit.offerings) {
+      uniqueSemesters.add(semesterMap[offering.period]);
+      uniqueCampuses.add(campusMap[offering.location]);
+    }
+
+    for (const semesterId of uniqueSemesters) {
       await prisma.unitSemester.create({
         data: {
           unitId: createdUnit.id,
-          semesterId: semesterMap[offering.period],
+          semesterId: semesterId,
         },
       });
+    }
 
+    for (const campusId of uniqueCampuses) {
       await prisma.unitCampus.create({
         data: {
           unitId: createdUnit.id,
-          campusId: campusMap[offering.location],
+          campusId: campusId,
         },
       });
     }
