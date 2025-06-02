@@ -433,7 +433,7 @@ export default function Search({ loaderData }: Route.ComponentProps) {
                       {unit.semesters.map((us) => (
                         <span
                           key={us.semester.id}
-                          className="badge badge-secondary"
+                          className="badge badge-secondary h-min"
                         >
                           {us.semester.name}
                         </span>

@@ -533,7 +533,7 @@ function UnitDetails({
               {unit.semesters.map((semester: any) => (
                 <span
                   key={semester.semester.id}
-                  className="badge badge-secondary"
+                  className="badge badge-secondary h-min"
                 >
                   {semester.semester.name}
                 </span>
