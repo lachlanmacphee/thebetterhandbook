@@ -156,17 +156,25 @@ export default class MonashImporter extends Importer {
       const unitData = data?.pageProps?.pageContent;
 
       if (unitData) {
+        // Parse level with fallback
+        const levelValue = parseInt(unitData.level?.value);
+        const level = isNaN(levelValue) ? 0 : levelValue - 1;
+
+        // Parse credit points with fallback
+        const creditPoints = parseInt(unitData.credit_points);
+        const validCreditPoints = isNaN(creditPoints) ? 6 : creditPoints;
+
         const unit = {
           code: unitData.code.trim(),
           name: unitData.title.trim(),
-          facultyName: unitData.school.value.trim(),
-          level: parseInt(unitData.level.value) - 1,
+          facultyName: unitData.school?.value?.trim() || "Unknown",
+          level: level,
           offerings:
             unitData.unit_offering?.map((offering: any) => ({
-              location: offering.location.value.trim(),
-              period: offering.teaching_period.value.trim(),
+              location: offering.location?.value?.trim() || "Unknown",
+              period: offering.teaching_period?.value?.trim() || "Unknown",
             })) || [],
-          creditPoints: parseInt(unitData.credit_points),
+          creditPoints: validCreditPoints,
         };
 
         this.logger.debug(
