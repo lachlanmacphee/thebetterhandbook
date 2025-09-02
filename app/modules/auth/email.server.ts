@@ -7,7 +7,7 @@ type SendEmailBody = {
   text?: string;
 };
 
-export async function sendEmail(body: SendEmailBody) {
+export function sendEmail(body: SendEmailBody) {
   const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     secure: true,
@@ -17,16 +17,11 @@ export async function sendEmail(body: SendEmailBody) {
     },
   });
 
-  // Verify SMTP connection configuration
-  await transporter.verify();
-
-  const email = await transporter.sendMail({
+  transporter.sendMail({
     from: `"The Better Handbook" <${process.env.EMAIL_USER}>`,
     to: body.to,
     subject: body.subject,
     html: body.html,
     text: body.text,
   });
-
-  return email;
 }

@@ -35,7 +35,7 @@ authenticator.use(
           );
         }
 
-        await sendEmail({
+        sendEmail({
           to: email,
           subject: "Magic Link",
           html: `
