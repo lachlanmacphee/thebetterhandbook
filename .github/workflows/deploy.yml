@@ -55,5 +55,5 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             docker compose stop
-            docker compose pull
+            docker compose pull tbh
             docker compose up -d
