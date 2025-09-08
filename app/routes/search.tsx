@@ -240,7 +240,7 @@ export default function Search({ loaderData }: Route.ComponentProps) {
                     name="code"
                     defaultValue={filters.code}
                     placeholder="e.g. FIT1008"
-                    className="input input-bordered input-sm md:input-md w-full"
+                    className="input input-sm md:input-md w-full"
                   />
                 </div>
 
@@ -253,7 +253,7 @@ export default function Search({ loaderData }: Route.ComponentProps) {
                     name="name"
                     defaultValue={filters.name}
                     placeholder="e.g. Introduction to CS"
-                    className="input input-bordered input-sm md:input-md w-full"
+                    className="input input-sm md:input-md w-full"
                   />
                 </div>
 
@@ -264,7 +264,7 @@ export default function Search({ loaderData }: Route.ComponentProps) {
                   <select
                     name="faculty"
                     defaultValue={filters.faculty}
-                    className="select select-bordered select-sm md:select-md w-full"
+                    className="select select-sm md:select-md w-full"
                   >
                     <option value="">All Faculties</option>
                     {faculties.map((faculty) => (
@@ -282,7 +282,7 @@ export default function Search({ loaderData }: Route.ComponentProps) {
                   <select
                     name="level"
                     defaultValue={filters.level}
-                    className="select select-bordered select-sm md:select-md w-full"
+                    className="select select-sm md:select-md w-full"
                   >
                     <option value="">All Levels</option>
                     {[1, 2, 3, 4, 5].map((level) => (
@@ -300,7 +300,7 @@ export default function Search({ loaderData }: Route.ComponentProps) {
                   <select
                     name="creditPoints"
                     defaultValue={filters.creditPoints}
-                    className="select select-bordered select-sm md:select-md w-full"
+                    className="select select-sm md:select-md w-full"
                   >
                     <option value="">Any Credit Points</option>
                     {[6, 12].map((points) => (
@@ -318,7 +318,7 @@ export default function Search({ loaderData }: Route.ComponentProps) {
                   <select
                     name="campus"
                     defaultValue={filters.campus}
-                    className="select select-bordered select-sm md:select-md w-full"
+                    className="select select-sm md:select-md w-full"
                   >
                     <option value="">All Campuses</option>
                     {campuses.map((campus) => (
@@ -336,7 +336,7 @@ export default function Search({ loaderData }: Route.ComponentProps) {
                   <select
                     name="semester"
                     defaultValue={filters.semester}
-                    className="select select-bordered select-sm md:select-md w-full"
+                    className="select select-sm md:select-md w-full"
                   >
                     <option value="">All Semesters</option>
                     {semesters.map((semester) => (
@@ -354,7 +354,7 @@ export default function Search({ loaderData }: Route.ComponentProps) {
                   <select
                     name="sortBy"
                     defaultValue={filters.sortBy}
-                    className="select select-bordered select-sm md:select-md w-full"
+                    className="select select-sm md:select-md w-full"
                   >
                     <option value="code">Unit Code</option>
                     <option value="name">Unit Name</option>
@@ -370,7 +370,7 @@ export default function Search({ loaderData }: Route.ComponentProps) {
                   <select
                     name="pageSize"
                     defaultValue={filters.pageSize}
-                    className="select select-bordered select-sm md:select-md w-full"
+                    className="select select-sm md:select-md w-full"
                   >
                     {ALLOWED_PAGE_SIZES.map((size) => (
                       <option key={size} value={size}>

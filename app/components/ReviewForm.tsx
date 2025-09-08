@@ -38,7 +38,7 @@ export default function ReviewForm({
             name="title"
             type="text"
             defaultValue={review?.title}
-            className="input input-bordered w-full"
+            className="input w-full"
             required
             placeholder="Enter a title for your review"
           />
@@ -49,7 +49,7 @@ export default function ReviewForm({
           <textarea
             name="description"
             defaultValue={review?.text}
-            className="textarea textarea-bordered w-full min-h-[160px]"
+            className="textarea w-full min-h-[160px]"
             required
             placeholder="Write your review here"
           ></textarea>
@@ -65,7 +65,7 @@ export default function ReviewForm({
             defaultValue={review?.yearCompleted}
             min="2000"
             max={new Date().getFullYear()}
-            className="input input-bordered w-full"
+            className="input w-full"
             required
             placeholder="Enter the year you completed this unit"
           />
@@ -205,9 +205,8 @@ export default function ReviewForm({
         )}
         <button
           type="submit"
-          className={`btn btn-primary ${
-            !isEditing ? "btn-lg w-full md:w-auto" : ""
-          }`}
+          className={`btn btn-primary ${!isEditing ? "btn-lg w-full md:w-auto" : ""
+            }`}
           disabled={fetcher.state !== "idle"}
         >
           {isEditing

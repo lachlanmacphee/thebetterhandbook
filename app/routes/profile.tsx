@@ -190,7 +190,7 @@ export default function Profile() {
                       type="text"
                       name="name"
                       defaultValue={user.name || ""}
-                      className="input input-bordered flex-1"
+                      className="input flex-1"
                       placeholder="Enter your name"
                       required
                     />

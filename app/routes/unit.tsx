@@ -449,7 +449,7 @@ function SuggestChangesForm({
             </legend>
             <select
               name="field"
-              className="select select-bordered w-full"
+              className="select w-full"
               required
             >
               <option value="">Select a field</option>
@@ -463,7 +463,7 @@ function SuggestChangesForm({
             <legend className="fieldset-legend">Description of change</legend>
             <textarea
               name="reason"
-              className="textarea textarea-bordered h-24 w-full"
+              className="textarea h-24 w-full"
               required
               placeholder="Describe what needs to be adjusted - such as the semester that should be added/removed or what the new unit name should be"
             ></textarea>

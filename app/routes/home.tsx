@@ -77,7 +77,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                   type="text"
                   name="unitCode"
                   placeholder="Enter a unit code (e.g. FIT1008)"
-                  className="input input-bordered flex-1"
+                  className="input flex-1"
                   required
                 />
                 <button type="submit" className="btn btn-primary">
