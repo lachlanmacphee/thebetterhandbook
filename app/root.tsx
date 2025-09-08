@@ -7,6 +7,7 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useLocation,
 } from "react-router";
 
 import type { Route } from "./+types/root";
@@ -19,7 +20,7 @@ import {
 } from "lucide-react";
 import { getSession } from "~/modules/auth/session.server";
 
-export function meta({}: Route.MetaArgs) {
+export function meta({ }: Route.MetaArgs) {
   return [
     { title: "The Better Handbook" },
     {
@@ -53,6 +54,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { user, role } = useLoaderData<typeof loader>();
+  const location = useLocation();
 
   return (
     <html lang="en">
@@ -90,12 +92,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
                       <span className="ml-2 hidden sm:block">Sign Out</span>
                     </Link>
                   </>
-                ) : (
-                  <Link to="/auth/login" className="btn btn-primary btn-sm">
-                    <LogInIcon className="w-4 h-4" />
-                    <span className="ml-2 hidden sm:block">Sign In</span>
-                  </Link>
-                )}
+                ) : location.pathname !== "/auth/login" && (<Link to="/auth/login" className="btn btn-primary btn-sm">
+                  <LogInIcon className="w-4 h-4" />
+                  <span className="ml-2 hidden sm:block">Sign In</span>
+                </Link>
+                )
+                }
               </div>
             </nav>
           </div>

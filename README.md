@@ -22,7 +22,7 @@ See the [About page](https://tbh.lachlanmacphee.com/about) for details.
 - [x] Fix bug with attendance required checkbox
 - [ ] Toast popups after any submission of a modal, review, etc
 - [ ] Improve the metrics around how much a unit requires on-campus attendance
-- [ ] Back button on login page
+- [x] Back button on login page
 
 ## Future Features
 

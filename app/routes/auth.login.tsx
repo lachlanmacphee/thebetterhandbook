@@ -1,5 +1,5 @@
 import { redirect } from "react-router";
-import { useFetcher } from "react-router";
+import { useFetcher, useNavigate } from "react-router";
 import { getSession } from "~/modules/auth/session.server";
 import { authenticator } from "~/modules/auth/auth.server";
 import type { Route } from "../+types/root";
@@ -35,9 +35,14 @@ export async function action({ request }: Route.ActionArgs) {
 
 export default function Route() {
   const fetcher = useFetcher();
+  const navigate = useNavigate();
   const isSubmitting = fetcher.state !== "idle" || fetcher.formData != null;
   const errors = fetcher.data?.error;
   const [emailError, setEmailError] = useState("");
+
+  const handleBack = () => {
+    navigate(-1);
+  };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -47,7 +52,7 @@ export default function Route() {
 
     if (!pattern.test(email)) {
       setEmailError(
-        "Please use your Monash student email (example@student.monash.edu)"
+        "Please use your Monash student email (abcd0001@student.monash.edu)"
       );
       return;
     }
@@ -59,15 +64,15 @@ export default function Route() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 flex-grow flex items-center justify-center">
       <div className="card bg-base-100 shadow-lg rounded-xl overflow-hidden w-full max-w-md">
-        <div className="card-body gap-8 p-6 md:p-8">
-          <div className="flex flex-col items-center gap-4">
+        <div className="card-body p-6 md:p-8">
+          <div className="flex flex-col items-center gap-4 mb-8">
             <span className="text-6xl animate-bounce transition duration-200 hover:-translate-y-1">
               👋
             </span>
             <div className="text-center">
               <h1 className="text-2xl font-semibold mb-2">Welcome back!</h1>
               <p className="text-base-content/70">
-                Sign in with your Monash email
+                Sign in with your Monash student email
               </p>
             </div>
           </div>
@@ -83,7 +88,7 @@ export default function Route() {
               <input
                 type="email"
                 name="email"
-                placeholder="Enter your Monash student email"
+                placeholder="abcd0001@student.monash.edu"
                 className={`input w-full ${emailError ? "border-red-400" : ""}`}
                 required
                 disabled={isSubmitting}
@@ -100,6 +105,14 @@ export default function Route() {
               {isSubmitting ? "Sending..." : "Continue"}
             </button>
           </fetcher.Form>
+
+          <button
+            onClick={handleBack}
+            className="btn btn-error w-full"
+            aria-label="Go back"
+          >
+            Go back
+          </button>
         </div>
       </div>
     </div>
