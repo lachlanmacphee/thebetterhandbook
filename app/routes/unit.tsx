@@ -94,11 +94,11 @@ export async function loader({ params, request }: Route.LoaderArgs) {
 
   const hasReviewed = user
     ? (await db.review.findFirst({
-        where: {
-          unitId: unit.id,
-          userId: user?.id,
-        },
-      })) !== null
+      where: {
+        unitId: unit.id,
+        userId: user?.id,
+      },
+    })) !== null
     : false;
 
   return {
@@ -683,9 +683,8 @@ function Review({ review, user }: { review: any; user?: number }) {
                     name="reaction"
                     value="like"
                     disabled={fetcher.state !== "idle"}
-                    className={`btn btn-sm gap-2 ${
-                      userReaction?.isLike ? "btn-primary" : "btn-ghost"
-                    }`}
+                    className={`btn btn-sm gap-2 ${userReaction?.isLike ? "btn-primary" : "btn-ghost"
+                      }`}
                   >
                     <ThumbsUpIcon className="w-4 h-4" />
                     <span>{likes}</span>
@@ -695,11 +694,10 @@ function Review({ review, user }: { review: any; user?: number }) {
                     name="reaction"
                     value="dislike"
                     disabled={fetcher.state !== "idle"}
-                    className={`btn btn-sm gap-2 ${
-                      userReaction?.isLike === false
-                        ? "btn-primary"
-                        : "btn-ghost"
-                    }`}
+                    className={`btn btn-sm gap-2 ${userReaction?.isLike === false
+                      ? "btn-primary"
+                      : "btn-ghost"
+                      }`}
                   >
                     <ThumbsDownIcon className="w-4 h-4" />
                     <span>{dislikes}</span>
@@ -776,25 +774,22 @@ function ReviewsList({ reviews, user }: { reviews: any[]; user?: number }) {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setSortBy("helpful")}
-            className={`btn btn-xs ${
-              sortBy === "helpful" ? "btn-primary" : "btn-ghost"
-            }`}
+            className={`btn btn-xs ${sortBy === "helpful" ? "btn-primary" : "btn-ghost"
+              }`}
           >
             Most Helpful
           </button>
           <button
             onClick={() => setSortBy("latest")}
-            className={`btn btn-xs ${
-              sortBy === "latest" ? "btn-primary" : "btn-ghost"
-            }`}
+            className={`btn btn-xs ${sortBy === "latest" ? "btn-primary" : "btn-ghost"
+              }`}
           >
             Latest
           </button>
           <button
             onClick={() => setSortBy("oldest")}
-            className={`btn btn-xs ${
-              sortBy === "oldest" ? "btn-primary" : "btn-ghost"
-            }`}
+            className={`btn btn-xs ${sortBy === "oldest" ? "btn-primary" : "btn-ghost"
+              }`}
           >
             Oldest
           </button>

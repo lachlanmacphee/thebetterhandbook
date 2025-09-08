@@ -4,6 +4,7 @@ import db from "~/modules/db/db.server";
 import { getSession } from "~/modules/auth/session.server";
 import { Form } from "react-router";
 import { Prisma } from "@prisma/client";
+import { ChevronLeftIcon, ChevronRightIcon, ChevronsLeftIcon, ChevronsRightIcon } from "lucide-react";
 
 // Default and allowed page sizes
 const DEFAULT_PAGE_SIZE = 12;
@@ -50,21 +51,21 @@ export async function loader({ request }: Route.LoaderArgs) {
       creditPoints ? { creditPoints: parseInt(creditPoints) } : {},
       campus
         ? {
-            campuses: {
-              some: {
-                campusId: parseInt(campus),
-              },
+          campuses: {
+            some: {
+              campusId: parseInt(campus),
             },
-          }
+          },
+        }
         : {},
       semester
         ? {
-            semesters: {
-              some: {
-                semesterId: parseInt(semester),
-              },
+          semesters: {
+            some: {
+              semesterId: parseInt(semester),
             },
-          }
+          },
+        }
         : {},
     ],
   };
@@ -83,10 +84,9 @@ export async function loader({ request }: Route.LoaderArgs) {
       FROM "Unit" u
       LEFT JOIN "Review" r ON u.id = r."unitId"
       GROUP BY u.id
-      ORDER BY ${
-        sortBy === "rating"
-          ? Prisma.sql`"avgRating" DESC`
-          : Prisma.sql`"reviewCount" DESC`
+      ORDER BY ${sortBy === "rating"
+        ? Prisma.sql`"avgRating" DESC`
+        : Prisma.sql`"reviewCount" DESC`
       }
       OFFSET ${(page - 1) * validPageSize}
       LIMIT ${validPageSize}
@@ -382,7 +382,7 @@ export default function Search({ loaderData }: Route.ComponentProps) {
               </div>
 
               <div className="flex justify-end gap-4">
-                <Link to="/search" reloadDocument className="btn btn-ghost">
+                <Link to="/search" reloadDocument className="btn btn-warning">
                   Clear
                 </Link>
                 <button type="submit" className="btn btn-primary">
@@ -449,19 +449,17 @@ export default function Search({ loaderData }: Route.ComponentProps) {
             <div className="flex justify-center items-center gap-2 mt-8">
               <Link
                 to={createPageUrl(1)}
-                className={`btn btn-sm ${
-                  currentPage === 1 ? "btn-disabled" : ""
-                }`}
+                className={`btn btn-secondary btn-sm ${currentPage === 1 ? "btn-disabled" : ""
+                  }`}
               >
-                «
+                <ChevronsLeftIcon className="size-4" />
               </Link>
               <Link
                 to={createPageUrl(currentPage - 1)}
-                className={`btn btn-sm ${
-                  currentPage === 1 ? "btn-disabled" : ""
-                }`}
+                className={`btn btn-primary btn-sm ${currentPage === 1 ? "btn-disabled" : ""
+                  }`}
               >
-                ‹
+                <ChevronLeftIcon className="size-4" />
               </Link>
 
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -480,9 +478,8 @@ export default function Search({ loaderData }: Route.ComponentProps) {
                   <Link
                     key={pageNum}
                     to={createPageUrl(pageNum)}
-                    className={`btn btn-sm ${
-                      currentPage === pageNum ? "btn-active" : ""
-                    }`}
+                    className={`btn btn-sm ${currentPage === pageNum ? "btn-accent" : ""
+                      }`}
                   >
                     {pageNum}
                   </Link>
@@ -491,19 +488,17 @@ export default function Search({ loaderData }: Route.ComponentProps) {
 
               <Link
                 to={createPageUrl(currentPage + 1)}
-                className={`btn btn-sm ${
-                  currentPage === totalPages ? "btn-disabled" : ""
-                }`}
+                className={`btn btn-primary btn-sm ${currentPage === totalPages ? "btn-disabled" : ""
+                  }`}
               >
-                ›
+                <ChevronRightIcon className="size-4" />
               </Link>
               <Link
                 to={createPageUrl(totalPages)}
-                className={`btn btn-sm ${
-                  currentPage === totalPages ? "btn-disabled" : ""
-                }`}
+                className={`btn btn-secondary btn-sm ${currentPage === totalPages ? "btn-disabled" : ""
+                  }`}
               >
-                »
+                <ChevronsRightIcon className="size-4" />
               </Link>
             </div>
           )}

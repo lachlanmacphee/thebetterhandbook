@@ -53,7 +53,9 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const { user, role } = useLoaderData<typeof loader>();
+  const data = useLoaderData<typeof loader>();
+  const user = data?.user;
+  const role = data?.role;
   const location = useLocation();
 
   return (
