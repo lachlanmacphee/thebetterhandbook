@@ -553,7 +553,13 @@ function UnitDetails({
       </div>
 
       {user && (
-        <footer style={{ display: "flex", justifyContent: "space-between" }}>
+        <footer
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: "0.5rem",
+          }}
+        >
           <Link to={previousPage} role="button" className="secondary">
             Back
           </Link>
