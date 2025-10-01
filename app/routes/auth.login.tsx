@@ -62,59 +62,46 @@ export default function Route() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 flex-grow flex items-center justify-center">
-      <div className="card bg-base-100 shadow-lg rounded-xl overflow-hidden w-full max-w-md">
-        <div className="card-body p-6 md:p-8">
-          <div className="flex flex-col items-center gap-4 mb-8">
-            <span className="text-6xl animate-bounce transition duration-200 hover:-translate-y-1">
-              👋
-            </span>
-            <div className="text-center">
-              <h1 className="text-2xl font-semibold mb-2">Welcome back!</h1>
-              <p className="text-base-content/70">
-                Sign in with your Monash student email
-              </p>
-            </div>
-          </div>
-
-          <fetcher.Form
-            method="POST"
-            className="space-y-6"
-            onSubmit={handleSubmit}
-          >
-            {errors && <p className="text-red-500 text-center">{errors}</p>}
-            <fieldset className="form-control space-y-2">
-              <legend className="sr-only">Email Address</legend>
-              <input
-                type="email"
-                name="email"
-                placeholder="abcd0001@student.monash.edu"
-                className={`input w-full ${emailError ? "border-red-400" : ""}`}
-                required
-                disabled={isSubmitting}
-              />
-              {emailError && (
-                <p className="text-sm text-red-500">{emailError}</p>
-              )}
-            </fieldset>
-            <button
-              type="submit"
-              className="btn btn-primary w-full hover:scale-[1.02] transition-transform duration-200"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Sending..." : "Continue"}
-            </button>
-          </fetcher.Form>
-
+    <>
+      <h1 className="text-2xl font-semibold mb-2">Sign In</h1>
+      <fetcher.Form
+        method="POST"
+        className="space-y-6"
+        onSubmit={handleSubmit}
+      >
+        <label>
+          Email Address
+          <input
+            type="email"
+            name="email"
+            placeholder="abcd0001@student.monash.edu"
+            required
+            autoComplete="email"
+            aria-label="Email"
+            aria-describedby="email-helper"
+            disabled={isSubmitting}
+          />
+          <small id="email-helper">
+            Please use your Monash student email.
+          </small>
+        </label>
+        <div className="grid">
           <button
+            type="button"
             onClick={handleBack}
-            className="btn btn-error w-full"
+            className="secondary"
             aria-label="Go back"
           >
             Go back
           </button>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Sending..." : "Continue"}
+          </button>
         </div>
-      </div>
-    </div>
+      </fetcher.Form>
+    </>
   );
 }

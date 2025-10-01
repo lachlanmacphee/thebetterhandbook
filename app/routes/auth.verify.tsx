@@ -79,73 +79,44 @@ export default function VerifyPage() {
   const errors = fetcher.data?.error || error;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 flex-grow flex items-center justify-center">
-      <div className="card bg-base-100 shadow-lg rounded-xl overflow-hidden w-full max-w-md">
-        <div className="card-body gap-8 p-6 md:p-8">
-          <div className="flex flex-col items-center gap-4">
-            <span className="text-6xl animate-bounce transition duration-200 hover:-translate-y-1">
-              💌
-            </span>
-            <div className="text-center">
-              <h1 className="text-2xl font-semibold mb-2">Check your email</h1>
-              <p className="text-base-content/70">
-                {email ? (
-                  <>We sent a code to {email}</>
-                ) : (
-                  <>Check your email for a verification code</>
-                )}
-              </p>
-            </div>
-          </div>
+    <>
+      <h1>Check your email</h1>
+      <p>We sent a code to {email}</p>
 
-          <fetcher.Form method="post" className="space-y-6">
-            <fieldset className="form-control">
-              <legend className="sr-only">Verification Code</legend>
-              <input
-                minLength={6}
-                maxLength={6}
-                required
-                name="code"
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-                disabled={isSubmitting}
-                placeholder="Enter the 6-digit code"
-                className="input w-full text-center text-lg tracking-wider"
-              />
-            </fieldset>
-            <button
-              type="submit"
-              className="btn btn-primary w-full hover:scale-[1.02] transition-transform duration-200"
-              disabled={isSubmitting || value.length !== 6}
-            >
-              {isSubmitting ? "Verifying..." : "Verify Code"}
-            </button>
-          </fetcher.Form>
-
-          {errors && (
-            <p className="text-sm text-red-500 text-center">{errors}</p>
-          )}
-
-          <div className="flex flex-col items-center gap-2">
-            <p className="text-base-content/70 text-sm">
-              Didn't receive the code?
-            </p>
-            <fetcher.Form
-              method="POST"
-              action="/auth/login"
-              autoComplete="off"
-              className="w-full"
-            >
-              <button
-                type="submit"
-                className="w-full text-base-content/70 hover:text-base-content transition-colors duration-200"
-              >
-                Request a new code
-              </button>
-            </fetcher.Form>
-          </div>
-        </div>
-      </div>
-    </div>
+      <fetcher.Form method="post">
+        <label>
+          Verification Code
+          <input
+            minLength={6}
+            maxLength={6}
+            required
+            name="code"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            disabled={isSubmitting}
+            placeholder="Enter the 6-digit code"
+            style={{ textAlign: "center", letterSpacing: "0.1em" }}
+          />
+        </label>
+        <button
+          type="submit"
+          disabled={isSubmitting || value.length !== 6}
+        >
+          {isSubmitting ? "Verifying..." : "Verify Code"}
+        </button>
+      </fetcher.Form>
+      <fetcher.Form
+        method="POST"
+        action="/auth/login"
+        autoComplete="off"
+      >
+        <button
+          type="submit"
+          className="secondary"
+        >
+          Request a new code
+        </button>
+      </fetcher.Form>
+    </>
   );
 }

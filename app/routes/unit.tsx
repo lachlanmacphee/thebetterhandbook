@@ -1,16 +1,11 @@
+import { useEffect, useState } from "react";
+import { data, Form, Link, redirect, useFetcher } from "react-router";
+import { ThumbsDownIcon, ThumbsUpIcon } from "~/components/Icons";
+import Rating, { OverallRating } from "~/components/Rating";
+import ReviewForm from "~/components/ReviewForm";
+import { getSession } from "~/modules/auth/session.server";
 import db from "~/modules/db/db.server";
 import type { Route } from "./+types/unit";
-import {
-  ThumbsUpIcon,
-  ThumbsDownIcon,
-  ArrowLeftIcon,
-  AlertTriangleIcon,
-} from "lucide-react";
-import { data, Form, redirect, useFetcher, Link } from "react-router";
-import { getSession } from "~/modules/auth/session.server";
-import { useState, useEffect } from "react";
-import ReviewForm from "~/components/ReviewForm";
-import Rating, { OverallRating } from "~/components/Rating";
 
 export async function loader({ params, request }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
@@ -94,11 +89,11 @@ export async function loader({ params, request }: Route.LoaderArgs) {
 
   const hasReviewed = user
     ? (await db.review.findFirst({
-      where: {
-        unitId: unit.id,
-        userId: user?.id,
-      },
-    })) !== null
+        where: {
+          unitId: unit.id,
+          userId: user?.id,
+        },
+      })) !== null
     : false;
 
   return {
@@ -391,32 +386,34 @@ function DeprecateForm({
   }, [fetcher.data, onClose]);
 
   return (
-    <dialog className="modal modal-open">
-      <div className="modal-box">
-        <h3 className="font-bold text-lg mb-4">Mark Unit as Deprecated</h3>
+    <dialog open>
+      <article>
+        <header>
+          <button aria-label="Close" rel="prev" onClick={onClose}></button>
+          <h3>Mark Unit as Deprecated</h3>
+        </header>
         <fetcher.Form method="post">
           <input type="hidden" name="intent" value="deprecate-unit" />
           <input type="hidden" name="unitId" value={unitId} />
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">Reason for deprecation</legend>
-            <textarea
-              className="textarea h-24 w-full"
-              required
-              placeholder="Why should this unit be marked as deprecated?"
-              name="reason"
-            ></textarea>
+          <fieldset>
+            <label>
+              Reason for deprecation
+              <textarea
+                required
+                placeholder="Why should this unit be marked as deprecated?"
+                name="reason"
+                rows={4}
+              />
+            </label>
           </fieldset>
-          <div className="modal-action">
-            <button type="button" className="btn btn-ghost" onClick={onClose}>
+          <footer>
+            <button type="button" className="secondary" onClick={onClose}>
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary">
-              Submit
-            </button>
-          </div>
+            <button type="submit">Submit</button>
+          </footer>
         </fetcher.Form>
-      </div>
-      <div className="modal-backdrop" onClick={onClose} />
+      </article>
     </dialog>
   );
 }
@@ -437,49 +434,48 @@ function SuggestChangesForm({
   }, [fetcher.data, onClose]);
 
   return (
-    <dialog className="modal modal-open">
-      <div className="modal-box">
-        <h3 className="font-bold text-lg mb-4">Suggest Changes</h3>
-        <fetcher.Form method="post" className="space-y-4">
+    <dialog open>
+      <article>
+        <header>
+          <button aria-label="Close" rel="prev" onClick={onClose}></button>
+          <h3>Suggest Changes</h3>
+        </header>
+        <fetcher.Form method="post">
           <input type="hidden" name="intent" value="suggest-change" />
           <input type="hidden" name="unitId" value={unitId} />
-          <fieldset className="form-control w-full">
-            <legend className="font-semibold mb-2">
+
+          <fieldset>
+            <label>
               What would you like to change?
-            </legend>
-            <select
-              name="field"
-              className="select w-full"
-              required
-            >
-              <option value="">Select a field</option>
-              <option value="campus">Campus</option>
-              <option value="semester">Semester</option>
-              <option value="name">Unit Name</option>
-            </select>
+              <select name="field" required>
+                <option value="">Select a field</option>
+                <option value="campus">Campus</option>
+                <option value="semester">Semester</option>
+                <option value="name">Unit Name</option>
+              </select>
+            </label>
           </fieldset>
 
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">Description of change</legend>
-            <textarea
-              name="reason"
-              className="textarea h-24 w-full"
-              required
-              placeholder="Describe what needs to be adjusted - such as the semester that should be added/removed or what the new unit name should be"
-            ></textarea>
+          <fieldset>
+            <label>
+              Description of change
+              <textarea
+                name="reason"
+                required
+                placeholder="Describe what needs to be adjusted - such as the semester that should be added/removed or what the new unit name should be"
+                rows={4}
+              />
+            </label>
           </fieldset>
 
-          <div className="modal-action">
-            <button type="button" className="btn btn-ghost" onClick={onClose}>
+          <footer>
+            <button type="button" className="secondary" onClick={onClose}>
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary">
-              Submit
-            </button>
-          </div>
+            <button type="submit">Submit</button>
+          </footer>
         </fetcher.Form>
-      </div>
-      <div className="modal-backdrop" onClick={onClose} />
+      </article>
     </dialog>
   );
 }
@@ -510,97 +506,87 @@ function UnitDetails({
     `https://handbook.monash.edu/current/units/${unit.code}`;
 
   return (
-    <div className="card bg-base-100 shadow-lg rounded-xl overflow-hidden">
-      <div className="card-body gap-8 p-6 md:p-8">
-        <div className="flex gap-6 sm:gap-8 flex-col items-center sm:items-start sm:flex-row justify-between">
-          <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
-            <h1 className="card-title text-4xl md:text-5xl font-bold mb-2">
-              {unit.code}
-            </h1>
-            <p className="text-lg text-base-content/70">{unit.name}</p>
-            <div className="flex flex-wrap gap-2 mt-4">
-              {unit.isDeprecated && (
-                <div className="badge badge-warning gap-2">
-                  <AlertTriangleIcon className="w-4 h-4" />
-                  Deprecated
-                </div>
-              )}
-              {unit.campuses.map((campus: any) => (
-                <span key={campus.campus.id} className="badge badge-primary">
-                  {campus.campus.name}
-                </span>
-              ))}
-              {unit.semesters.map((semester: any) => (
-                <span
-                  key={semester.semester.id}
-                  className="badge badge-secondary h-min"
-                >
-                  {semester.semester.name}
-                </span>
-              ))}
-            </div>
-            <div className="flex gap-4 mt-4">
-              <a
-                href={handbookUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary hover:text-primary-focus transition-colors duration-200"
-              >
-                View in Monash Handbook →
-              </a>
-            </div>
-          </div>
+    <article>
+      <header>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <hgroup>
+            <h1>{unit.code}</h1>
+            <p>{unit.name}</p>
+          </hgroup>
           <OverallRating rating={overallRating} />
-          {showDeprecateModal && (
-            <DeprecateForm
-              onClose={() => setShowDeprecateModal(false)}
-              unitId={unit.id}
-            />
-          )}
-          {showSuggestModal && (
-            <SuggestChangesForm
-              onClose={() => setShowSuggestModal(false)}
-              unitId={unit.id}
-            />
-          )}
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <Rating rating={teachingRating} title="Teaching" />
-          <Rating rating={contentRating} title="Content" />
-          <Rating
-            rating={difficultyRating}
-            title="Difficulty"
-            type="difficulty"
-          />
-          <Rating rating={workloadRating} title="Workload" type="workload" />
+
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          {unit.isDeprecated && <mark>Deprecated</mark>}
+          {unit.campuses.map((campus: any) => (
+            <kbd key={campus.campus.id}>{campus.campus.name}</kbd>
+          ))}
+          {unit.semesters.map((semester: any) => (
+            <kbd key={semester.semester.id}>{semester.semester.name}</kbd>
+          ))}
         </div>
-        {user && (
-          <div className="flex flex-wrap-reverse justify-center sm:flex-nowrap sm:justify-between items-center">
-            <Link
-              to={previousPage}
-              className="btn btn-ghost btn-sm mt-4 sm:mt-0 gap-2"
-            >
-              <ArrowLeftIcon size={16} />
-              <span>Back</span>
-            </Link>
-            <div className="flex justify-center sm:justify-end gap-4">
-              <button
-                onClick={() => setShowDeprecateModal(true)}
-                className="btn btn-sm btn-warning"
-              >
-                Mark as Deprecated
-              </button>
-              <button
-                onClick={() => setShowSuggestModal(true)}
-                className="btn btn-sm btn-accent"
-              >
-                Suggest Changes
-              </button>
-            </div>
-          </div>
-        )}
+        <a
+          href={handbookUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ display: "block", marginTop: "1rem" }}
+        >
+          View in Monash Handbook
+        </a>
+      </header>
+
+      <div className="grid">
+        <Rating rating={teachingRating} title="Teaching" />
+        <Rating rating={contentRating} title="Content" />
+        <Rating
+          rating={difficultyRating}
+          title="Difficulty"
+          type="difficulty"
+        />
+        <Rating rating={workloadRating} title="Workload" type="workload" />
       </div>
-    </div>
+
+      {user && (
+        <footer style={{ display: "flex", justifyContent: "space-between" }}>
+          <Link to={previousPage} role="button" className="secondary">
+            Back
+          </Link>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <button
+              onClick={() => setShowDeprecateModal(true)}
+              className="secondary"
+            >
+              Mark as Deprecated
+            </button>
+            <button
+              onClick={() => setShowSuggestModal(true)}
+              className="secondary"
+            >
+              Suggest Changes
+            </button>
+          </div>
+        </footer>
+      )}
+
+      {showDeprecateModal && (
+        <DeprecateForm
+          onClose={() => setShowDeprecateModal(false)}
+          unitId={unit.id}
+        />
+      )}
+      {showSuggestModal && (
+        <SuggestChangesForm
+          onClose={() => setShowSuggestModal(false)}
+          unitId={unit.id}
+        />
+      )}
+    </article>
   );
 }
 
@@ -614,131 +600,139 @@ function Review({ review, user }: { review: any; user?: number }) {
 
   if (isEditing) {
     return (
-      <div className="card bg-base-100 shadow-md hover:shadow-xl transition-all duration-300 rounded-xl overflow-hidden">
-        <div className="card-body p-6">
-          <ReviewForm
-            review={review}
-            onCancel={() => setIsEditing(false)}
-            isEditing={true}
-          />
-        </div>
-      </div>
+      <article>
+        <ReviewForm
+          review={review}
+          onCancel={() => setIsEditing(false)}
+          isEditing={true}
+        />
+      </article>
     );
   }
 
   return (
-    <div className="card bg-base-100 shadow-md hover:shadow-xl transition-all duration-300 rounded-xl overflow-hidden">
-      <div className="card-body p-6">
-        <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
-            <div className="space-y-2">
-              <h3 className="text-2xl font-semibold">{review.title}</h3>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-sm text-base-content/70 font-medium">
-                  {review.user.name || "Anonymous"}
-                </span>
-                {review.yearCompleted && (
-                  <span className="text-sm text-base-content/70">
-                    • Completed {review.yearCompleted}
-                  </span>
-                )}
-                {review.isWamBooster && (
-                  <span className="badge badge-success">WAM Booster</span>
-                )}
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <Rating
-                rating={review.teachingRating}
-                title="Teaching"
-                size="sm"
-              />
-              <Rating rating={review.contentRating} title="Content" size="sm" />
-              <Rating
-                rating={review.difficultyRating}
-                title="Difficulty"
-                size="sm"
-                type="difficulty"
-              />
-              <Rating
-                rating={review.workloadRating}
-                title="Workload"
-                size="sm"
-                type="workload"
-              />
-            </div>
-          </div>
-          <div className="divider my-1"></div>
-          <p className="text-base-content/80 whitespace-pre-wrap leading-relaxed">
-            {review.text}
+    <article>
+      <header>
+        <hgroup>
+          <h3>{review.title}</h3>
+          <p>
+            <small>
+              {review.user.name || "Anonymous"}
+              {review.yearCompleted && ` • Completed ${review.yearCompleted}`}
+              {review.isWamBooster && " • WAM Booster"}
+            </small>
           </p>
-          <div className="flex items-center justify-between gap-4 pt-2">
-            <div className="flex items-center gap-4">
-              {user ? (
-                <fetcher.Form method="post" className="flex items-center gap-4">
-                  <input type="hidden" name="intent" value="react-to-review" />
-                  <input type="hidden" name="reviewId" value={review.id} />
-                  <button
-                    type="submit"
-                    name="reaction"
-                    value="like"
-                    disabled={fetcher.state !== "idle"}
-                    className={`btn btn-sm gap-2 ${userReaction?.isLike ? "btn-primary" : "btn-ghost"
-                      }`}
-                  >
-                    <ThumbsUpIcon className="w-4 h-4" />
-                    <span>{likes}</span>
-                  </button>
-                  <button
-                    type="submit"
-                    name="reaction"
-                    value="dislike"
-                    disabled={fetcher.state !== "idle"}
-                    className={`btn btn-sm gap-2 ${userReaction?.isLike === false
-                      ? "btn-primary"
-                      : "btn-ghost"
-                      }`}
-                  >
-                    <ThumbsDownIcon className="w-4 h-4" />
-                    <span>{dislikes}</span>
-                  </button>
-                </fetcher.Form>
-              ) : (
-                <div className="flex items-center gap-4">
-                  <Link
-                    to="/auth/login"
-                    className="btn btn-sm btn-ghost gap-2 cursor-not-allowed opacity-60"
-                  >
-                    <ThumbsUpIcon className="w-4 h-4" />
-                    <span>{likes}</span>
-                  </Link>
-                  <Link
-                    to="/auth/login"
-                    className="btn btn-sm btn-ghost gap-2 cursor-not-allowed opacity-60"
-                  >
-                    <ThumbsDownIcon className="w-4 h-4" />
-                    <span>{dislikes}</span>
-                  </Link>
-                </div>
-              )}
-            </div>
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-base-content/60">
-                {new Date(review.createdAt).toLocaleDateString()}
-              </span>
-              {user === review.user.id && (
+        </hgroup>
+
+        <div className="grid">
+          <Rating rating={review.teachingRating} title="Teaching" />
+          <Rating rating={review.contentRating} title="Content" />
+          <Rating
+            rating={review.difficultyRating}
+            title="Difficulty"
+            type="difficulty"
+          />
+          <Rating
+            rating={review.workloadRating}
+            title="Workload"
+            type="workload"
+          />
+        </div>
+      </header>
+
+      <p>{review.text}</p>
+
+      <footer>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            {user ? (
+              <fetcher.Form
+                method="post"
+                style={{ display: "flex", alignItems: "center", gap: "1rem" }}
+              >
+                <input type="hidden" name="intent" value="react-to-review" />
+                <input type="hidden" name="reviewId" value={review.id} />
                 <button
-                  onClick={() => setIsEditing(true)}
-                  className="btn btn-ghost btn-sm"
+                  type="submit"
+                  name="reaction"
+                  value="like"
+                  disabled={fetcher.state !== "idle"}
+                  className={userReaction?.isLike ? "" : "secondary"}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.25rem",
+                  }}
                 >
-                  Edit
+                  <ThumbsUpIcon />
+                  <span>{likes}</span>
                 </button>
-              )}
-            </div>
+                <button
+                  type="submit"
+                  name="reaction"
+                  value="dislike"
+                  disabled={fetcher.state !== "idle"}
+                  className={userReaction?.isLike === false ? "" : "secondary"}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.25rem",
+                  }}
+                >
+                  <ThumbsDownIcon />
+                  <span>{dislikes}</span>
+                </button>
+              </fetcher.Form>
+            ) : (
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "1rem" }}
+              >
+                <Link
+                  to="/auth/login"
+                  role="button"
+                  className="secondary"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.25rem",
+                  }}
+                >
+                  <ThumbsUpIcon />
+                  <span>{likes}</span>
+                </Link>
+                <Link
+                  to="/auth/login"
+                  role="button"
+                  className="secondary"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.25rem",
+                  }}
+                >
+                  <ThumbsDownIcon />
+                  <span>{dislikes}</span>
+                </Link>
+              </div>
+            )}
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <small>{new Date(review.createdAt).toLocaleDateString()}</small>
+            {user === review.user.id && (
+              <button onClick={() => setIsEditing(true)} className="secondary">
+                Edit
+              </button>
+            )}
           </div>
         </div>
-      </div>
-    </div>
+      </footer>
+    </article>
   );
 }
 
@@ -756,51 +750,53 @@ function ReviewsList({ reviews, user }: { reviews: any[]; user?: number }) {
       return bLikes - bDislikes - (aLikes - aDislikes);
     }
     if (sortBy === "latest") {
-      // Sort by year completed first, then by creation date
       const yearDiff = b.yearCompleted - a.yearCompleted;
       if (yearDiff !== 0) return yearDiff;
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     }
-    // For oldest, do the same but reversed
     const yearDiff = a.yearCompleted - b.yearCompleted;
     if (yearDiff !== 0) return yearDiff;
     return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
   });
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
-        <h2 className="text-3xl font-bold">Reviews</h2>
-        <div className="flex items-center gap-2">
+    <section>
+      <header
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "1rem",
+        }}
+      >
+        <h2 style={{ marginBottom: "0px" }}>Reviews</h2>
+        <div style={{ display: "flex", gap: "0.5rem" }}>
           <button
+            className={sortBy === "helpful" ? "" : "secondary"}
             onClick={() => setSortBy("helpful")}
-            className={`btn btn-xs ${sortBy === "helpful" ? "btn-primary" : "btn-ghost"
-              }`}
           >
             Most Helpful
           </button>
           <button
             onClick={() => setSortBy("latest")}
-            className={`btn btn-xs ${sortBy === "latest" ? "btn-primary" : "btn-ghost"
-              }`}
+            className={sortBy === "latest" ? "" : "secondary"}
           >
             Latest
           </button>
           <button
             onClick={() => setSortBy("oldest")}
-            className={`btn btn-xs ${sortBy === "oldest" ? "btn-primary" : "btn-ghost"
-              }`}
+            className={sortBy === "oldest" ? "" : "secondary"}
           >
             Oldest
           </button>
         </div>
-      </div>
-      <div className="space-y-6">
+      </header>
+      <div>
         {sortedReviews.map((review) => (
           <Review key={review.id} review={review} user={user} />
         ))}
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -810,68 +806,59 @@ export default function Unit({ loaderData, params }: Route.ComponentProps) {
 
   if (!unit) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="card bg-base-100 shadow-lg rounded-xl overflow-hidden">
-          <div className="card-body p-6 md:p-8 text-center">
-            <div className="space-y-6">
-              <div className="space-y-4">
-                <h1 className="text-4xl font-bold">Unit Not Found</h1>
-                <p className="text-xl text-base-content/70">
-                  Sorry, we couldn't find the unit {params.unitCode}
+      <main style={{ padding: "2rem 0" }}>
+        <div className="container">
+          <article style={{ padding: "2rem", textAlign: "center" }}>
+            <header style={{ marginBottom: "2rem" }}>
+              <h1>Unit Not Found</h1>
+              <p>Sorry, we couldn't find the unit {params.unitCode}</p>
+            </header>
+
+            {user && !existingUnitAdditionRequest && (
+              <section style={{ marginBottom: "2rem" }}>
+                <p>
+                  If you think this unit should be in our system, you can
+                  request it to be added.
                 </p>
-              </div>
+                <Form method="post" style={{ marginTop: "1rem" }}>
+                  <input type="hidden" name="intent" value="request-unit" />
+                  <button type="submit">Request Unit Addition</button>
+                </Form>
+              </section>
+            )}
 
-              {user && !existingUnitAdditionRequest && (
-                <div className="space-y-4">
-                  <p className="text-base-content/70">
-                    If you think this unit should be in our system, you can
-                    request it to be added.
-                  </p>
-                  <Form method="post">
-                    <input type="hidden" name="intent" value="request-unit" />
-                    <button
-                      type="submit"
-                      className="btn btn-primary btn-lg hover:scale-105 transition-transform duration-200"
-                    >
-                      Request Unit Addition
-                    </button>
-                  </Form>
-                </div>
-              )}
+            {existingUnitAdditionRequest && (
+              <section style={{ marginBottom: "2rem" }}>
+                <p>
+                  We currently have a pending request to add this unit. Please
+                  check back again soon.
+                </p>
+                <small>
+                  Requested on{" "}
+                  {new Date(
+                    existingUnitAdditionRequest.createdAt
+                  ).toLocaleDateString()}
+                </small>
+              </section>
+            )}
 
-              {existingUnitAdditionRequest && (
-                <div className="space-y-4">
-                  <p className="text-base-content/70">
-                    We currently have a pending request to add this unit. Please
-                    check back again soon.
-                  </p>
-                  <p className="text-sm text-base-content/50">
-                    Requested on{" "}
-                    {new Date(
-                      existingUnitAdditionRequest.createdAt
-                    ).toLocaleDateString()}
-                  </p>
-                </div>
-              )}
-
-              {!user && (
-                <div className="space-y-4">
-                  <p className="text-base-content/70">
-                    Please sign in to request this unit to be added to our
-                    system.
-                  </p>
-                  <a
-                    href="/auth/login"
-                    className="btn btn-primary btn-lg hover:scale-105 transition-transform duration-200"
-                  >
-                    Sign In
-                  </a>
-                </div>
-              )}
-            </div>
-          </div>
+            {!user && (
+              <section>
+                <p>
+                  Please sign in to request this unit to be added to our system.
+                </p>
+                <a
+                  href="/auth/login"
+                  role="button"
+                  style={{ marginTop: "1rem" }}
+                >
+                  Sign In
+                </a>
+              </section>
+            )}
+          </article>
         </div>
-      </div>
+      </main>
     );
   }
 
@@ -896,8 +883,8 @@ export default function Unit({ loaderData, params }: Route.ComponentProps) {
     unit.reviews.length;
 
   return (
-    <div className="max-w-4xl py-0 mx-auto px-4 sm:py-8">
-      <div className="space-y-10">
+    <main style={{ padding: "2rem 0" }}>
+      <div className="container">
         <UnitDetails
           unit={unit}
           user={user?.id}
@@ -912,15 +899,16 @@ export default function Unit({ loaderData, params }: Route.ComponentProps) {
         <ReviewsList reviews={unit.reviews} user={user?.id} />
 
         {user && !hasReviewed && (
-          <div
-            className="space-y-8 bg-base-100 shadow-lg p-6 md:p-8 rounded-xl"
-            id="review-form"
-          >
-            <h2 className="text-3xl font-bold">Add Review</h2>
-            <ReviewForm />
-          </div>
+          <section style={{ marginTop: "3rem" }}>
+            <article style={{ padding: "2rem", marginBottom: "2rem" }}>
+              <header>
+                <h2>Add Review</h2>
+              </header>
+              <ReviewForm />
+            </article>
+          </section>
         )}
       </div>
-    </div>
+    </main>
   );
 }

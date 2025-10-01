@@ -2,7 +2,6 @@ import { Link, useNavigate } from "react-router";
 import type { Route } from "./+types/home";
 import db from "~/modules/db/db.server";
 import { getSession } from "~/modules/auth/session.server";
-import { SearchIcon } from "lucide-react";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
@@ -56,108 +55,83 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <div className="space-y-10">
-        <div className="card bg-base-100 shadow-lg rounded-xl overflow-hidden">
-          <div className="card-body gap-6 p-6 md:p-8">
-            <div className="flex flex-col items-center text-center">
-              <h1 className="text-4xl md:text-5xl font-bold mb-2">
-                Welcome to TBH
-              </h1>
-              <p className="text-lg text-base-content/70 mb-6">
-                The <strong>independent</strong> and{" "}
-                <strong>open-source</strong> handbook and unit reviewing
-                platform.
-              </p>
-              <form
-                onSubmit={handleUnitSearch}
-                className="flex gap-4 w-full max-w-2xl"
-              >
-                <input
-                  type="text"
-                  name="unitCode"
-                  placeholder="Enter a unit code (e.g. FIT1008)"
-                  className="input flex-1"
-                  required
-                />
-                <button type="submit" className="btn btn-primary">
-                  Go
-                </button>
-              </form>
-              <Link
-                to="/search"
-                className="mt-4 text-primary hover:text-primary-focus flex items-center gap-2 transition-colors duration-200"
-              >
-                <SearchIcon />
-                Want to search for units instead? Click here!
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <h2 className="text-3xl font-bold mb-6">Popular Units</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-6">
-            {units.map((unit) => (
-              <Link
-                key={unit.id}
-                to={`/units/${unit.code}`}
-                className="card bg-base-100 shadow-md hover:shadow-xl transition-all duration-300 rounded-xl overflow-hidden"
-              >
-                <div className="card-body p-6">
-                  <div className="flex flex-col gap-4">
-                    <div className="flex flex-col gap-1">
-                      <h2 className="text-2xl font-semibold">{unit.code}</h2>
-                      <p className="text-base text-base-content/70">
-                        {unit.name}
-                      </p>
-                      <p className="text-sm text-base-content/60">
-                        {unit._count.reviews} reviews
-                      </p>
-                    </div>
-                    <div className="space-y-3">
-                      <div className="flex flex-wrap gap-2">
-                        {unit.campuses.map((campus) => (
-                          <span key={campus.id} className="badge badge-primary">
-                            {campus.campus.name}
-                          </span>
-                        ))}
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {unit.semesters.map((semester) => (
-                          <span
-                            key={semester.id}
-                            className="badge badge-secondary h-min"
-                          >
-                            {semester.semester.name}
-                          </span>
-                        ))}
-                      </div>
-                      {user &&
-                        unit.reviews.filter((review) => review.userId === user)
-                          .length === 0 && (
-                          <Link
-                            to={`/units/${unit.code}#review-form`}
-                            className="btn btn-primary w-full hover:scale-105 transition-transform duration-200"
-                          >
-                            Review
-                          </Link>
-                        )}
-                      {user &&
-                        unit.reviews.filter((review) => review.userId === user)
-                          .length !== 0 && (
-                          <button disabled className="btn btn-disabled w-full">
-                            Reviewed
-                          </button>
-                        )}
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
+    <>
+      <h2>Find a Unit</h2>
+      <form
+        onSubmit={handleUnitSearch}
+      >
+        <fieldset role="group">
+          <input
+            type="text"
+            name="unitCode"
+            placeholder="Enter a unit code (e.g. FIT1008)"
+            required
+          />
+          <input type="submit" value="Go" />
+        </fieldset>
+      </form>
+      <Link
+        to="/search"
+      >
+        Want to search for units instead?
+      </Link>
+      <h2>Popular Units</h2>
+      <UnitsRow units={units.slice(0, 3)} user={user} />
+      <UnitsRow units={units.slice(3, 6)} user={user} />
+    </>
   );
+}
+
+
+function UnitsRow({ units, user }: { units: Route.ComponentProps["loaderData"]["units"], user: Route.ComponentProps["loaderData"]["user"] }) {
+  return (<div className="grid">
+    {units.map((unit) => (
+      <article style={{ display: 'flex', flexDirection: 'column' }}>
+        <header>
+          <Link
+            key={unit.id}
+            to={`/units/${unit.code}`}
+          >
+            <h4>
+              {unit.code}
+            </h4>
+          </Link>
+        </header>
+        <p>
+          <strong>Name:</strong> {unit.name}
+          <br />
+          <strong>Reviews:</strong> {unit._count.reviews}
+          <br />
+          <strong>Campuses:</strong> {unit.campuses.map((campus) => campus.campus.name).join(", ")}
+          <br />
+          <strong>Semesters:</strong> {unit.semesters.map((semester) => semester.semester.name).join(", ")}
+        </p>
+        {user && (<footer style={{ marginTop: 'auto' }}>
+          <div>
+            {
+              unit.reviews.filter((review) => review.userId === user)
+                .length === 0 && (
+                <Link
+                  to={`/units/${unit.code}#review-form`}
+                  role="button"
+                >
+                  Review
+                </Link>
+              )}
+            {
+              unit.reviews.filter((review) => review.userId === user)
+                .length !== 0 && (
+                <Link
+                  to={`/units/${unit.code}#review-form`}
+                  role="button"
+                  className="secondary"
+                >
+                  Reviewed
+                </Link>
+              )}
+          </div>
+        </footer>)}
+      </article>
+    ))}
+  </div>)
 }

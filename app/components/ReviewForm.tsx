@@ -1,5 +1,6 @@
-import { Form, useFetcher } from "react-router";
 import { useEffect } from "react";
+import { Form, useFetcher } from "react-router";
+import { StarIcon } from "./Icons";
 
 type ReviewFormProps = {
   review?: any;
@@ -23,7 +24,7 @@ export default function ReviewForm({
   const FormComponent = isEditing ? fetcher.Form : Form;
 
   return (
-    <FormComponent method="post" className="space-y-8">
+    <FormComponent method="post">
       {isEditing && (
         <>
           <input type="hidden" name="intent" value="edit-review" />
@@ -31,191 +32,192 @@ export default function ReviewForm({
         </>
       )}
 
-      <div className="space-y-6">
-        <fieldset className="form-control">
-          <legend className="text-base font-semibold mb-2">Title</legend>
-          <input
+      <fieldset>
+        <label>
+          Title
+          <textarea
             name="title"
-            type="text"
             defaultValue={review?.title}
-            className="input w-full"
             required
+            rows={2}
             placeholder="Enter a title for your review"
+            autoComplete="off"
           />
-        </fieldset>
+        </label>
 
-        <fieldset className="form-control">
-          <legend className="text-base font-semibold mb-2">Description</legend>
+        <label>
+          Description
           <textarea
             name="description"
             defaultValue={review?.text}
-            className="textarea w-full min-h-[160px]"
             required
-            placeholder="Write your review here"
-          ></textarea>
-        </fieldset>
+            rows={8}
+            placeholder="Write your review here. Share your experience with assignments, teaching quality, content, and any tips for future students."
+          />
+        </label>
 
-        <fieldset className="form-control">
-          <legend className="text-base font-semibold mb-2">
-            Year Completed
-          </legend>
+        <label>
+          Year Completed
           <input
             name="yearCompleted"
             type="number"
             defaultValue={review?.yearCompleted}
             min="2000"
             max={new Date().getFullYear()}
-            className="input w-full"
             required
-            placeholder="Enter the year you completed this unit"
-          />
-        </fieldset>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-        <fieldset className="space-y-3">
-          <legend className="font-semibold">Overall Rating</legend>
-          <div className="rating rating-lg gap-2">
-            {[...Array(5)].map((_, i) => (
-              <input
-                key={i}
-                type="radio"
-                name="overallRating"
-                value={i + 1}
-                defaultChecked={review?.overallRating === i + 1}
-                className="mask mask-star-2"
-                required
-              />
-            ))}
-          </div>
-        </fieldset>
-
-        <fieldset className="space-y-3">
-          <legend className="font-semibold">Teaching Rating</legend>
-          <div className="rating rating-lg gap-2">
-            {[...Array(5)].map((_, i) => (
-              <input
-                key={i}
-                type="radio"
-                name="teachingRating"
-                value={i + 1}
-                defaultChecked={review?.teachingRating === i + 1}
-                className="mask mask-star-2"
-                required
-              />
-            ))}
-          </div>
-        </fieldset>
-
-        <fieldset className="space-y-3">
-          <legend className="font-semibold">Content Rating</legend>
-          <div className="rating rating-lg gap-2">
-            {[...Array(5)].map((_, i) => (
-              <input
-                key={i}
-                type="radio"
-                name="contentRating"
-                value={i + 1}
-                defaultChecked={review?.contentRating === i + 1}
-                className="mask mask-star-2"
-                required
-              />
-            ))}
-          </div>
-        </fieldset>
-
-        <fieldset className="space-y-4">
-          <legend className="font-semibold">Difficulty</legend>
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-            {["Very Easy", "Easy", "Medium", "Hard", "Very Hard"].map(
-              (label, i) => (
-                <label
-                  key={i}
-                  className="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors duration-200"
-                >
-                  <input
-                    type="radio"
-                    name="difficultyRating"
-                    value={i + 1}
-                    defaultChecked={review?.difficultyRating === i + 1}
-                    className="radio radio-primary radio-sm"
-                    required
-                  />
-                  <span className="text-sm font-medium">{label}</span>
-                </label>
-              )
-            )}
-          </div>
-        </fieldset>
-
-        <fieldset className="space-y-4">
-          <legend className="font-semibold">Workload</legend>
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-            {["Very Low", "Low", "Moderate", "High", "Very High"].map(
-              (label, i) => (
-                <label
-                  key={i}
-                  className="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors duration-200"
-                >
-                  <input
-                    type="radio"
-                    name="workloadRating"
-                    value={i + 1}
-                    defaultChecked={review?.workloadRating === i + 1}
-                    className="radio radio-primary radio-sm"
-                    required
-                  />
-                  <span className="text-sm font-medium">{label}</span>
-                </label>
-              )
-            )}
-          </div>
-        </fieldset>
-      </div>
-
-      <fieldset className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-        <legend className="sr-only">Additional Options</legend>
-        <label className="cursor-pointer hover:text-primary transition-colors duration-200">
-          <span className="font-semibold mr-3">
-            In Person Attendance Required
-          </span>
-          <input
-            type="checkbox"
-            name="attendanceRequired"
-            defaultChecked={review?.requiresAttendance}
-            className="checkbox checkbox-primary checkbox-sm"
-          />
-        </label>
-        <label className="cursor-pointer hover:text-success transition-colors duration-200">
-          <span className="font-semibold mr-3">WAM Booster</span>
-          <input
-            type="checkbox"
-            name="isWamBooster"
-            defaultChecked={review?.isWamBooster}
-            className="checkbox checkbox-success checkbox-sm"
+            placeholder="e.g. 2024"
+            autoComplete="off"
+            style={{ marginBottom: "0px" }}
           />
         </label>
       </fieldset>
 
-      <div className="flex justify-end gap-4">
+      <fieldset>
+        <legend>Overall Rating</legend>
+        {[...Array(5)].map((_, i) => (
+          <>
+            <input
+              key={i}
+              type="radio"
+              id={`overallRating-${i + 1}`}
+              name="overallRating"
+              value={i + 1}
+              defaultChecked={review?.overallRating === i + 1}
+              required
+            />
+            <label htmlFor={`overallRating-${i + 1}`}>
+              {[...Array(i + 1)].map((_, starIndex) => (
+                <StarIcon key={starIndex} filled={true} />
+              ))}
+            </label>
+          </>
+        ))}
+      </fieldset>
+
+      <fieldset>
+        <legend>Teaching Quality</legend>
+        {[...Array(5)].map((_, i) => (
+          <>
+            <input
+              key={i}
+              type="radio"
+              id={`teachingRating-${i + 1}`}
+              name="teachingRating"
+              value={i + 1}
+              defaultChecked={review?.teachingRating === i + 1}
+              required
+            />
+            <label htmlFor={`teachingRating-${i + 1}`}>
+              {[...Array(i + 1)].map((_, starIndex) => (
+                <StarIcon key={starIndex} filled={true} />
+              ))}
+            </label>
+          </>
+        ))}
+      </fieldset>
+
+      <fieldset>
+        <legend>Content Quality</legend>
+        {[...Array(5)].map((_, i) => (
+          <>
+            <input
+              key={i}
+              type="radio"
+              id={`contentRating-${i + 1}`}
+              name="contentRating"
+              value={i + 1}
+              defaultChecked={review?.contentRating === i + 1}
+              required
+            />
+            <label htmlFor={`contentRating-${i + 1}`}>
+              {[...Array(i + 1)].map((_, starIndex) => (
+                <StarIcon key={starIndex} filled={true} />
+              ))}
+            </label>
+          </>
+        ))}
+      </fieldset>
+
+      <fieldset>
+        <legend>Difficulty Level</legend>
+        {["Very Easy", "Easy", "Medium", "Hard", "Very Hard"].map(
+          (label, i) => (
+            <>
+              <input
+                key={i}
+                type="radio"
+                id={`difficultyRating-${i + 1}`}
+                name="difficultyRating"
+                value={i + 1}
+                defaultChecked={review?.difficultyRating === i + 1}
+                required
+              />
+              <label htmlFor={`difficultyRating-${i + 1}`}>{label}</label>
+            </>
+          )
+        )}
+      </fieldset>
+
+      <fieldset>
+        <legend>Workload</legend>
+        {["Very Low", "Low", "Moderate", "High", "Very High"].map(
+          (label, i) => (
+            <>
+              <input
+                key={i}
+                type="radio"
+                id={`workloadRating-${i + 1}`}
+                name="workloadRating"
+                value={i + 1}
+                defaultChecked={review?.workloadRating === i + 1}
+                required
+              />
+              <label htmlFor={`workloadRating-${i + 1}`}>{label}</label>
+            </>
+          )
+        )}
+      </fieldset>
+
+      <div className="grid">
+        <fieldset>
+          <legend>In Person Attendance Required</legend>
+          <label>
+            <input
+              type="checkbox"
+              name="attendanceRequired"
+              defaultChecked={review?.requiresAttendance}
+            />
+            Yes
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>WAM Booster</legend>
+          <label>
+            <input
+              type="checkbox"
+              name="isWamBooster"
+              defaultChecked={review?.isWamBooster}
+            />
+            Yes
+          </label>
+        </fieldset>
+      </div>
+
+      <fieldset role="group">
         {onCancel && (
-          <button type="button" onClick={onCancel} className="btn btn-ghost">
+          <button type="button" className="secondary" onClick={onCancel}>
             Cancel
           </button>
         )}
-        <button
-          type="submit"
-          className={`btn btn-primary ${!isEditing ? "btn-lg w-full md:w-auto" : ""
-            }`}
-          disabled={fetcher.state !== "idle"}
-        >
+        <button type="submit" disabled={fetcher.state !== "idle"}>
           {isEditing
             ? fetcher.state !== "idle"
               ? "Saving..."
-              : "Save Changes"
+              : "Save"
             : "Submit Review"}
         </button>
-      </div>
+      </fieldset>
     </FormComponent>
   );
 }

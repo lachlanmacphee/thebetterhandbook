@@ -4,7 +4,6 @@ import db from "~/modules/db/db.server";
 import { getSession } from "~/modules/auth/session.server";
 import { Form } from "react-router";
 import { Prisma } from "@prisma/client";
-import { ChevronLeftIcon, ChevronRightIcon, ChevronsLeftIcon, ChevronsRightIcon } from "lucide-react";
 
 // Default and allowed page sizes
 const DEFAULT_PAGE_SIZE = 12;
@@ -222,288 +221,240 @@ export default function Search({ loaderData }: Route.ComponentProps) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-2 sm:px-4 py-8">
-      <div className="space-y-8">
-        <div className="card bg-base-100 shadow-lg rounded-xl overflow-hidden">
-          <div className="card-body p-4 md:p-8">
-            <h1 className="text-2xl md:text-3xl font-bold mb-6">
-              Advanced Unit Search
-            </h1>
-            <Form method="get" className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-                <div className="form-control">
-                  <label className="label py-1">
-                    <span className="label-text text-sm">Unit Code</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="code"
-                    defaultValue={filters.code}
-                    placeholder="e.g. FIT1008"
-                    className="input input-sm md:input-md w-full"
-                  />
-                </div>
+    <>
+      <h1>Advanced Unit Search</h1>
 
-                <div className="form-control">
-                  <label className="label py-1">
-                    <span className="label-text text-sm">Unit Name</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    defaultValue={filters.name}
-                    placeholder="e.g. Introduction to CS"
-                    className="input input-sm md:input-md w-full"
-                  />
-                </div>
+      <Form method="get">
+        <div className="grid">
+          <label>
+            Unit Code
+            <input
+              type="text"
+              name="code"
+              defaultValue={filters.code}
+              placeholder="e.g. FIT1008"
+            />
+          </label>
 
-                <div className="form-control">
-                  <label className="label py-1">
-                    <span className="label-text text-sm">Faculty</span>
-                  </label>
-                  <select
-                    name="faculty"
-                    defaultValue={filters.faculty}
-                    className="select select-sm md:select-md w-full"
-                  >
-                    <option value="">All Faculties</option>
-                    {faculties.map((faculty) => (
-                      <option key={faculty.id} value={faculty.id}>
-                        {faculty.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="form-control">
-                  <label className="label py-1">
-                    <span className="label-text text-sm">Level</span>
-                  </label>
-                  <select
-                    name="level"
-                    defaultValue={filters.level}
-                    className="select select-sm md:select-md w-full"
-                  >
-                    <option value="">All Levels</option>
-                    {[1, 2, 3, 4, 5].map((level) => (
-                      <option key={level} value={level}>
-                        Level {level}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="form-control">
-                  <label className="label py-1">
-                    <span className="label-text text-sm">Credit Points</span>
-                  </label>
-                  <select
-                    name="creditPoints"
-                    defaultValue={filters.creditPoints}
-                    className="select select-sm md:select-md w-full"
-                  >
-                    <option value="">Any Credit Points</option>
-                    {[6, 12].map((points) => (
-                      <option key={points} value={points}>
-                        {points} Points
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="form-control">
-                  <label className="label py-1">
-                    <span className="label-text text-sm">Campus</span>
-                  </label>
-                  <select
-                    name="campus"
-                    defaultValue={filters.campus}
-                    className="select select-sm md:select-md w-full"
-                  >
-                    <option value="">All Campuses</option>
-                    {campuses.map((campus) => (
-                      <option key={campus.id} value={campus.id}>
-                        {campus.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="form-control">
-                  <label className="label py-1">
-                    <span className="label-text text-sm">Semester</span>
-                  </label>
-                  <select
-                    name="semester"
-                    defaultValue={filters.semester}
-                    className="select select-sm md:select-md w-full"
-                  >
-                    <option value="">All Semesters</option>
-                    {semesters.map((semester) => (
-                      <option key={semester.id} value={semester.id}>
-                        {semester.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="form-control">
-                  <label className="label py-1">
-                    <span className="label-text text-sm">Sort By</span>
-                  </label>
-                  <select
-                    name="sortBy"
-                    defaultValue={filters.sortBy}
-                    className="select select-sm md:select-md w-full"
-                  >
-                    <option value="code">Unit Code</option>
-                    <option value="name">Unit Name</option>
-                    <option value="rating">Average Rating</option>
-                    <option value="reviews">Number of Reviews</option>
-                  </select>
-                </div>
-
-                <div className="form-control">
-                  <label className="label py-1">
-                    <span className="label-text text-sm">Items per Page</span>
-                  </label>
-                  <select
-                    name="pageSize"
-                    defaultValue={filters.pageSize}
-                    className="select select-sm md:select-md w-full"
-                  >
-                    {ALLOWED_PAGE_SIZES.map((size) => (
-                      <option key={size} value={size}>
-                        {size} Items
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-4">
-                <Link to="/search" reloadDocument className="btn btn-warning">
-                  Clear
-                </Link>
-                <button type="submit" className="btn btn-primary">
-                  Search
-                </button>
-              </div>
-            </Form>
-          </div>
+          <label>
+            Unit Name
+            <input
+              type="text"
+              name="name"
+              defaultValue={filters.name}
+              placeholder="e.g. Introduction to CS"
+            />
+          </label>
         </div>
 
-        <div className="space-y-6">
-          <h2 className="text-2xl font-bold">
-            Search Results ({totalCount} units)
-          </h2>
+        <div className="grid">
+          <label>
+            Faculty
+            <select
+              name="faculty"
+              defaultValue={filters.faculty}
+            >
+              <option value="">All Faculties</option>
+              {faculties.map((faculty) => (
+                <option key={faculty.id} value={faculty.id}>
+                  {faculty.name}
+                </option>
+              ))}
+            </select>
+          </label>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-6">
-            {units.map((unit) => (
-              <Link
-                key={unit.id}
-                to={`/units/${unit.code}`}
-                className="card bg-base-100 shadow-md hover:shadow-xl transition-all duration-300 rounded-xl overflow-hidden"
-              >
-                <div className="card-body p-6">
-                  <div className="flex flex-col gap-4">
-                    <div className="flex flex-col gap-1">
-                      <h3 className="text-2xl font-semibold">{unit.code}</h3>
-                      <p className="text-base text-base-content/70">
-                        {unit.name}
-                      </p>
-                      <p className="text-sm text-base-content/60">
-                        Level {unit.level} • {unit.creditPoints} Points •{" "}
-                        {unit._count.reviews} reviews
-                      </p>
-                    </div>
+          <label>
+            Level
+            <select
+              name="level"
+              defaultValue={filters.level}
+            >
+              <option value="">All Levels</option>
+              {[1, 2, 3, 4, 5].map((level) => (
+                <option key={level} value={level}>
+                  Level {level}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
 
-                    <div className="flex flex-wrap gap-2">
-                      {unit.campuses.map((uc) => (
-                        <span
-                          key={uc.campus.id}
-                          className="badge badge-primary"
-                        >
-                          {uc.campus.name}
-                        </span>
-                      ))}
-                    </div>
+        <div className="grid">
+          <label>
+            Credit Points
+            <select
+              name="creditPoints"
+              defaultValue={filters.creditPoints}
+            >
+              <option value="">Any Credit Points</option>
+              {[6, 12].map((points) => (
+                <option key={points} value={points}>
+                  {points} Points
+                </option>
+              ))}
+            </select>
+          </label>
 
-                    <div className="flex flex-wrap gap-2">
-                      {unit.semesters.map((us) => (
-                        <span
-                          key={us.semester.id}
-                          className="badge badge-secondary h-min"
-                        >
-                          {us.semester.name}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </Link>
+          <label>
+            Campus
+            <select
+              name="campus"
+              defaultValue={filters.campus}
+            >
+              <option value="">All Campuses</option>
+              {campuses.map((campus) => (
+                <option key={campus.id} value={campus.id}>
+                  {campus.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <div className="grid">
+          <label>
+            Semester
+            <select
+              name="semester"
+              defaultValue={filters.semester}
+            >
+              <option value="">All Semesters</option>
+              {semesters.map((semester) => (
+                <option key={semester.id} value={semester.id}>
+                  {semester.name}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label>
+            Sort By
+            <select
+              name="sortBy"
+              defaultValue={filters.sortBy}
+            >
+              <option value="code">Unit Code</option>
+              <option value="name">Unit Name</option>
+              <option value="rating">Average Rating</option>
+              <option value="reviews">Number of Reviews</option>
+            </select>
+          </label>
+        </div>
+
+        <label>
+          Items per Page
+          <select
+            name="pageSize"
+            defaultValue={filters.pageSize}
+          >
+            {ALLOWED_PAGE_SIZES.map((size) => (
+              <option key={size} value={size}>
+                {size} Items
+              </option>
             ))}
-          </div>
+          </select>
+        </label>
 
-          {totalPages > 1 && (
-            <div className="flex justify-center items-center gap-2 mt-8">
-              <Link
-                to={createPageUrl(1)}
-                className={`btn btn-secondary btn-sm ${currentPage === 1 ? "btn-disabled" : ""
-                  }`}
-              >
-                <ChevronsLeftIcon className="size-4" />
-              </Link>
-              <Link
-                to={createPageUrl(currentPage - 1)}
-                className={`btn btn-primary btn-sm ${currentPage === 1 ? "btn-disabled" : ""
-                  }`}
-              >
-                <ChevronLeftIcon className="size-4" />
-              </Link>
-
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                let pageNum;
-                if (totalPages <= 5) {
-                  pageNum = i + 1;
-                } else if (currentPage <= 3) {
-                  pageNum = i + 1;
-                } else if (currentPage >= totalPages - 2) {
-                  pageNum = totalPages - 4 + i;
-                } else {
-                  pageNum = currentPage - 2 + i;
-                }
-
-                return (
-                  <Link
-                    key={pageNum}
-                    to={createPageUrl(pageNum)}
-                    className={`btn btn-sm ${currentPage === pageNum ? "btn-accent" : ""
-                      }`}
-                  >
-                    {pageNum}
-                  </Link>
-                );
-              })}
-
-              <Link
-                to={createPageUrl(currentPage + 1)}
-                className={`btn btn-primary btn-sm ${currentPage === totalPages ? "btn-disabled" : ""
-                  }`}
-              >
-                <ChevronRightIcon className="size-4" />
-              </Link>
-              <Link
-                to={createPageUrl(totalPages)}
-                className={`btn btn-secondary btn-sm ${currentPage === totalPages ? "btn-disabled" : ""
-                  }`}
-              >
-                <ChevronsRightIcon className="size-4" />
-              </Link>
-            </div>
-          )}
+        <div className="grid">
+          <input type="reset" value="Clear" className="secondary" />
+          <button type="submit">
+            Search
+          </button>
         </div>
-      </div>
-    </div>
+      </Form>
+
+      <h2>Search Results ({totalCount} units)</h2>
+
+      {Array.from({ length: Math.ceil(units.length / 3) }, (_, rowIndex) => (
+        <div key={rowIndex} className="grid">
+          {units.slice(rowIndex * 3, rowIndex * 3 + 3).map((unit) => (
+            <article key={unit.id}>
+              <header>
+                <Link to={`/units/${unit.code}`}>
+                  <h3>{unit.code}</h3>
+                </Link>
+              </header>
+              <p>
+                <strong>{unit.name}</strong>
+              </p>
+              <p>
+                <small>
+                  Level {unit.level} • {unit.creditPoints} Points • {unit._count.reviews} reviews
+                </small>
+              </p>
+              <p>
+                <strong>Campuses:</strong> {unit.campuses.map((uc) => uc.campus.name).join(", ")}
+              </p>
+              <p>
+                <strong>Semesters:</strong> {unit.semesters.map((us) => us.semester.name).join(", ")}
+              </p>
+            </article>
+          ))}
+        </div>
+      ))}
+
+      {totalPages > 1 && (
+        <div style={{ display: "flex", justifyContent: "center", gap: "0.5rem", marginTop: "2rem" }}>
+          <Link
+            to={createPageUrl(1)}
+            role="button"
+            className={currentPage === 1 ? "secondary" : ""}
+            style={{ textDecoration: "none" }}
+          >
+            {"<<"}
+          </Link>
+          <Link
+            to={createPageUrl(currentPage - 1)}
+            role="button"
+            className={currentPage === 1 ? "secondary" : ""}
+            style={{ textDecoration: "none" }}
+          >
+            {"<"}
+          </Link>
+
+          {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+            let pageNum;
+            if (totalPages <= 5) {
+              pageNum = i + 1;
+            } else if (currentPage <= 3) {
+              pageNum = i + 1;
+            } else if (currentPage >= totalPages - 2) {
+              pageNum = totalPages - 4 + i;
+            } else {
+              pageNum = currentPage - 2 + i;
+            }
+
+            return (
+              <Link
+                key={pageNum}
+                to={createPageUrl(pageNum)}
+                role="button"
+                className={currentPage === pageNum ? "" : "secondary"}
+                style={{ textDecoration: "none" }}
+              >
+                {pageNum}
+              </Link>
+            );
+          })}
+
+          <Link
+            to={createPageUrl(currentPage + 1)}
+            role="button"
+            className={currentPage === totalPages ? "secondary" : ""}
+            style={{ textDecoration: "none" }}
+          >
+            {">"}
+          </Link>
+          <Link
+            to={createPageUrl(totalPages)}
+            role="button"
+            className={currentPage === totalPages ? "secondary" : ""}
+            style={{ textDecoration: "none" }}
+          >
+            {">>"}
+          </Link>
+        </div>
+      )}
+    </>
   );
 }

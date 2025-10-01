@@ -87,11 +87,11 @@ export async function action({ request }: any) {
       }),
       ...(action === "approve"
         ? [
-            db.unit.update({
-              where: { id: deprecation.unitId },
-              data: { isDeprecated: true },
-            }),
-          ]
+          db.unit.update({
+            where: { id: deprecation.unitId },
+            data: { isDeprecated: true },
+          }),
+        ]
         : []),
     ]);
 
@@ -150,69 +150,60 @@ function RequestCard({
   data: any;
 }) {
   return (
-    <div className="card bg-base-100 shadow-md hover:shadow-xl transition-all duration-300 rounded-xl overflow-hidden">
-      <div className="card-body p-6">
-        <div className="space-y-4">
-          <div className="flex justify-between items-start">
-            <div>
-              <h3 className="text-lg font-semibold">
-                {type === "deprecation" && "Deprecation Request"}
-                {type === "suggestion" && "Change Suggestion"}
-                {type === "addition" && "Unit Addition Request"}
-              </h3>
-              <p className="text-sm text-base-content/70">
-                by {data.user.name || "Anonymous"} on{" "}
-                {new Date(data.createdAt).toLocaleDateString()}
-              </p>
-            </div>
-            <div className="badge badge-primary">
-              {data.unit?.code || data.code}
-            </div>
-          </div>
+    <article>
+      <header>
+        <h3>
+          {type === "deprecation" && "Deprecation Request"}
+          {type === "suggestion" && "Change Suggestion"}
+          {type === "addition" && "Unit Addition Request"}
+        </h3>
+        <p>
+          <small>
+            by {data.user.name || "Anonymous"} on{" "}
+            {new Date(data.createdAt).toLocaleDateString()}
+          </small>
+        </p>
+        <p><strong>{data.unit?.code || data.code}</strong></p>
+      </header>
 
-          {type === "deprecation" && (
-            <div>
-              <h4 className="font-medium mb-1">Reason for deprecation:</h4>
-              <p className="text-base-content/80">{data.reason}</p>
-            </div>
-          )}
-
-          {type === "suggestion" && (
-            <div className="space-y-2">
-              <div>
-                <h4 className="font-medium">Field to change:</h4>
-                <p className="text-base-content/80">{data.field}</p>
-              </div>
-              <div>
-                <h4 className="font-medium">Description:</h4>
-                <p className="text-base-content/80">{data.reason}</p>
-              </div>
-            </div>
-          )}
-
-          <Form method="post" className="flex gap-2 justify-end">
-            <input type="hidden" name="intent" value={`handle-${type}`} />
-            <input type="hidden" name="id" value={data.id} />
-            <button
-              type="submit"
-              name="action"
-              value="reject"
-              className="btn btn-ghost btn-sm"
-            >
-              Reject
-            </button>
-            <button
-              type="submit"
-              name="action"
-              value="approve"
-              className="btn btn-primary btn-sm"
-            >
-              Approve
-            </button>
-          </Form>
+      {type === "deprecation" && (
+        <div>
+          <h4>Reason for deprecation:</h4>
+          <p>{data.reason}</p>
         </div>
-      </div>
-    </div>
+      )}
+
+      {type === "suggestion" && (
+        <div>
+          <h4>Field to change:</h4>
+          <p>{data.field}</p>
+          <h4>Description:</h4>
+          <p>{data.reason}</p>
+        </div>
+      )}
+
+      <footer>
+        <Form method="post" className="grid">
+          <input type="hidden" name="intent" value={`handle-${type}`} />
+          <input type="hidden" name="id" value={data.id} />
+          <button
+            type="submit"
+            name="action"
+            value="reject"
+            className="secondary"
+          >
+            Reject
+          </button>
+          <button
+            type="submit"
+            name="action"
+            value="approve"
+          >
+            Approve
+          </button>
+        </Form>
+      </footer>
+    </article>
   );
 }
 
@@ -221,38 +212,38 @@ export default function Admin() {
     useLoaderData<typeof loader>();
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold mb-8">Admin Dashboard</h1>
+    <>
+      <h1>Admin Dashboard</h1>
       {(deprecationRequests.length > 0 ||
         suggestions.length > 0 ||
         additionRequests.length > 0) && (
-        <div className="space-y-6">
-          <h2 className="text-2xl font-bold">Pending Requests</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {deprecationRequests.map((request) => (
-              <RequestCard key={request.id} type="deprecation" data={request} />
-            ))}
-            {suggestions.map((suggestion) => (
-              <RequestCard
-                key={suggestion.id}
-                type="suggestion"
-                data={suggestion}
-              />
-            ))}
-            {additionRequests.map((request) => (
-              <RequestCard key={request.id} type="addition" data={request} />
-            ))}
-          </div>
-        </div>
-      )}
+          <>
+            <h2>Pending Requests</h2>
+            <div className="grid">
+              {deprecationRequests.map((request) => (
+                <RequestCard key={request.id} type="deprecation" data={request} />
+              ))}
+              {suggestions.map((suggestion) => (
+                <RequestCard
+                  key={suggestion.id}
+                  type="suggestion"
+                  data={suggestion}
+                />
+              ))}
+              {additionRequests.map((request) => (
+                <RequestCard key={request.id} type="addition" data={request} />
+              ))}
+            </div>
+          </>
+        )}
 
       {deprecationRequests.length === 0 &&
         suggestions.length === 0 &&
         additionRequests.length === 0 && (
-          <div className="text-center py-12 text-base-content/70">
-            <p className="text-xl">No pending requests</p>
+          <div style={{ textAlign: "center", padding: "3rem 0" }}>
+            <p><em>No pending requests</em></p>
           </div>
         )}
-    </div>
+    </>
   );
 }

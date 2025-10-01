@@ -8,6 +8,7 @@ export default [
   route("search", "routes/search.tsx"),
   route("about", "routes/about.tsx"),
   route("profile", "routes/profile.tsx"),
+  route("reviews/:reviewId/edit", "routes/edit-review.tsx"),
   route("admin", "routes/admin.tsx"),
   route("units/:unitCode", "routes/unit.tsx"),
 ] satisfies RouteConfig;
