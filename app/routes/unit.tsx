@@ -501,9 +501,6 @@ function UnitDetails({
 }) {
   const [showDeprecateModal, setShowDeprecateModal] = useState(false);
   const [showSuggestModal, setShowSuggestModal] = useState(false);
-  const handbookUrl =
-    unit.handbookUrl ||
-    `https://handbook.monash.edu/current/units/${unit.code}`;
 
   return (
     <article>
@@ -532,7 +529,7 @@ function UnitDetails({
           ))}
         </div>
         <a
-          href={handbookUrl}
+          href={`https://handbook.monash.edu/current/units/${unit.code}`}
           target="_blank"
           rel="noopener noreferrer"
           style={{ display: "block", marginTop: "1rem" }}

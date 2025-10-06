@@ -15,6 +15,7 @@ model User {
   email                String                @unique
   name                 String?
   role                 String                @default("user") // can be "user" or "admin"
+  apiKey               String?
   reviews              Review[]
   reviewReactions      ReviewReaction[]
   unitAdditionRequests UnitAdditionRequest[]
@@ -41,17 +42,17 @@ model Semester {
 }
 
 model Unit {
-  id           Int            @id @default(autoincrement())
+  id           Int               @id @default(autoincrement())
   name         String
-  code         String         @unique
+  code         String            @unique
   level        Int
   creditPoints Int
   reviews      Review[]
   campuses     UnitCampus[]
   semesters    UnitSemester[]
   facultyId    Int
-  faculty      Faculty        @relation(fields: [facultyId], references: [id])
-  isDeprecated Boolean        @default(false)
+  faculty      Faculty           @relation(fields: [facultyId], references: [id])
+  isDeprecated Boolean           @default(false)
   deprecations UnitDeprecation[]
   suggestions  UnitSuggestion[]
 
@@ -62,9 +63,6 @@ model Unit {
   // New relations for corequisites
   corequisites     UnitCorequisite[] @relation("corequisite")
   isCorequisiteFor UnitCorequisite[] @relation("isCorequisiteFor")
-
-  // Link to Monash handbook
-  handbookUrl String?
 }
 
 model UnitCampus {
@@ -129,15 +127,15 @@ model UnitDeprecation {
 }
 
 model UnitSuggestion {
-  id          Int      @id @default(autoincrement())
-  field       String   // e.g. "campus", "semester"
-  reason      String
-  createdAt   DateTime @default(now())
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id])
-  unitId      Int
-  unit        Unit     @relation(fields: [unitId], references: [id])
-  status      String   @default("pending") // can be "pending", "approved", or "rejected"
+  id        Int      @id @default(autoincrement())
+  field     String // e.g. "campus", "semester"
+  reason    String
+  createdAt DateTime @default(now())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  unitId    Int
+  unit      Unit     @relation(fields: [unitId], references: [id])
+  status    String   @default("pending") // can be "pending", "approved", or "rejected"
 }
 
 model Review {
@@ -162,7 +160,6 @@ model Review {
   @@unique([userId, unitId])
 }
 
-// New model for review reactions
 model ReviewReaction {
   id        Int      @id @default(autoincrement())
   isLike    Boolean // true for like, false for dislike

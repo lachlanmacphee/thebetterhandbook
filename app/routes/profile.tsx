@@ -1,9 +1,8 @@
-import { redirect, useLoaderData, Link } from "react-router";
+import { randomBytes } from "crypto";
+import { useEffect, useState } from "react";
+import { Link, redirect, useFetcher, useLoaderData } from "react-router";
 import { getSession } from "~/modules/auth/session.server";
-import { useFetcher } from "react-router";
 import db from "~/modules/db/db.server";
-import { useState, useEffect } from "react";
-import Rating from "~/components/Rating";
 
 export async function loader({ request }: any) {
   const session = await getSession(request.headers.get("Cookie"));
@@ -33,27 +32,48 @@ export async function loader({ request }: any) {
 
 export async function action({ request }: any) {
   const formData = await request.formData();
+  const intent = formData.get("intent");
   const userId = (await getSession(request.headers.get("Cookie"))).get("id");
 
   if (!userId) {
     return redirect("/auth/login");
   }
 
-  try {
-    const updatedUser = await db.user.update({
-      where: { id: userId },
-      data: { name: formData.get("name") as string },
-    });
-    return { success: true, user: updatedUser };
-  } catch (error) {
-    return { success: false, error: "Failed to update name" };
+  if (intent === "update-name") {
+    try {
+      const updatedUser = await db.user.update({
+        where: { id: userId },
+        data: { name: formData.get("name") as string },
+      });
+      return { success: true, user: updatedUser };
+    } catch (error) {
+      return { success: false, error: "Failed to update name" };
+    }
   }
+
+  if (intent === "generate-apikey") {
+    try {
+      const apiKey = `tbh_${randomBytes(32).toString("hex")}`;
+      const updatedUser = await db.user.update({
+        where: { id: userId },
+        data: { apiKey },
+      });
+
+      return { success: true, user: updatedUser, apiKey };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      return {
+        success: false,
+        error: `Failed to generate API key: ${errorMessage}`,
+      };
+    }
+  }
+
+  return { success: false, error: "Invalid action" };
 }
 
 function ReviewCard({ review }: { review: any }) {
-  const likes = review.reactions?.filter((r: any) => r.isLike).length || 0;
-  const dislikes = review.reactions?.filter((r: any) => !r.isLike).length || 0;
-
   return (
     <article style={{ display: "flex", flexDirection: "column" }}>
       <header>
@@ -99,6 +119,7 @@ export default function Profile() {
 
         {isEditing ? (
           <fetcher.Form method="post">
+            <input type="hidden" name="intent" value="update-name" />
             <fieldset role="group">
               <input
                 type="text"
@@ -128,6 +149,30 @@ export default function Profile() {
             <button onClick={() => setIsEditing(true)}>Edit</button>
           </fieldset>
         )}
+      </section>
+
+      <section>
+        <h2>Your API Key</h2>
+        <fetcher.Form method="post">
+          <input type="hidden" name="intent" value="generate-apikey" />
+          <fieldset role="group">
+            <input
+              type="text"
+              name="apiKey"
+              value={user.apiKey || ""}
+              placeholder="No key found. Please click generate."
+              disabled
+              readOnly
+            />
+            <button type="submit" disabled={fetcher.state !== "idle"}>
+              {fetcher.state !== "idle"
+                ? "Generating..."
+                : user.apiKey
+                ? "Regenerate"
+                : "Generate"}
+            </button>
+          </fieldset>
+        </fetcher.Form>
       </section>
 
       <section>

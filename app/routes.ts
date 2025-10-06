@@ -11,4 +11,5 @@ export default [
   route("reviews/:reviewId/edit", "routes/edit-review.tsx"),
   route("admin", "routes/admin.tsx"),
   route("units/:unitCode", "routes/unit.tsx"),
+  route("api/units", "routes/api.units.tsx"),
 ] satisfies RouteConfig;

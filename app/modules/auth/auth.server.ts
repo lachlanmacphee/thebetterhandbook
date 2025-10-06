@@ -1,10 +1,10 @@
+import type { User } from "@prisma/client";
+import { redirect } from "react-router";
 import { Authenticator } from "remix-auth";
 import { TOTPStrategy } from "remix-auth-totp";
-import { sessionStorage } from "./session.server";
-import { sendEmail } from "./email.server";
 import db from "~/modules/db/db.server";
-import { redirect } from "react-router";
-import type { User } from "@prisma/client";
+import { sendEmail } from "./email.server";
+import { sessionStorage } from "./session.server";
 
 export let authenticator = new Authenticator<User>();
 
@@ -45,8 +45,6 @@ authenticator.use(
 
         // Development Only.
         if (process.env.NODE_ENV === "development") {
-          console.log("Magic link sent to:", email);
-          console.log("Magic link:", magicLink);
           console.log("Code:", code);
         }
       },

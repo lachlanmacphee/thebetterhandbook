@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router";
-import type { Route } from "./+types/home";
-import db from "~/modules/db/db.server";
 import { getSession } from "~/modules/auth/session.server";
+import db from "~/modules/db/db.server";
+import type { Route } from "./+types/home";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
@@ -57,9 +57,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   return (
     <>
       <h2>Find a Unit</h2>
-      <form
-        onSubmit={handleUnitSearch}
-      >
+      <form onSubmit={handleUnitSearch}>
         <fieldset role="group">
           <input
             type="text"
@@ -70,11 +68,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           <input type="submit" value="Go" />
         </fieldset>
       </form>
-      <Link
-        to="/search"
-      >
-        Want to search for units instead?
-      </Link>
+      <Link to="/search">Want to search for units instead?</Link>
       <h2>Popular Units</h2>
       <UnitsRow units={units.slice(0, 3)} user={user} />
       <UnitsRow units={units.slice(3, 6)} user={user} />
@@ -82,56 +76,62 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   );
 }
 
-
-function UnitsRow({ units, user }: { units: Route.ComponentProps["loaderData"]["units"], user: Route.ComponentProps["loaderData"]["user"] }) {
-  return (<div className="grid">
-    {units.map((unit) => (
-      <article style={{ display: 'flex', flexDirection: 'column' }}>
-        <header>
-          <Link
-            key={unit.id}
-            to={`/units/${unit.code}`}
-          >
-            <h4>
-              {unit.code}
-            </h4>
-          </Link>
-        </header>
-        <p>
-          <strong>Name:</strong> {unit.name}
-          <br />
-          <strong>Reviews:</strong> {unit._count.reviews}
-          <br />
-          <strong>Campuses:</strong> {unit.campuses.map((campus) => campus.campus.name).join(", ")}
-          <br />
-          <strong>Semesters:</strong> {unit.semesters.map((semester) => semester.semester.name).join(", ")}
-        </p>
-        {user && (<footer style={{ marginTop: 'auto' }}>
-          <div>
-            {
-              unit.reviews.filter((review) => review.userId === user)
-                .length === 0 && (
-                <Link
-                  to={`/units/${unit.code}#review-form`}
-                  role="button"
-                >
-                  Review
-                </Link>
-              )}
-            {
-              unit.reviews.filter((review) => review.userId === user)
-                .length !== 0 && (
-                <Link
-                  to={`/units/${unit.code}#review-form`}
-                  role="button"
-                  className="secondary"
-                >
-                  Reviewed
-                </Link>
-              )}
-          </div>
-        </footer>)}
-      </article>
-    ))}
-  </div>)
+function UnitsRow({
+  units,
+  user,
+}: {
+  units: Route.ComponentProps["loaderData"]["units"];
+  user: Route.ComponentProps["loaderData"]["user"];
+}) {
+  return (
+    <div className="grid">
+      {units.map((unit) => (
+        <article
+          key={unit.id}
+          style={{ display: "flex", flexDirection: "column" }}
+        >
+          <header>
+            <Link key={unit.id} to={`/units/${unit.code}`}>
+              <h4>{unit.code}</h4>
+            </Link>
+          </header>
+          <p>
+            <strong>Name:</strong> {unit.name}
+            <br />
+            <strong>Reviews:</strong> {unit._count.reviews}
+            <br />
+            <strong>Campuses:</strong>{" "}
+            {unit.campuses.map((campus) => campus.campus.name).join(", ")}
+            <br />
+            <strong>Semesters:</strong>{" "}
+            {unit.semesters
+              .map((semester) => semester.semester.name)
+              .join(", ")}
+          </p>
+          {user && (
+            <footer style={{ marginTop: "auto" }}>
+              <div>
+                {unit.reviews.filter((review) => review.userId === user)
+                  .length === 0 && (
+                  <Link to={`/units/${unit.code}#review-form`} role="button">
+                    Review
+                  </Link>
+                )}
+                {unit.reviews.filter((review) => review.userId === user)
+                  .length !== 0 && (
+                  <Link
+                    to={`/units/${unit.code}#review-form`}
+                    role="button"
+                    className="secondary"
+                  >
+                    Reviewed
+                  </Link>
+                )}
+              </div>
+            </footer>
+          )}
+        </article>
+      ))}
+    </div>
+  );
 }
