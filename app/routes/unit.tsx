@@ -406,7 +406,9 @@ function DeprecateForm({
               />
             </label>
           </fieldset>
-          <footer>
+          <footer
+            style={{ display: "grid", gap: "1rem", gridAutoFlow: "column" }}
+          >
             <button type="button" className="secondary" onClick={onClose}>
               Cancel
             </button>
@@ -468,7 +470,9 @@ function SuggestChangesForm({
             </label>
           </fieldset>
 
-          <footer>
+          <footer
+            style={{ display: "grid", gap: "1rem", gridAutoFlow: "column" }}
+          >
             <button type="button" className="secondary" onClick={onClose}>
               Cancel
             </button>
@@ -538,7 +542,14 @@ function UnitDetails({
         </a>
       </header>
 
-      <div className="grid">
+      <div
+        style={{
+          display: "flex",
+          gap: "1rem",
+          flexWrap: "wrap",
+          justifyContent: "space-between",
+        }}
+      >
         <Rating rating={teachingRating} title="Teaching" />
         <Rating rating={contentRating} title="Content" />
         <Rating
@@ -770,6 +781,8 @@ function ReviewsList({ reviews, user }: { reviews: any[]; user?: number }) {
           justifyContent: "space-between",
           alignItems: "center",
           marginBottom: "1rem",
+          flexWrap: "wrap",
+          gap: "1rem",
         }}
       >
         <h2 style={{ marginBottom: "0px" }}>Reviews</h2>

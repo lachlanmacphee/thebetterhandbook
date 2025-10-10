@@ -58,12 +58,12 @@ export default function Rating({ rating, title, type }: RatingProps) {
       ? getDifficultyLabel(rating)
       : type === "workload"
       ? getWorkloadLabel(rating)
-      : rating.toFixed(1);
+      : rating.toFixed(1) + " / 5";
 
   return (
-    <section>
+    <div>
       <h4>{title}</h4>
       <p>{displayValue}</p>
-    </section>
+    </div>
   );
 }
