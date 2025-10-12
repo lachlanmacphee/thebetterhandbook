@@ -1,6 +1,6 @@
+import fs from "fs";
 import { Importer, type ImportUnit } from "imports/importer";
 import pino from "pino";
-import fs from "fs";
 
 const COURSELOOP_API_URL =
   "https://api-ap-southeast-2.prod.courseloop.com/publisher/search-all";
@@ -9,6 +9,12 @@ const COURSELOOP_BATCH_SIZE = 10;
 const COURSELOOP_INTER_BATCH_DELAY = 10000;
 const HANDBOOK_API_URL = "https://handbook.monash.edu/_next/data";
 const HANDBOOK_BUILD_ID = "x72Bg6G_Gp9JqA01tHcsD";
+
+type IndexResult = {
+  unitCodes: string[];
+  aos: string[];
+  courses: string[];
+};
 
 export default class MonashImporter extends Importer {
   constructor(logger: pino.Logger) {
@@ -194,9 +200,3 @@ export default class MonashImporter extends Importer {
     }
   }
 }
-
-type IndexResult = {
-  unitCodes: string[];
-  aos: string[];
-  courses: string[];
-};
