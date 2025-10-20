@@ -505,6 +505,17 @@ function UnitDetails({
 }) {
   const [showDeprecateModal, setShowDeprecateModal] = useState(false);
   const [showSuggestModal, setShowSuggestModal] = useState(false);
+  const [screenWidth, setScreenWidth] = useState<number | null>(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setScreenWidth(window.innerWidth);
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   return (
     <article>
@@ -518,7 +529,7 @@ function UnitDetails({
         >
           <hgroup>
             <h1>{unit.code}</h1>
-            <p>{unit.name}</p>
+            {screenWidth && screenWidth > 640 && <p>{unit.name}</p>}
           </hgroup>
           <OverallRating rating={overallRating} />
         </div>
@@ -612,6 +623,18 @@ function Review({ review, user }: { review: any; user?: number }) {
   const likes = review.reactions?.filter((r: any) => r.isLike).length || 0;
   const dislikes = review.reactions?.filter((r: any) => !r.isLike).length || 0;
 
+  const [screenWidth, setScreenWidth] = useState<number | null>(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setScreenWidth(window.innerWidth);
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   if (isEditing) {
     return (
       <article>
@@ -638,7 +661,14 @@ function Review({ review, user }: { review: any; user?: number }) {
           </p>
         </hgroup>
 
-        <div className="grid">
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns:
+              screenWidth && screenWidth < 640 ? "1fr 1fr" : "1fr 1fr 1fr 1fr",
+            gap: "1rem",
+          }}
+        >
           <Rating rating={review.teachingRating} title="Teaching" />
           <Rating rating={review.contentRating} title="Content" />
           <Rating
@@ -780,32 +810,23 @@ function ReviewsList({ reviews, user }: { reviews: any[]; user?: number }) {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: "1rem",
-          flexWrap: "wrap",
           gap: "1rem",
         }}
       >
-        <h2 style={{ marginBottom: "0px" }}>Reviews</h2>
-        <div style={{ display: "flex", gap: "0.5rem" }}>
-          <button
-            className={sortBy === "helpful" ? "" : "secondary"}
-            onClick={() => setSortBy("helpful")}
-          >
-            Most Helpful
-          </button>
-          <button
-            onClick={() => setSortBy("latest")}
-            className={sortBy === "latest" ? "" : "secondary"}
-          >
-            Latest
-          </button>
-          <button
-            onClick={() => setSortBy("oldest")}
-            className={sortBy === "oldest" ? "" : "secondary"}
-          >
-            Oldest
-          </button>
-        </div>
+        <h2>Reviews</h2>
+        <select
+          name="sort-reviews"
+          aria-label="Sort reviews by..."
+          value={sortBy}
+          style={{ width: "max-content" }}
+          onChange={(e) =>
+            setSortBy(e.target.value as "helpful" | "latest" | "oldest")
+          }
+        >
+          <option value="helpful">Most Helpful</option>
+          <option value="latest">Latest</option>
+          <option value="oldest">Oldest</option>
+        </select>
       </header>
       <div>
         {sortedReviews.map((review) => (
@@ -822,59 +843,48 @@ export default function Unit({ loaderData, params }: Route.ComponentProps) {
 
   if (!unit) {
     return (
-      <main style={{ padding: "2rem 0" }}>
-        <div className="container">
-          <article style={{ padding: "2rem", textAlign: "center" }}>
-            <header style={{ marginBottom: "2rem" }}>
-              <h1>Unit Not Found</h1>
-              <p>Sorry, we couldn't find the unit {params.unitCode}</p>
-            </header>
+      <article>
+        <header>
+          <h1>Unit Not Found</h1>
+          <p>Sorry, we couldn't find the unit "{params.unitCode}"</p>
+        </header>
 
-            {user && !existingUnitAdditionRequest && (
-              <section style={{ marginBottom: "2rem" }}>
-                <p>
-                  If you think this unit should be in our system, you can
-                  request it to be added.
-                </p>
-                <Form method="post" style={{ marginTop: "1rem" }}>
-                  <input type="hidden" name="intent" value="request-unit" />
-                  <button type="submit">Request Unit Addition</button>
-                </Form>
-              </section>
-            )}
+        {user && !existingUnitAdditionRequest && (
+          <section>
+            <p>
+              If you think this unit should be in our system, you can request it
+              to be added.
+            </p>
+            <Form method="post" style={{ marginTop: "1rem" }}>
+              <input type="hidden" name="intent" value="request-unit" />
+              <button type="submit">Request Unit Addition</button>
+            </Form>
+          </section>
+        )}
 
-            {existingUnitAdditionRequest && (
-              <section style={{ marginBottom: "2rem" }}>
-                <p>
-                  We currently have a pending request to add this unit. Please
-                  check back again soon.
-                </p>
-                <small>
-                  Requested on{" "}
-                  {new Date(
-                    existingUnitAdditionRequest.createdAt
-                  ).toLocaleDateString()}
-                </small>
-              </section>
-            )}
+        {existingUnitAdditionRequest && (
+          <section>
+            <p>
+              We currently have a pending request to add this unit. Please check
+              back again soon.
+            </p>
+            <small>
+              Requested on{" "}
+              {new Date(
+                existingUnitAdditionRequest.createdAt
+              ).toLocaleDateString()}
+            </small>
+          </section>
+        )}
 
-            {!user && (
-              <section>
-                <p>
-                  Please sign in to request this unit to be added to our system.
-                </p>
-                <a
-                  href="/auth/login"
-                  role="button"
-                  style={{ marginTop: "1rem" }}
-                >
-                  Sign In
-                </a>
-              </section>
-            )}
-          </article>
-        </div>
-      </main>
+        {!user && (
+          <section>
+            <p>
+              If you'd like to raise a request to add this unit, please sign in.
+            </p>
+          </section>
+        )}
+      </article>
     );
   }
 
@@ -899,32 +909,30 @@ export default function Unit({ loaderData, params }: Route.ComponentProps) {
     unit.reviews.length;
 
   return (
-    <main style={{ padding: "2rem 0" }}>
-      <div className="container">
-        <UnitDetails
-          unit={unit}
-          user={user?.id}
-          previousPage={previousPage}
-          overallRating={overallRating}
-          teachingRating={teachingRating}
-          contentRating={contentRating}
-          difficultyRating={difficultyRating}
-          workloadRating={workloadRating}
-        />
+    <>
+      <UnitDetails
+        unit={unit}
+        user={user?.id}
+        previousPage={previousPage}
+        overallRating={overallRating}
+        teachingRating={teachingRating}
+        contentRating={contentRating}
+        difficultyRating={difficultyRating}
+        workloadRating={workloadRating}
+      />
 
-        <ReviewsList reviews={unit.reviews} user={user?.id} />
+      <ReviewsList reviews={unit.reviews} user={user?.id} />
 
-        {user && !hasReviewed && (
-          <section style={{ marginTop: "3rem" }}>
-            <article style={{ padding: "2rem", marginBottom: "2rem" }}>
-              <header>
-                <h2>Add Review</h2>
-              </header>
-              <ReviewForm />
-            </article>
-          </section>
-        )}
-      </div>
-    </main>
+      {user && !hasReviewed && (
+        <section>
+          <article>
+            <header>
+              <h2>Add Review</h2>
+            </header>
+            <ReviewForm />
+          </article>
+        </section>
+      )}
+    </>
   );
 }

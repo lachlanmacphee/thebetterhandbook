@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { StarIcon } from "./Icons";
 
 type RatingProps = {
@@ -7,10 +8,23 @@ type RatingProps = {
 };
 
 export function OverallRating({ rating }: { rating: number }) {
+  const [screenWidth, setScreenWidth] = useState<number | null>(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setScreenWidth(window.innerWidth);
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const starSize = screenWidth && screenWidth < 640 ? 24 : 36;
   return (
-    <div>
+    <div style={{ marginBottom: "1rem" }}>
       {[...Array(Math.round(rating))].map((_, i) => (
-        <StarIcon key={i} filled={true} size={24} />
+        <StarIcon key={i} filled={true} size={starSize} />
       ))}
     </div>
   );
