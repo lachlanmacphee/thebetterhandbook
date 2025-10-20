@@ -534,13 +534,33 @@ function UnitDetails({
           <OverallRating rating={overallRating} />
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <div style={{ display: "flex", alignItems: "stretch", gap: "0.5rem" }}>
           {unit.isDeprecated && <mark>Deprecated</mark>}
           {unit.campuses.map((campus: any) => (
-            <kbd key={campus.campus.id}>{campus.campus.name}</kbd>
+            <kbd
+              key={campus.campus.id}
+              style={{
+                backgroundColor: "var(--pico-primary-background)",
+                color: "var(--pico-primary-text)",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              {campus.campus.name}
+            </kbd>
           ))}
           {unit.semesters.map((semester: any) => (
-            <kbd key={semester.semester.id}>{semester.semester.name}</kbd>
+            <kbd
+              key={semester.semester.id}
+              style={{
+                backgroundColor: "var(--pico-secondary-background)",
+                color: "var(--pico-secondary-text)",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              {semester.semester.name}
+            </kbd>
           ))}
         </div>
         <a
@@ -555,10 +575,10 @@ function UnitDetails({
 
       <div
         style={{
-          display: "flex",
+          display: "grid",
+          gridTemplateColumns:
+            screenWidth && screenWidth < 640 ? "1fr 1fr" : "1fr 1fr 1fr 1fr",
           gap: "1rem",
-          flexWrap: "wrap",
-          justifyContent: "space-between",
         }}
       >
         <Rating rating={teachingRating} title="Teaching" />

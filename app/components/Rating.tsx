@@ -75,7 +75,7 @@ export default function Rating({ rating, title, type }: RatingProps) {
       : rating.toFixed(1) + " / 5";
 
   return (
-    <div>
+    <div style={{ textAlign: "center" }}>
       <h4>{title}</h4>
       <p>{displayValue}</p>
     </div>
