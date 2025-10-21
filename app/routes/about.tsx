@@ -12,26 +12,20 @@ export default function About() {
         However, I've also encountered my fair share of disappointing units
         where there was major room for improvement in how they were structured
         and delivered. While SETU is an important mechanism for gathering
-        student feedback, the information in them is very high level and often
+        student feedback, the information released is very high level and often
         not very helpful when trying to decide which units to take.
         <br />
         <br />
-        So, instead of having to search across Reddit and Discorcd for reviews,
-        I created this site for students to share their unit/subject experiences
-        with others. You can share what the workload was like, whether you could
-        attend entirely online, or how good the teaching quality was. If this
-        site can benefit one student in making a more informed decision about
-        their course selections, then I'll consider it a success!
-        <br />
-        <br />A side note: if you're an IT/Comp Sci/Eng student with some
-        technical know how, I've made this site completely open source, and
-        designed it in a way that it'd be very easy for any student to help
-        maintain it or start supporting another University. I hope that future
-        students might help me to create a lasting resource that will continue
-        to serve Australian University students for years to come.
+        So, instead of having to search across Reddit and Discord for reviews, I
+        created this site for students of Australian Universities to share their
+        experiences with others. You can share what the workload was like,
+        whether you could attend entirely online, or what the teaching was like,
+        amongst many other things. If this site can benefit one student in
+        making a more informed decision about their course selections, then I'll
+        consider it a success!
       </p>
 
-      <strong>Credits</strong>
+      <h2>Credits</h2>
       <p>
         Shoutout to{" "}
         <a
@@ -55,12 +49,11 @@ export default function About() {
         independent, open-source alternative.
       </p>
 
-      <strong>Open Source</strong>
+      <h2>Open Source</h2>
       <p>
         The Better Handbook is completely open source, meaning anyone can view,
-        contribute to, or learn from its code. I believe in transparency and
-        community-driven development, which is why the entire project is
-        available on{" "}
+        contribute to, or learn from its code. The entire project is available
+        on{" "}
         <a
           href="https://github.com/lachlanmacphee/thebetterhandbook"
           target="_blank"
@@ -68,14 +61,11 @@ export default function About() {
         >
           GitHub
         </a>
-        .
-      </p>
-
-      <strong>For Students, By Students</strong>
-      <p>
-        This platform is designed exclusively for Monash students, requiring a
-        valid Monash student email to participate. This ensures that reviews
-        come from actual students who have taken the units they're reviewing.
+        . If you're a student with some technical know-how, I've designed this
+        site in such a way that it's easy to maintain, or add support for
+        another University. I hope that you, or other future students, might
+        help me to create a lasting resource that will continue to serve
+        University students for years to come.
       </p>
     </section>
   );
