@@ -21,10 +21,12 @@ export function OverallRating({ rating }: { rating: number }) {
   }, []);
 
   const starSize = screenWidth && screenWidth < 640 ? 24 : 36;
+  const filledStars = Math.round(rating);
+
   return (
     <div style={{ marginBottom: "1rem" }}>
-      {[...Array(Math.round(rating))].map((_, i) => (
-        <StarIcon key={i} filled={true} size={starSize} />
+      {[...Array(5)].map((_, i) => (
+        <StarIcon key={i} filled={i < filledStars} size={starSize} />
       ))}
     </div>
   );
