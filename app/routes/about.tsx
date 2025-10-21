@@ -3,13 +3,32 @@ export default function About() {
     <section>
       <h1>About</h1>
       <p>
-        Hi! I'm Lachlan MacPhee, a Monash University student who created The
-        Better Handbook to address the challenges around finding units you'll
-        like. I noticed that while the handbook has important information, it's
-        hard to search through and doesn't capture the real student experience.
-        The Better Handbook aims to bridge this gap by providing advanced search
-        functionality, peer insights about workload, teaching quality, and
-        overall unit experience.
+        Hi there! I'm Lachlan MacPhee, a student at Monash University and the
+        creator of The Better Handbook.
+        <br />
+        <br />
+        I've had some incredible learning experiences during my time at Monash
+        University, with so many "wow" moments I wouldn't be able to count them.
+        However, I've also encountered my fair share of disappointing units
+        where there was major room for improvement in how they were structured
+        and delivered. While SETU is an important mechanism for gathering
+        student feedback, the information in them is very high level and often
+        not very helpful when trying to decide which units to take.
+        <br />
+        <br />
+        So, instead of having to search across Reddit and Discorcd for reviews,
+        I created this site for students to share their unit/subject experiences
+        with others. You can share what the workload was like, whether you could
+        attend entirely online, or how good the teaching quality was. If this
+        site can benefit one student in making a more informed decision about
+        their course selections, then I'll consider it a success!
+        <br />
+        <br />A side note: if you're an IT/Comp Sci/Eng student with some
+        technical know how, I've made this site completely open source, and
+        designed it in a way that it'd be very easy for any student to help
+        maintain it or start supporting another University. I hope that future
+        students might help me to create a lasting resource that will continue
+        to serve Australian University students for years to come.
       </p>
 
       <strong>Credits</strong>
