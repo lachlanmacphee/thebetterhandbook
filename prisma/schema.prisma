@@ -10,59 +10,74 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
+// Enums
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// Models
+
+model University {
   id                   Int                   @id @default(autoincrement())
-  email                String                @unique
-  name                 String?
-  role                 String                @default("user") // can be "user" or "admin"
-  apiKey               String?
-  reviews              Review[]
-  reviewReactions      ReviewReaction[]
+  name                 String                @unique
+  users                User[]
+  faculties            Faculty[]
+  campuses             Campus[]
+  semesters            Semester[]
+  units                Unit[]
   unitAdditionRequests UnitAdditionRequest[]
-  unitSuggestions      UnitSuggestion[]
-  unitDeprecations     UnitDeprecation[]
+}
+
+model User {
+  id                    Int                   @id @default(autoincrement())
+  email                 String                @unique
+  name                  String?
+  role                  UserRole              @default(USER)
+  apiKey                String?
+  preferredUniversityId Int?
+  preferredUniversity   University?           @relation(fields: [preferredUniversityId], references: [id])
+  reviews               Review[]
+  reviewReactions       ReviewReaction[]
+  unitAdditionRequests  UnitAdditionRequest[]
+  unitSuggestions       UnitSuggestion[]
+  unitDeprecations      UnitDeprecation[]
 }
 
 model Faculty {
-  id   Int    @id @default(autoincrement())
-  name String @unique
-  Unit Unit[]
+  id           Int        @id @default(autoincrement())
+  name         String
+  universityId Int
+  university   University @relation(fields: [universityId], references: [id])
+  Unit         Unit[]
+
+  @@unique([name, universityId])
 }
 
 model Campus {
-  id         Int          @id @default(autoincrement())
-  name       String       @unique
-  UnitCampus UnitCampus[]
+  id           Int          @id @default(autoincrement())
+  name         String
+  universityId Int
+  university   University   @relation(fields: [universityId], references: [id])
+  UnitCampus   UnitCampus[]
+
+  @@unique([name, universityId])
 }
 
 model Semester {
   id           Int            @id @default(autoincrement())
-  name         String         @unique
-  UnitSemester UnitSemester[]
-}
-
-model Unit {
-  id           Int               @id @default(autoincrement())
   name         String
-  code         String            @unique
-  level        Int
-  creditPoints Int
-  reviews      Review[]
-  campuses     UnitCampus[]
-  semesters    UnitSemester[]
-  facultyId    Int
-  faculty      Faculty           @relation(fields: [facultyId], references: [id])
-  isDeprecated Boolean           @default(false)
-  deprecations UnitDeprecation[]
-  suggestions  UnitSuggestion[]
+  universityId Int
+  university   University     @relation(fields: [universityId], references: [id])
+  UnitSemester UnitSemester[]
 
-  // New relations for prerequisites
-  prerequisites     UnitPrerequisite[] @relation("prerequisite")
-  isPrerequisiteFor UnitPrerequisite[] @relation("isPrerequisiteFor")
-
-  // New relations for corequisites
-  corequisites     UnitCorequisite[] @relation("corequisite")
-  isCorequisiteFor UnitCorequisite[] @relation("isCorequisiteFor")
+  @@unique([name, universityId])
 }
 
 model UnitCampus {
@@ -85,7 +100,35 @@ model UnitSemester {
   @@unique([unitId, semesterId])
 }
 
-// New model for prerequisites
+model Unit {
+  id           Int               @id @default(autoincrement())
+  name         String
+  code         String
+  level        Int
+  creditPoints Int
+  reviews      Review[]
+  campuses     UnitCampus[]
+  semesters    UnitSemester[]
+  facultyId    Int
+  faculty      Faculty           @relation(fields: [facultyId], references: [id])
+  universityId Int
+  university   University        @relation(fields: [universityId], references: [id])
+  isDeprecated Boolean           @default(false)
+  deprecations UnitDeprecation[]
+  suggestions  UnitSuggestion[]
+
+  prerequisites     UnitPrerequisite[] @relation("prerequisite")
+  isPrerequisiteFor UnitPrerequisite[] @relation("isPrerequisiteFor")
+
+  corequisites     UnitCorequisite[] @relation("corequisite")
+  isCorequisiteFor UnitCorequisite[] @relation("isCorequisiteFor")
+
+  @@unique([code, universityId])
+  @@index([universityId])
+  @@index([facultyId])
+  @@index([isDeprecated])
+}
+
 model UnitPrerequisite {
   id             Int  @id @default(autoincrement())
   unitId         Int
@@ -96,7 +139,6 @@ model UnitPrerequisite {
   @@unique([unitId, prerequisiteId])
 }
 
-// New model for corequisites
 model UnitCorequisite {
   id            Int  @id @default(autoincrement())
   unitId        Int
@@ -108,34 +150,38 @@ model UnitCorequisite {
 }
 
 model UnitAdditionRequest {
-  id        Int      @id @default(autoincrement())
-  code      String   @unique
-  createdAt DateTime @default(now())
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
+  id           Int        @id @default(autoincrement())
+  code         String
+  createdAt    DateTime   @default(now())
+  userId       Int
+  user         User       @relation(fields: [userId], references: [id])
+  universityId Int
+  university   University @relation(fields: [universityId], references: [id])
+
+  @@unique([code, universityId])
 }
 
 model UnitDeprecation {
-  id        Int      @id @default(autoincrement())
+  id        Int           @id @default(autoincrement())
   reason    String
-  createdAt DateTime @default(now())
+  createdAt DateTime      @default(now())
   userId    Int
-  user      User     @relation(fields: [userId], references: [id])
+  user      User          @relation(fields: [userId], references: [id])
   unitId    Int
-  unit      Unit     @relation(fields: [unitId], references: [id])
-  status    String   @default("pending") // can be "pending", "approved", or "rejected"
+  unit      Unit          @relation(fields: [unitId], references: [id])
+  status    RequestStatus @default(PENDING)
 }
 
 model UnitSuggestion {
-  id        Int      @id @default(autoincrement())
+  id        Int           @id @default(autoincrement())
   field     String // e.g. "campus", "semester"
   reason    String
-  createdAt DateTime @default(now())
+  createdAt DateTime      @default(now())
   userId    Int
-  user      User     @relation(fields: [userId], references: [id])
+  user      User          @relation(fields: [userId], references: [id])
   unitId    Int
-  unit      Unit     @relation(fields: [unitId], references: [id])
-  status    String   @default("pending") // can be "pending", "approved", or "rejected"
+  unit      Unit          @relation(fields: [unitId], references: [id])
+  status    RequestStatus @default(PENDING)
 }
 
 model Review {
@@ -158,6 +204,9 @@ model Review {
   reactions          ReviewReaction[]
 
   @@unique([userId, unitId])
+  @@index([unitId])
+  @@index([userId])
+  @@index([createdAt])
 }
 
 model ReviewReaction {
