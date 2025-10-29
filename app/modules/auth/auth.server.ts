@@ -79,6 +79,7 @@ authenticator.use(
       session.set("role", user.role);
       session.set("name", user.name);
       session.set("email", user.email);
+      session.set("preferredUniversityId", user.preferredUniversityId);
 
       // Commit session.
       const sessionCookie = await sessionStorage.commitSession(session);

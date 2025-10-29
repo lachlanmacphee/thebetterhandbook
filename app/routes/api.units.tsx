@@ -49,6 +49,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const creditPoints = url.searchParams.get("creditPoints") || "";
   const campus = url.searchParams.get("campus") || "";
   const semester = url.searchParams.get("semester") || "";
+  const university = url.searchParams.get("university") || "";
   const sortBy = url.searchParams.get("sortBy") || "code";
   const page = parseInt(url.searchParams.get("page") || "1");
   const pageSize = parseInt(
@@ -63,6 +64,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   // Build the where clause based on filters
   const where = {
     AND: [
+      university ? { universityId: parseInt(university) } : {},
       code ? { code: { contains: code } } : {},
       name ? { name: { contains: name } } : {},
       faculty ? { facultyId: parseInt(faculty) } : {},
@@ -133,6 +135,7 @@ export async function loader({ request }: Route.LoaderArgs) {
           },
         },
         reviews: true,
+        university: true,
         _count: {
           select: { reviews: true },
         },
@@ -202,6 +205,7 @@ export async function loader({ request }: Route.LoaderArgs) {
         creditPoints,
         campus,
         semester,
+        university: university?.toString() || "",
         sortBy,
         pageSize: validPageSize,
       },

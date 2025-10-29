@@ -18,7 +18,11 @@ type IndexResult = {
 
 export default class MonashImporter extends Importer {
   constructor(logger: pino.Logger) {
-    super("Monash University", logger);
+    super(
+      "Monash University",
+      "https://handbook.monash.edu/current/units",
+      logger
+    );
   }
 
   async getUnits(): Promise<ImportUnit[]> {

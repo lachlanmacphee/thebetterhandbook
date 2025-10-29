@@ -27,7 +27,11 @@ type CoursePlannerUnit = {
 
 export default class MelbourneImporter extends Importer {
   constructor(logger: pino.Logger) {
-    super("University of Melbourne", logger);
+    super(
+      "University of Melbourne",
+      "https://handbook.unimelb.edu.au/subjects",
+      logger
+    );
   }
 
   getQueryParamForCourseId(courseId: string): string {

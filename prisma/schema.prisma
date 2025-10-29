@@ -27,6 +27,7 @@ enum RequestStatus {
 model University {
   id                   Int                   @id @default(autoincrement())
   name                 String                @unique
+  handbookUrl          String?
   users                User[]
   faculties            Faculty[]
   campuses             Campus[]
@@ -53,7 +54,7 @@ model User {
 model Faculty {
   id           Int        @id @default(autoincrement())
   name         String
-  universityId Int
+  universityId Int        @default(1)
   university   University @relation(fields: [universityId], references: [id])
   Unit         Unit[]
 
@@ -63,7 +64,7 @@ model Faculty {
 model Campus {
   id           Int          @id @default(autoincrement())
   name         String
-  universityId Int
+  universityId Int          @default(1)
   university   University   @relation(fields: [universityId], references: [id])
   UnitCampus   UnitCampus[]
 
@@ -73,7 +74,7 @@ model Campus {
 model Semester {
   id           Int            @id @default(autoincrement())
   name         String
-  universityId Int
+  universityId Int            @default(1)
   university   University     @relation(fields: [universityId], references: [id])
   UnitSemester UnitSemester[]
 
@@ -111,7 +112,7 @@ model Unit {
   semesters    UnitSemester[]
   facultyId    Int
   faculty      Faculty           @relation(fields: [facultyId], references: [id])
-  universityId Int
+  universityId Int               @default(1)
   university   University        @relation(fields: [universityId], references: [id])
   isDeprecated Boolean           @default(false)
   deprecations UnitDeprecation[]
@@ -155,7 +156,7 @@ model UnitAdditionRequest {
   createdAt    DateTime   @default(now())
   userId       Int
   user         User       @relation(fields: [userId], references: [id])
-  universityId Int
+  universityId Int        @default(1)
   university   University @relation(fields: [universityId], references: [id])
 
   @@unique([code, universityId])

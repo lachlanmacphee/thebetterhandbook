@@ -12,8 +12,10 @@ import {
 
 import "./css/pico.min.css";
 
-import type { Route } from "./+types/root";
+import { useState } from "react";
 import { getSession } from "~/modules/auth/session.server";
+import type { Route } from "./+types/root";
+import db from "./modules/db/db.server";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -41,17 +43,47 @@ export const links: Route.LinksFunction = () => [
 
 export async function loader({ request }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
-  const user = session.get("id");
+  const userId = session.get("id");
   const role = session.get("role");
 
-  return { user, role };
+  const universities = await db.university.findMany({
+    orderBy: { name: "asc" },
+  });
+
+  const preferredUniversityId =
+    session.get("preferredUniversityId") || universities[0].id;
+
+  return { user: userId, role, universities, preferredUniversityId };
+}
+
+export async function action({ request }: Route.ActionArgs) {
+  const session = await getSession(request.headers.get("Cookie"));
+  const userId = session.get("id");
+  const formData = await request.formData();
+  const universityId = formData.get("universityId");
+
+  if (userId && universityId) {
+    await db.user.update({
+      where: { id: userId },
+      data: { preferredUniversityId: parseInt(universityId as string) },
+    });
+  }
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const data = useLoaderData<typeof loader>();
   const user = data?.user;
   const role = data?.role;
+  const universities = data?.universities || [];
   const location = useLocation();
+
+  const [selectedUniversityId, setSelectedUniversityId] = useState<
+    number | null
+  >(data?.preferredUniversityId);
+
+  const selectedUniversity = universities.find(
+    (u) => u.id === selectedUniversityId
+  );
 
   return (
     <html lang="en">
@@ -73,7 +105,32 @@ export function Layout({ children }: { children: React.ReactNode }) {
               </li>
             </ul>
             <ul>
-              {user && role == "admin" && (
+              {universities.length > 1 && (
+                <li>
+                  <select name="university" aria-label="Select">
+                    <option
+                      selected
+                      disabled
+                      value={selectedUniversity?.name || ""}
+                    >
+                      {selectedUniversity?.name || "Select University"}
+                    </option>
+                    {universities.map((uni) => (
+                      <option
+                        key={uni.id}
+                        onClick={() => setSelectedUniversityId(uni.id)}
+                      >
+                        {uni.name}
+                      </option>
+                    ))}
+                  </select>
+                  <details className="dropdown">
+                    <summary role="button" className="secondary"></summary>
+                    <ul></ul>
+                  </details>
+                </li>
+              )}
+              {user && role == "ADMIN" && (
                 <li>
                   <Link to="/admin">Admin</Link>
                 </li>

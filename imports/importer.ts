@@ -14,11 +14,13 @@ export type ImportUnit = {
 
 export abstract class Importer {
   university: string;
+  handbookUrl: string;
   unitOutputPath: string;
   protected logger: pino.Logger;
 
-  constructor(university: string, logger: pino.Logger) {
+  constructor(university: string, handbookUrl: string, logger: pino.Logger) {
     this.university = university;
+    this.handbookUrl = handbookUrl;
     this.unitOutputPath = "units.json";
     this.logger = logger.child({ university });
   }

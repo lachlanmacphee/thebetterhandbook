@@ -10,6 +10,6 @@ export default [
   route("profile", "routes/profile.tsx"),
   route("reviews/:reviewId/edit", "routes/edit-review.tsx"),
   route("admin", "routes/admin.tsx"),
-  route("units/:unitCode", "routes/unit.tsx"),
+  route("units/:uniId/:unitCode", "routes/unit.tsx"),
   route("api/units", "routes/api.units.tsx"),
 ] satisfies RouteConfig;

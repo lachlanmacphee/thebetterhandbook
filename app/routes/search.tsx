@@ -1,9 +1,8 @@
-import { Link, useLocation } from "react-router";
-import type { Route } from "./+types/search";
-import db from "~/modules/db/db.server";
-import { getSession } from "~/modules/auth/session.server";
-import { Form } from "react-router";
 import { Prisma } from "@prisma/client";
+import { Form, Link, useLocation } from "react-router";
+import { getSession } from "~/modules/auth/session.server";
+import db from "~/modules/db/db.server";
+import type { Route } from "./+types/search";
 
 // Default and allowed page sizes
 const DEFAULT_PAGE_SIZE = 12;
@@ -11,8 +10,9 @@ const ALLOWED_PAGE_SIZES = [12, 24, 36];
 
 export async function loader({ request }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
-  const user = session.get("id");
+  const userId = session.get("id");
   const url = new URL(request.url);
+  const selectedUniversityId = session.get("preferredUniversityId");
 
   // Get all filter parameters
   const code = url.searchParams.get("code")?.toUpperCase() || "";
@@ -34,15 +34,26 @@ export async function loader({ request }: Route.LoaderArgs) {
     : DEFAULT_PAGE_SIZE;
 
   // Fetch reference data for dropdowns
-  const [faculties, campuses, semesters] = await Promise.all([
-    db.faculty.findMany({ orderBy: { name: "asc" } }),
-    db.campus.findMany({ orderBy: { name: "asc" } }),
-    db.semester.findMany({ orderBy: { name: "asc" } }),
+  const [faculties, campuses, semesters, universities] = await Promise.all([
+    db.faculty.findMany({
+      where: selectedUniversityId ? { universityId: selectedUniversityId } : {},
+      orderBy: { name: "asc" },
+    }),
+    db.campus.findMany({
+      where: selectedUniversityId ? { universityId: selectedUniversityId } : {},
+      orderBy: { name: "asc" },
+    }),
+    db.semester.findMany({
+      where: selectedUniversityId ? { universityId: selectedUniversityId } : {},
+      orderBy: { name: "asc" },
+    }),
+    db.university.findMany({ orderBy: { name: "asc" } }),
   ]);
 
   // Build the where clause based on filters
   const where = {
     AND: [
+      selectedUniversityId ? { universityId: selectedUniversityId } : {},
       code ? { code: { contains: code } } : {},
       name ? { name: { contains: name } } : {},
       faculty ? { facultyId: parseInt(faculty) } : {},
@@ -50,21 +61,21 @@ export async function loader({ request }: Route.LoaderArgs) {
       creditPoints ? { creditPoints: parseInt(creditPoints) } : {},
       campus
         ? {
-          campuses: {
-            some: {
-              campusId: parseInt(campus),
+            campuses: {
+              some: {
+                campusId: parseInt(campus),
+              },
             },
-          },
-        }
+          }
         : {},
       semester
         ? {
-          semesters: {
-            some: {
-              semesterId: parseInt(semester),
+            semesters: {
+              some: {
+                semesterId: parseInt(semester),
+              },
             },
-          },
-        }
+          }
         : {},
     ],
   };
@@ -83,9 +94,10 @@ export async function loader({ request }: Route.LoaderArgs) {
       FROM "Unit" u
       LEFT JOIN "Review" r ON u.id = r."unitId"
       GROUP BY u.id
-      ORDER BY ${sortBy === "rating"
-        ? Prisma.sql`"avgRating" DESC`
-        : Prisma.sql`"reviewCount" DESC`
+      ORDER BY ${
+        sortBy === "rating"
+          ? Prisma.sql`"avgRating" DESC`
+          : Prisma.sql`"reviewCount" DESC`
       }
       OFFSET ${(page - 1) * validPageSize}
       LIMIT ${validPageSize}
@@ -116,9 +128,10 @@ export async function loader({ request }: Route.LoaderArgs) {
             user: true,
           },
           where: {
-            userId: user,
+            userId: userId,
           },
         },
+        university: true,
         _count: {
           select: { reviews: true },
         },
@@ -165,9 +178,10 @@ export async function loader({ request }: Route.LoaderArgs) {
             user: true,
           },
           where: {
-            userId: user,
+            userId: userId,
           },
         },
+        university: true,
         _count: {
           select: { reviews: true },
         },
@@ -183,6 +197,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     faculties,
     campuses,
     semesters,
+    universities,
     pagination: {
       currentPage: page,
       totalPages,
@@ -204,8 +219,15 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export default function Search({ loaderData }: Route.ComponentProps) {
-  const { units, faculties, campuses, semesters, filters, pagination } =
-    loaderData;
+  const {
+    units,
+    faculties,
+    campuses,
+    semesters,
+    universities,
+    filters,
+    pagination,
+  } = loaderData;
   const { currentPage, totalPages, totalCount, pageSize } = pagination;
   const location = useLocation();
 
@@ -250,10 +272,7 @@ export default function Search({ loaderData }: Route.ComponentProps) {
         <div className="grid">
           <label>
             Faculty
-            <select
-              name="faculty"
-              defaultValue={filters.faculty}
-            >
+            <select name="faculty" defaultValue={filters.faculty}>
               <option value="">All Faculties</option>
               {faculties.map((faculty) => (
                 <option key={faculty.id} value={faculty.id}>
@@ -265,10 +284,7 @@ export default function Search({ loaderData }: Route.ComponentProps) {
 
           <label>
             Level
-            <select
-              name="level"
-              defaultValue={filters.level}
-            >
+            <select name="level" defaultValue={filters.level}>
               <option value="">All Levels</option>
               {[1, 2, 3, 4, 5].map((level) => (
                 <option key={level} value={level}>
@@ -282,10 +298,7 @@ export default function Search({ loaderData }: Route.ComponentProps) {
         <div className="grid">
           <label>
             Credit Points
-            <select
-              name="creditPoints"
-              defaultValue={filters.creditPoints}
-            >
+            <select name="creditPoints" defaultValue={filters.creditPoints}>
               <option value="">Any Credit Points</option>
               {[6, 12].map((points) => (
                 <option key={points} value={points}>
@@ -297,10 +310,7 @@ export default function Search({ loaderData }: Route.ComponentProps) {
 
           <label>
             Campus
-            <select
-              name="campus"
-              defaultValue={filters.campus}
-            >
+            <select name="campus" defaultValue={filters.campus}>
               <option value="">All Campuses</option>
               {campuses.map((campus) => (
                 <option key={campus.id} value={campus.id}>
@@ -314,10 +324,7 @@ export default function Search({ loaderData }: Route.ComponentProps) {
         <div className="grid">
           <label>
             Semester
-            <select
-              name="semester"
-              defaultValue={filters.semester}
-            >
+            <select name="semester" defaultValue={filters.semester}>
               <option value="">All Semesters</option>
               {semesters.map((semester) => (
                 <option key={semester.id} value={semester.id}>
@@ -329,10 +336,7 @@ export default function Search({ loaderData }: Route.ComponentProps) {
 
           <label>
             Sort By
-            <select
-              name="sortBy"
-              defaultValue={filters.sortBy}
-            >
+            <select name="sortBy" defaultValue={filters.sortBy}>
               <option value="code">Unit Code</option>
               <option value="name">Unit Name</option>
               <option value="rating">Average Rating</option>
@@ -343,10 +347,7 @@ export default function Search({ loaderData }: Route.ComponentProps) {
 
         <label>
           Items per Page
-          <select
-            name="pageSize"
-            defaultValue={filters.pageSize}
-          >
+          <select name="pageSize" defaultValue={filters.pageSize}>
             {ALLOWED_PAGE_SIZES.map((size) => (
               <option key={size} value={size}>
                 {size} Items
@@ -357,9 +358,7 @@ export default function Search({ loaderData }: Route.ComponentProps) {
 
         <div className="grid">
           <input type="reset" value="Clear" className="secondary" />
-          <button type="submit">
-            Search
-          </button>
+          <button type="submit">Search</button>
         </div>
       </Form>
 
@@ -379,14 +378,17 @@ export default function Search({ loaderData }: Route.ComponentProps) {
               </p>
               <p>
                 <small>
-                  Level {unit.level} • {unit.creditPoints} Points • {unit._count.reviews} reviews
+                  Level {unit.level} • {unit.creditPoints} Points •{" "}
+                  {unit._count.reviews} reviews
                 </small>
               </p>
               <p>
-                <strong>Campuses:</strong> {unit.campuses.map((uc) => uc.campus.name).join(", ")}
+                <strong>Campuses:</strong>{" "}
+                {unit.campuses.map((uc) => uc.campus.name).join(", ")}
               </p>
               <p>
-                <strong>Semesters:</strong> {unit.semesters.map((us) => us.semester.name).join(", ")}
+                <strong>Semesters:</strong>{" "}
+                {unit.semesters.map((us) => us.semester.name).join(", ")}
               </p>
             </article>
           ))}
@@ -394,7 +396,14 @@ export default function Search({ loaderData }: Route.ComponentProps) {
       ))}
 
       {totalPages > 1 && (
-        <div style={{ display: "flex", justifyContent: "center", gap: "0.5rem", marginTop: "2rem" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: "0.5rem",
+            marginTop: "2rem",
+          }}
+        >
           <Link
             to={createPageUrl(1)}
             role="button"

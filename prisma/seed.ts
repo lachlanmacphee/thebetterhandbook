@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
-import MonashImporter from "../imports/universities/monash";
 import pino from "pino";
+import MonashImporter from "../imports/universities/monash";
 
 const prisma = new PrismaClient();
 
@@ -20,6 +20,16 @@ async function main() {
   const monashImporter = new MonashImporter(logger);
   const units = await monashImporter.getUnits();
 
+  const university = await prisma.university.upsert({
+    where: { name: monashImporter.university },
+    update: {},
+    create: {
+      name: monashImporter.university,
+      handbookUrl: monashImporter.handbookUrl,
+    },
+  });
+  const universityId = university.id;
+
   // Get all unique values
   const uniqueLocations = new Set<string>();
   const uniquePeriods = new Set<string>();
@@ -36,9 +46,17 @@ async function main() {
   const campusMap: { [key: string]: number } = {};
   for (const location of uniqueLocations) {
     const campus = await prisma.campus.upsert({
-      where: { name: location },
+      where: {
+        name_universityId: {
+          name: location,
+          universityId: universityId,
+        },
+      },
       update: {},
-      create: { name: location },
+      create: {
+        name: location,
+        universityId: universityId,
+      },
     });
     campusMap[location] = campus.id;
   }
@@ -47,9 +65,17 @@ async function main() {
   const semesterMap: { [key: string]: number } = {};
   for (const period of uniquePeriods) {
     const semester = await prisma.semester.upsert({
-      where: { name: period },
+      where: {
+        name_universityId: {
+          name: period,
+          universityId: universityId,
+        },
+      },
       update: {},
-      create: { name: period },
+      create: {
+        name: period,
+        universityId: universityId,
+      },
     });
     semesterMap[period] = semester.id;
   }
@@ -58,9 +84,17 @@ async function main() {
   const facultyMap: { [key: string]: number } = {};
   for (const school of uniqueSchools) {
     const faculty = await prisma.faculty.upsert({
-      where: { name: school },
+      where: {
+        name_universityId: {
+          name: school,
+          universityId: universityId,
+        },
+      },
       update: {},
-      create: { name: school },
+      create: {
+        name: school,
+        universityId: universityId,
+      },
     });
     facultyMap[school] = faculty.id;
   }
@@ -80,7 +114,12 @@ async function main() {
     const creditPoints = isNaN(unit.creditPoints) ? 6 : unit.creditPoints;
 
     const createdUnit = await prisma.unit.upsert({
-      where: { code: unit.code },
+      where: {
+        code_universityId: {
+          code: unit.code,
+          universityId: universityId,
+        },
+      },
       update: {
         name: unit.name,
         level,
@@ -93,6 +132,7 @@ async function main() {
         level,
         creditPoints,
         facultyId: facultyMap[unit.facultyName],
+        universityId: universityId,
       },
     });
 

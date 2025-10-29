@@ -5,9 +5,15 @@ import type { Route } from "./+types/home";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
-  const user = session.get("id");
+  const userId = session.get("id");
+  const preferredUniversityId = session.get("preferredUniversityId");
 
   const units = await db.unit.findMany({
+    where: preferredUniversityId
+      ? {
+          universityId: preferredUniversityId,
+        }
+      : {},
     take: 6,
     orderBy: {
       reviews: {
@@ -30,15 +36,16 @@ export async function loader({ request }: Route.LoaderArgs) {
           user: true,
         },
         where: {
-          userId: user,
+          userId: userId,
         },
       },
+      university: true,
       _count: {
         select: { reviews: true },
       },
     },
   });
-  return { units, user };
+  return { units, user: userId };
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {

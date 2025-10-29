@@ -1,7 +1,6 @@
-import { redirect, useLoaderData } from "react-router";
+import { data, Form, redirect, useLoaderData } from "react-router";
 import { getSession } from "~/modules/auth/session.server";
 import db from "~/modules/db/db.server";
-import { data, Form } from "react-router";
 
 export async function loader({ request }: any) {
   const session = await getSession(request.headers.get("Cookie"));
@@ -15,14 +14,14 @@ export async function loader({ request }: any) {
     where: { id: userId },
   });
 
-  if (user?.role !== "admin") {
+  if (user?.role !== "ADMIN") {
     return redirect("/");
   }
 
   const [deprecationRequests, suggestions, additionRequests] =
     await Promise.all([
       db.unitDeprecation.findMany({
-        where: { status: "pending" },
+        where: { status: "PENDING" },
         include: {
           unit: true,
           user: true,
@@ -30,7 +29,7 @@ export async function loader({ request }: any) {
         orderBy: { createdAt: "desc" },
       }),
       db.unitSuggestion.findMany({
-        where: { status: "pending" },
+        where: { status: "PENDING" },
         include: {
           unit: true,
           user: true,
@@ -60,7 +59,7 @@ export async function action({ request }: any) {
     where: { id: userId },
   });
 
-  if (user?.role !== "admin") {
+  if (user?.role !== "ADMIN") {
     return redirect("/");
   }
 
@@ -69,7 +68,7 @@ export async function action({ request }: any) {
 
   if (intent === "handle-deprecation") {
     const id = parseInt(formData.get("id") as string);
-    const action = formData.get("action") as "approve" | "reject";
+    const action = formData.get("action") as "APPROVED" | "REJECTED";
 
     const deprecation = await db.unitDeprecation.findUnique({
       where: { id },
@@ -85,13 +84,13 @@ export async function action({ request }: any) {
         where: { id },
         data: { status: action },
       }),
-      ...(action === "approve"
+      ...(action === "APPROVED"
         ? [
-          db.unit.update({
-            where: { id: deprecation.unitId },
-            data: { isDeprecated: true },
-          }),
-        ]
+            db.unit.update({
+              where: { id: deprecation.unitId },
+              data: { isDeprecated: true },
+            }),
+          ]
         : []),
     ]);
 
@@ -100,7 +99,7 @@ export async function action({ request }: any) {
 
   if (intent === "handle-suggestion") {
     const id = parseInt(formData.get("id") as string);
-    const action = formData.get("action") as "approve" | "reject";
+    const action = formData.get("action") as "APPROVED" | "REJECTED";
 
     const suggestion = await db.unitSuggestion.findUnique({
       where: { id },
@@ -121,7 +120,7 @@ export async function action({ request }: any) {
 
   if (intent === "handle-addition") {
     const id = parseInt(formData.get("id") as string);
-    const action = formData.get("action") as "approve" | "reject";
+    const action = formData.get("action") as "APPROVED" | "REJECTED";
     const addition = await db.unitAdditionRequest.findUnique({
       where: { id },
     });
@@ -130,7 +129,7 @@ export async function action({ request }: any) {
       return data({ error: "Addition request not found" }, { status: 404 });
     }
 
-    if (action === "reject") {
+    if (action === "REJECTED") {
       await db.unitAdditionRequest.delete({
         where: { id },
       });
@@ -163,7 +162,9 @@ function RequestCard({
             {new Date(data.createdAt).toLocaleDateString()}
           </small>
         </p>
-        <p><strong>{data.unit?.code || data.code}</strong></p>
+        <p>
+          <strong>{data.unit?.code || data.code}</strong>
+        </p>
       </header>
 
       {type === "deprecation" && (
@@ -189,16 +190,12 @@ function RequestCard({
           <button
             type="submit"
             name="action"
-            value="reject"
+            value="REJECTED"
             className="secondary"
           >
             Reject
           </button>
-          <button
-            type="submit"
-            name="action"
-            value="approve"
-          >
+          <button type="submit" name="action" value="APPROVED">
             Approve
           </button>
         </Form>
@@ -217,31 +214,33 @@ export default function Admin() {
       {(deprecationRequests.length > 0 ||
         suggestions.length > 0 ||
         additionRequests.length > 0) && (
-          <>
-            <h2>Pending Requests</h2>
-            <div className="grid">
-              {deprecationRequests.map((request) => (
-                <RequestCard key={request.id} type="deprecation" data={request} />
-              ))}
-              {suggestions.map((suggestion) => (
-                <RequestCard
-                  key={suggestion.id}
-                  type="suggestion"
-                  data={suggestion}
-                />
-              ))}
-              {additionRequests.map((request) => (
-                <RequestCard key={request.id} type="addition" data={request} />
-              ))}
-            </div>
-          </>
-        )}
+        <>
+          <h2>Pending Requests</h2>
+          <div className="grid">
+            {deprecationRequests.map((request) => (
+              <RequestCard key={request.id} type="deprecation" data={request} />
+            ))}
+            {suggestions.map((suggestion) => (
+              <RequestCard
+                key={suggestion.id}
+                type="suggestion"
+                data={suggestion}
+              />
+            ))}
+            {additionRequests.map((request) => (
+              <RequestCard key={request.id} type="addition" data={request} />
+            ))}
+          </div>
+        </>
+      )}
 
       {deprecationRequests.length === 0 &&
         suggestions.length === 0 &&
         additionRequests.length === 0 && (
           <div style={{ textAlign: "center", padding: "3rem 0" }}>
-            <p><em>No pending requests</em></p>
+            <p>
+              <em>No pending requests</em>
+            </p>
           </div>
         )}
     </>

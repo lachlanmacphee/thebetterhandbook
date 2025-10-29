@@ -19,9 +19,14 @@ export async function loader({ params, request }: Route.LoaderArgs) {
 
   const previousPage = new URL(request.url).searchParams.get("from") || "/";
 
+  const universityId = parseInt(params.uniId);
+
   const unit = await db.unit.findUnique({
     where: {
-      code: params.unitCode,
+      code_universityId: {
+        universityId: universityId,
+        code: params.unitCode!,
+      },
     },
     include: {
       reviews: {
@@ -61,11 +66,11 @@ export async function loader({ params, request }: Route.LoaderArgs) {
         },
       },
       deprecations: {
-        where: { status: "approved" },
+        where: { status: "APPROVED" },
         include: { user: true },
       },
       suggestions: {
-        where: { status: "pending" },
+        where: { status: "PENDING" },
         include: { user: true },
       },
     },
@@ -168,6 +173,7 @@ export async function action({ request, params }: Route.ActionArgs) {
         data: {
           code: params.unitCode!,
           userId,
+          universityId: parseInt(params.uniId!),
         },
       });
       return data({ success: true });
@@ -338,6 +344,10 @@ export async function action({ request, params }: Route.ActionArgs) {
   const unit = await db.unit.findUnique({
     where: {
       code: params.unitCode,
+      code_universityId: {
+        universityId: parseInt(params.uniId!),
+        code: params.unitCode!,
+      },
     },
   });
   if (!unit) {
@@ -563,14 +573,16 @@ function UnitDetails({
             </kbd>
           ))}
         </div>
-        <a
-          href={`https://handbook.monash.edu/current/units/${unit.code}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ display: "block", marginTop: "1rem" }}
-        >
-          View in Monash Handbook
-        </a>
+        {unit.university.handbookUrl && (
+          <a
+            href={`${unit.university.handbookUrl}/${unit.code}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ display: "block", marginTop: "1rem" }}
+          >
+            View in {unit.university.name} Handbook
+          </a>
+        )}
       </header>
 
       <div
