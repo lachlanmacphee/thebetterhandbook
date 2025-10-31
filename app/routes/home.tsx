@@ -39,7 +39,11 @@ export async function loader({ request }: Route.LoaderArgs) {
           userId: userId,
         },
       },
-      university: true,
+      university: {
+        select: {
+          id: true,
+        },
+      },
       _count: {
         select: { reviews: true },
       },
@@ -55,9 +59,10 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   const handleUnitSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    const uniId = formData.get("uniId")?.toString();
     const unitCode = formData.get("unitCode")?.toString().toUpperCase();
-    if (unitCode) {
-      navigate(`/units/${unitCode}`);
+    if (uniId && unitCode) {
+      navigate(`/units/${uniId}/${unitCode}`);
     }
   };
 
@@ -65,11 +70,15 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     <>
       <h2>Find a Unit</h2>
       <form onSubmit={handleUnitSearch}>
+        <select name="uniId">
+          <option value="1">Monash University</option>
+          <option value="2">University of Melbourne</option>
+        </select>
         <fieldset role="group">
           <input
             type="text"
             name="unitCode"
-            placeholder="Enter a unit code (e.g. FIT1008)"
+            placeholder="Enter the unit code"
             required
           />
           <input type="submit" value="Go" />
@@ -98,7 +107,7 @@ function UnitsRow({
           style={{ display: "flex", flexDirection: "column" }}
         >
           <header>
-            <Link key={unit.id} to={`/units/${unit.code}`}>
+            <Link key={unit.id} to={`/units/${unit.universityId}/${unit.code}`}>
               <h4>{unit.code}</h4>
             </Link>
           </header>
@@ -120,14 +129,17 @@ function UnitsRow({
               <div>
                 {unit.reviews.filter((review) => review.userId === user)
                   .length === 0 && (
-                  <Link to={`/units/${unit.code}#review-form`} role="button">
+                  <Link
+                    to={`/units/${unit.universityId}/${unit.code}#review-form`}
+                    role="button"
+                  >
                     Review
                   </Link>
                 )}
                 {unit.reviews.filter((review) => review.userId === user)
                   .length !== 0 && (
                   <Link
-                    to={`/units/${unit.code}#review-form`}
+                    to={`/units/${unit.universityId}/${unit.code}#review-form`}
                     role="button"
                     className="secondary"
                   >

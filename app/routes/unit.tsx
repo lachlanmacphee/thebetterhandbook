@@ -29,6 +29,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
       },
     },
     include: {
+      university: true,
       reviews: {
         include: {
           user: true,
