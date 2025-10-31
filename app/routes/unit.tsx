@@ -991,14 +991,14 @@ export default function Unit({ loaderData, params }: Route.ComponentProps) {
       <ReviewsList reviews={unit.reviews} user={user?.id} />
 
       {user && !hasReviewed && (
-        <section>
-          <article>
-            <header>
-              <h2>Add Review</h2>
-            </header>
+        <article id="review-form">
+          <header>
+            <h2>Add Review</h2>
+          </header>
+          <section>
             <ReviewForm />
-          </article>
-        </section>
+          </section>
+        </article>
       )}
     </>
   );
