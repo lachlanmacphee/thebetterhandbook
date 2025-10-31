@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import pino from "pino";
-import MonashImporter from "../imports/universities/monash";
+// import MonashImporter from "../imports/universities/monash";
+import MelbourneImporter from "imports/universities/melbourne";
 
 const prisma = new PrismaClient();
 
@@ -17,15 +18,16 @@ async function main() {
     },
   });
 
-  const monashImporter = new MonashImporter(logger);
-  const units = await monashImporter.getUnits();
+  // const importer = new MonashImporter(logger);
+  const importer = new MelbourneImporter(logger);
+  const units = await importer.getUnits();
 
   const university = await prisma.university.upsert({
-    where: { name: monashImporter.university },
+    where: { name: importer.university },
     update: {},
     create: {
-      name: monashImporter.university,
-      handbookUrl: monashImporter.handbookUrl,
+      name: importer.university,
+      handbookUrl: importer.handbookUrl,
     },
   });
   const universityId = university.id;
@@ -108,10 +110,10 @@ async function main() {
     }
 
     // Ensure level is a valid number
-    const level = isNaN(unit.level) ? 0 : unit.level;
+    const level = isNaN(unit.level) ? -1 : unit.level;
 
     // Ensure creditPoints is a valid number
-    const creditPoints = isNaN(unit.creditPoints) ? 6 : unit.creditPoints;
+    const creditPoints = isNaN(unit.creditPoints) ? -1 : unit.creditPoints;
 
     const createdUnit = await prisma.unit.upsert({
       where: {

@@ -1,6 +1,4 @@
-import type { Route } from "./+types/index";
-
-export default function Index({ loaderData, params }: Route.ComponentProps) {
+export default function Index() {
   return (
     <>
       <h1>Choose your University</h1>
@@ -8,9 +6,9 @@ export default function Index({ loaderData, params }: Route.ComponentProps) {
         <a href="/1">
           <article>Monash University</article>
         </a>
-        {/*<a href="/2">
+        <a href="/2">
           <article>University of Melbourne</article>
-        </a>*/}
+        </a>
       </div>
     </>
   );
