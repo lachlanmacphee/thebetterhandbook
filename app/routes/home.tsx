@@ -72,7 +72,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       <form onSubmit={handleUnitSearch}>
         <select name="uniId">
           <option value="1">Monash University</option>
-          <option value="2">University of Melbourne</option>
+          {/*<option value="2">University of Melbourne</option>*/}
         </select>
         <fieldset role="group">
           <input

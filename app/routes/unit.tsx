@@ -21,6 +21,12 @@ export async function loader({ params, request }: Route.LoaderArgs) {
 
   const universityId = parseInt(params.uniId);
 
+  const university = await db.university.findUnique({
+    where: {
+      id: universityId,
+    },
+  });
+
   const unit = await db.unit.findUnique({
     where: {
       code_universityId: {
@@ -86,6 +92,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   if (!unit) {
     return data({
       unit: null,
+      university,
       user,
       hasReviewed: false,
       existingUnitAdditionRequest,
@@ -105,6 +112,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   return {
     unit,
     user,
+    university,
     hasReviewed,
     existingUnitAdditionRequest,
     previousPage,
@@ -871,15 +879,41 @@ function ReviewsList({ reviews, user }: { reviews: any[]; user?: number }) {
 }
 
 export default function Unit({ loaderData, params }: Route.ComponentProps) {
-  const { unit, user, hasReviewed, existingUnitAdditionRequest, previousPage } =
-    loaderData;
+  const {
+    unit,
+    user,
+    hasReviewed,
+    existingUnitAdditionRequest,
+    previousPage,
+    university,
+  } = loaderData;
+
+  if (!university) {
+    return (
+      <article>
+        <header>
+          <h1>University Not Found</h1>
+        </header>
+        <section>
+          <p>
+            Your URL could be wrong, or maybe you were seeing what changing the
+            parameter would do? If you find any vulnerabilities in the site,
+            I'll pay you $50 AUD to let me know.
+          </p>
+        </section>
+      </article>
+    );
+  }
 
   if (!unit) {
     return (
       <article>
         <header>
           <h1>Unit Not Found</h1>
-          <p>Sorry, we couldn't find the unit "{params.unitCode}"</p>
+          <p>
+            Sorry, we couldn't find the unit {params.unitCode} at{" "}
+            {university.name}.
+          </p>
         </header>
 
         {user && !existingUnitAdditionRequest && (
