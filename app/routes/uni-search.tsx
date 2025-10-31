@@ -2,17 +2,17 @@ import { Prisma } from "@prisma/client";
 import { Form, Link, useLocation } from "react-router";
 import { getSession } from "~/modules/auth/session.server";
 import db from "~/modules/db/db.server";
-import type { Route } from "./+types/search";
+import type { Route } from "./+types/uni-search";
 
 // Default and allowed page sizes
 const DEFAULT_PAGE_SIZE = 12;
 const ALLOWED_PAGE_SIZES = [12, 24, 36];
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader({ request, params }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
   const userId = session.get("id");
   const url = new URL(request.url);
-  const selectedUniversityId = session.get("preferredUniversityId");
+  const universityId = parseInt(params.uniId);
 
   // Get all filter parameters
   const code = url.searchParams.get("code")?.toUpperCase() || "";
@@ -36,15 +36,15 @@ export async function loader({ request }: Route.LoaderArgs) {
   // Fetch reference data for dropdowns
   const [faculties, campuses, semesters, universities] = await Promise.all([
     db.faculty.findMany({
-      where: selectedUniversityId ? { universityId: selectedUniversityId } : {},
+      where: { universityId },
       orderBy: { name: "asc" },
     }),
     db.campus.findMany({
-      where: selectedUniversityId ? { universityId: selectedUniversityId } : {},
+      where: { universityId },
       orderBy: { name: "asc" },
     }),
     db.semester.findMany({
-      where: selectedUniversityId ? { universityId: selectedUniversityId } : {},
+      where: { universityId },
       orderBy: { name: "asc" },
     }),
     db.university.findMany({ orderBy: { name: "asc" } }),
@@ -53,7 +53,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   // Build the where clause based on filters
   const where = {
     AND: [
-      selectedUniversityId ? { universityId: selectedUniversityId } : {},
+      { universityId },
       code ? { code: { contains: code } } : {},
       name ? { name: { contains: name } } : {},
       faculty ? { facultyId: parseInt(faculty) } : {},
@@ -88,7 +88,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   if (sortBy === "rating" || sortBy === "reviews") {
     // For rating and review count sort, we need to use raw queries
     const unitsWithStats = await db.$queryRaw`
-      SELECT u.*, 
+      SELECT u.*,
              COALESCE(AVG(CAST(r."overallRating" AS FLOAT)), 0) as "avgRating",
              COUNT(r.id) as "reviewCount"
       FROM "Unit" u
@@ -218,24 +218,15 @@ export async function loader({ request }: Route.LoaderArgs) {
   };
 }
 
-export default function Search({ loaderData }: Route.ComponentProps) {
-  const {
-    units,
-    faculties,
-    campuses,
-    semesters,
-    universities,
-    filters,
-    pagination,
-  } = loaderData;
+export default function Search({ loaderData, params }: Route.ComponentProps) {
+  const { units, faculties, campuses, semesters, filters, pagination } =
+    loaderData;
   const { currentPage, totalPages, totalCount, pageSize } = pagination;
   const location = useLocation();
 
-  // Create URL with current filters for pagination
   const createPageUrl = (pageNum: number) => {
     const searchParams = new URLSearchParams(location.search);
     searchParams.set("page", pageNum.toString());
-    // Ensure pageSize is preserved in pagination links
     if (!searchParams.has("pageSize")) {
       searchParams.set("pageSize", String(pageSize));
     }
@@ -246,7 +237,7 @@ export default function Search({ loaderData }: Route.ComponentProps) {
     <>
       <h1>Advanced Unit Search</h1>
 
-      <Form method="get">
+      <Form method="get" preventScrollReset>
         <div className="grid">
           <label>
             Unit Code
@@ -369,7 +360,7 @@ export default function Search({ loaderData }: Route.ComponentProps) {
           {units.slice(rowIndex * 3, rowIndex * 3 + 3).map((unit) => (
             <article key={unit.id}>
               <header>
-                <Link to={`/units/${unit.code}`}>
+                <Link to={`/${params.uniId}/units/${unit.code}`}>
                   <h3>{unit.code}</h3>
                 </Link>
               </header>

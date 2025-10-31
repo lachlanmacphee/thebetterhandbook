@@ -1,19 +1,22 @@
 import { Link, useNavigate } from "react-router";
 import { getSession } from "~/modules/auth/session.server";
 import db from "~/modules/db/db.server";
-import type { Route } from "./+types/home";
+import type { Route } from "./+types/uni-home";
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader({ request, params }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
   const userId = session.get("id");
-  const preferredUniversityId = session.get("preferredUniversityId");
+
+  const university = await db.university.findUnique({
+    where: {
+      id: parseInt(params.uniId),
+    },
+  });
 
   const units = await db.unit.findMany({
-    where: preferredUniversityId
-      ? {
-          universityId: preferredUniversityId,
-        }
-      : {},
+    where: {
+      universityId: parseInt(params.uniId),
+    },
     take: 6,
     orderBy: {
       reviews: {
@@ -39,52 +42,47 @@ export async function loader({ request }: Route.LoaderArgs) {
           userId: userId,
         },
       },
-      university: {
-        select: {
-          id: true,
-        },
-      },
       _count: {
         select: { reviews: true },
       },
     },
   });
-  return { units, user: userId };
+
+  return { university, units, user: userId };
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
-  const { units, user } = loaderData;
+  const { units, user, university } = loaderData;
   const navigate = useNavigate();
 
   const handleUnitSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const uniId = formData.get("uniId")?.toString();
     const unitCode = formData.get("unitCode")?.toString().toUpperCase();
-    if (uniId && unitCode) {
-      navigate(`/units/${uniId}/${unitCode}`);
+    if (unitCode) {
+      navigate(`units/${unitCode}`);
     }
   };
 
+  if (!university) {
+    return <p>Something went wrong...</p>;
+  }
+
   return (
     <>
-      <h2>Find a Unit</h2>
+      <h1>{university.name}</h1>
       <form onSubmit={handleUnitSearch}>
-        <select name="uniId">
-          <option value="1">Monash University</option>
-          {/*<option value="2">University of Melbourne</option>*/}
-        </select>
         <fieldset role="group">
           <input
             type="text"
             name="unitCode"
-            placeholder="Enter the unit code"
+            placeholder="Enter a unit code"
             required
           />
           <input type="submit" value="Go" />
         </fieldset>
       </form>
-      <Link to="/search">Want to search for units instead?</Link>
+      <Link to="search">or search for units instead</Link>
       <h2>Popular Units</h2>
       <UnitsRow units={units.slice(0, 3)} user={user} />
       <UnitsRow units={units.slice(3, 6)} user={user} />
@@ -107,7 +105,7 @@ function UnitsRow({
           style={{ display: "flex", flexDirection: "column" }}
         >
           <header>
-            <Link key={unit.id} to={`/units/${unit.universityId}/${unit.code}`}>
+            <Link key={unit.id} to={`units/${unit.code}`}>
               <h4>{unit.code}</h4>
             </Link>
           </header>
@@ -129,17 +127,14 @@ function UnitsRow({
               <div>
                 {unit.reviews.filter((review) => review.userId === user)
                   .length === 0 && (
-                  <Link
-                    to={`/units/${unit.universityId}/${unit.code}#review-form`}
-                    role="button"
-                  >
+                  <Link to={`units/${unit.code}#review-form`} role="button">
                     Review
                   </Link>
                 )}
                 {unit.reviews.filter((review) => review.userId === user)
                   .length !== 0 && (
                   <Link
-                    to={`/units/${unit.universityId}/${unit.code}#review-form`}
+                    to={`units/${unit.code}`}
                     role="button"
                     className="secondary"
                   >

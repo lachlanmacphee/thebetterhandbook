@@ -5,7 +5,7 @@ import Rating, { OverallRating } from "~/components/Rating";
 import ReviewForm from "~/components/ReviewForm";
 import { getSession } from "~/modules/auth/session.server";
 import db from "~/modules/db/db.server";
-import type { Route } from "./+types/unit";
+import type { Route } from "./+types/uni-unit";
 
 export async function loader({ params, request }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
@@ -16,8 +16,6 @@ export async function loader({ params, request }: Route.LoaderArgs) {
       select: { id: true, role: true },
     });
   }
-
-  const previousPage = new URL(request.url).searchParams.get("from") || "/";
 
   const universityId = parseInt(params.uniId);
 
@@ -96,7 +94,6 @@ export async function loader({ params, request }: Route.LoaderArgs) {
       user,
       hasReviewed: false,
       existingUnitAdditionRequest,
-      previousPage,
     });
   }
 
@@ -115,7 +112,6 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     university,
     hasReviewed,
     existingUnitAdditionRequest,
-    previousPage,
   };
 }
 
@@ -506,7 +502,6 @@ function SuggestChangesForm({
 function UnitDetails({
   unit,
   user,
-  previousPage,
   overallRating,
   teachingRating,
   contentRating,
@@ -515,7 +510,6 @@ function UnitDetails({
 }: {
   unit: any;
   user?: number;
-  previousPage: string;
   overallRating: number;
   teachingRating: number;
   contentRating: number;
@@ -620,9 +614,13 @@ function UnitDetails({
             gap: "0.5rem",
           }}
         >
-          <Link to={previousPage} role="button" className="secondary">
+          <button
+            onClick={() => window.history.back()}
+            role="button"
+            className="secondary"
+          >
             Back
-          </Link>
+          </button>
           <div style={{ display: "flex", gap: "0.5rem" }}>
             <button
               onClick={() => setShowDeprecateModal(true)}
@@ -879,14 +877,8 @@ function ReviewsList({ reviews, user }: { reviews: any[]; user?: number }) {
 }
 
 export default function Unit({ loaderData, params }: Route.ComponentProps) {
-  const {
-    unit,
-    user,
-    hasReviewed,
-    existingUnitAdditionRequest,
-    previousPage,
-    university,
-  } = loaderData;
+  const { unit, user, hasReviewed, existingUnitAdditionRequest, university } =
+    loaderData;
 
   if (!university) {
     return (
@@ -980,7 +972,6 @@ export default function Unit({ loaderData, params }: Route.ComponentProps) {
       <UnitDetails
         unit={unit}
         user={user?.id}
-        previousPage={previousPage}
         overallRating={overallRating}
         teachingRating={teachingRating}
         contentRating={contentRating}
