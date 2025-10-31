@@ -13,3 +13,6 @@ prisma/dev.db
 
 # Imports
 imports/**/*.json
+
+# Backups
+backups/**/*.json
