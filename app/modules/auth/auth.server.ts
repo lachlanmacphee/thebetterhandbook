@@ -28,10 +28,12 @@ authenticator.use(
         sameSite: "Lax",
       },
       sendTOTP: async ({ email, magicLink, code }) => {
-        // Raise an error if the email is not a Monash student email.
-        if (!email.endsWith("@student.monash.edu")) {
+        if (
+          !email.endsWith("@student.monash.edu") &&
+          !email.endsWith("@student.unimelb.edu.au")
+        ) {
           throw new Error(
-            "Only Monash student email addresses are allowed to sign up"
+            "Only Monash and UniMelb students are allowed to sign up"
           );
         }
 
@@ -50,19 +52,19 @@ authenticator.use(
       },
     },
     async ({ email, request }) => {
-      // Validate email domain
-      if (!email.endsWith("@student.monash.edu")) {
+      if (
+        !email.endsWith("@student.monash.edu") &&
+        !email.endsWith("@student.unimelb.edu.au")
+      ) {
         throw new Error(
-          "Only Monash student email addresses are allowed to sign up"
+          "Only Monash and UniMelb students are allowed to sign up"
         );
       }
 
-      // Get user from database.
       let user = await db.user.findFirst({
         where: { email },
       });
 
-      // Create a new user if it doesn't exist.
       if (!user) {
         const name = email.split("@")[0];
         user = await db.user.create({
@@ -70,7 +72,6 @@ authenticator.use(
         });
       }
 
-      // Store user in session.
       const session = await sessionStorage.getSession(
         request.headers.get("Cookie")
       );
@@ -81,10 +82,8 @@ authenticator.use(
       session.set("email", user.email);
       session.set("preferredUniversityId", user.preferredUniversityId);
 
-      // Commit session.
       const sessionCookie = await sessionStorage.commitSession(session);
 
-      // Redirect to your authenticated route.
       throw redirect("/", {
         headers: {
           "Set-Cookie": sessionCookie,
