@@ -11,11 +11,8 @@ import {
 } from "react-router";
 
 import "./css/pico.min.css";
-
-import { useState } from "react";
 import { getSession } from "~/modules/auth/session.server";
 import type { Route } from "./+types/root";
-import db from "./modules/db/db.server";
 
 export function meta({}: Route.MetaArgs) {
   return [
