@@ -10,9 +10,9 @@ import {
   useLocation,
 } from "react-router";
 
-import "./css/pico.min.css";
 import { getSession } from "~/modules/auth/session.server";
 import type { Route } from "./+types/root";
+import "./css/pico.min.css";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -62,7 +62,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body
-        style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          minHeight: "100vh",
+        }}
       >
         <header className="container">
           <nav>
@@ -95,7 +99,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </ul>
           </nav>
         </header>
-        <main className="container" style={{ flex: 1 }}>
+        <main
+          className="container"
+          style={{ flex: 1, backgroundColor: "var(--pico-background-color)" }}
+        >
           {children}
         </main>
         <footer className="container">

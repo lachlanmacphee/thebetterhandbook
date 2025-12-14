@@ -4,41 +4,24 @@ See the [About page](https://tbh.lachlanmacphee.com/about) for details.
 
 ## Todo
 
-- [x] Include links to unit on Monash handbook for the current year
-- [x] Include WAM Booster tag and checkbox on review
-- [x] Sort reviews by likes/dislikes, controversial, latest/oldest etc
-- [x] Add likes/dislikes to reviews
-- [x] View all your reviews on your profile page
-- [x] Edit your name on your profile page
-- [x] Sort units on the search page by rating
-- [x] Disable like/dislike buttons when not logged in
-- [x] Add a year completed input to the review form
-- [x] Ability to edit reviews from either profile page or unit page
-- [x] Back button on unit page to go back to home or advanced search depending on where they came from
-- [x] Ability for students to mark units deprecated
-- [x] Ability for students to suggest changes to a unit (e.g. campus, location, semester)
-- [x] Role-based permissioning to help maintain the site
-- [x] Admins can see suggestions and approve them (once actioned), or reject them if they are invalid
-- [x] Fix bug with attendance required checkbox
 - [ ] Toast popups after any submission of a modal, review, etc
 - [ ] Improve the metrics around how much a unit requires on-campus attendance
 - [ ] All review additions/editing should be on the dedicated page
 - [ ] Add more API call examples to the Bruno directory
-- [x] Back button on login page
 
 ## Future Features
 
 ### Visualisations
 
-It'd be really nice to have a pre/co requisites visualisation like MonSTAR has, but unfortunately the dataset doesn't seem too strong at this time. I think there will be more work to perhaps use an LLM to parse the requisites description of each unit and add them later. Regardless, it's on the future features list.
+It'd be really nice to have a requisites visualisation like MonSTAR has, but my priorities are on expanding support to the entire Group of Eight before having a crack at this.
 
 ### Course Maps
 
-MonPlan already has this functionality and I don't see any particular reason to duplicate work unless there is a core feature that's missing or major improvements to be made. Will have to investigate further whether having this would be useful or not.
+Same as above; a nice to have but not coming any time soon.
 
-### SETU
+### University's own review data
 
-Might be worth incorporating some SETU metrics in.
+Might be worth incorporating some metrics in from each Uni's own review system, like SETU at Monash.
 
 ## Deployment
 

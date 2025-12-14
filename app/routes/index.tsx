@@ -4,10 +4,10 @@ export default function Index() {
       <h1>Choose your University</h1>
       <div className="grid">
         <a href="/1">
-          <article>Monash University</article>
+          <article style={{ marginBottom: 0 }}>Monash University</article>
         </a>
         <a href="/2">
-          <article>University of Melbourne</article>
+          <article style={{ marginBottom: 0 }}>University of Melbourne</article>
         </a>
       </div>
     </>
