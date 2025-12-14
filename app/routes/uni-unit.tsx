@@ -124,7 +124,7 @@ export async function action({ request, params }: Route.ActionArgs) {
   if (!userId)
     return data(
       { error: "You must be logged in to perform this action" },
-      { status: 400 }
+      { status: 400 },
     );
 
   if (intent === "edit-review") {
@@ -252,7 +252,7 @@ export async function action({ request, params }: Route.ActionArgs) {
     } catch (error) {
       return data(
         { error: "Failed to submit deprecation request" },
-        { status: 500 }
+        { status: 500 },
       );
     }
   }
@@ -554,7 +554,7 @@ function UnitDetails({
               key={campus.campus.id}
               style={{
                 backgroundColor: "var(--pico-primary-background)",
-                color: "var(--pico-primary-text)",
+                color: "black",
                 display: "flex",
                 alignItems: "center",
               }}
@@ -821,7 +821,7 @@ function Review({ review, user }: { review: any; user?: number }) {
 
 function ReviewsList({ reviews, user }: { reviews: any[]; user?: number }) {
   const [sortBy, setSortBy] = useState<"helpful" | "latest" | "oldest">(
-    "helpful"
+    "helpful",
   );
 
   const sortedReviews = [...reviews].sort((a, b) => {
@@ -930,7 +930,7 @@ export default function Unit({ loaderData, params }: Route.ComponentProps) {
             <small>
               Requested on{" "}
               {new Date(
-                existingUnitAdditionRequest.createdAt
+                existingUnitAdditionRequest.createdAt,
               ).toLocaleDateString()}
             </small>
           </section>
