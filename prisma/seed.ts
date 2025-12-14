@@ -1,7 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import pino from "pino";
-// import MonashImporter from "../imports/universities/monash";
-import MelbourneImporter from "imports/universities/melbourne";
+// import MonashImporter from "imports/universities/monash";
+// import MelbourneImporter from "imports/universities/melbourne";
+import ANUImporter from "imports/universities/anu";
 
 const prisma = new PrismaClient();
 
@@ -19,7 +20,8 @@ async function main() {
   });
 
   // const importer = new MonashImporter(logger);
-  const importer = new MelbourneImporter(logger);
+  // const importer = new MelbourneImporter(logger);
+  const importer = new ANUImporter(logger);
   const units = await importer.getUnits();
 
   const university = await prisma.university.upsert({

@@ -13,6 +13,10 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     },
   });
 
+  if (!university) {
+    return { university: null, units: [], user: userId };
+  }
+
   const units = await db.unit.findMany({
     where: {
       universityId: parseInt(params.uniId),
@@ -65,7 +69,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   };
 
   if (!university) {
-    return <p>Something went wrong...</p>;
+    return <p>Support for this University is coming soon.</p>;
   }
 
   return (
