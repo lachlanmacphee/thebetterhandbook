@@ -25,7 +25,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const sortBy = url.searchParams.get("sortBy") || "code";
   const page = parseInt(url.searchParams.get("page") || "1");
   const pageSize = parseInt(
-    url.searchParams.get("pageSize") || String(DEFAULT_PAGE_SIZE)
+    url.searchParams.get("pageSize") || String(DEFAULT_PAGE_SIZE),
   );
 
   // Validate page size
@@ -245,7 +245,7 @@ export default function Search({ loaderData, params }: Route.ComponentProps) {
               type="text"
               name="code"
               defaultValue={filters.code}
-              placeholder="e.g. FIT1008"
+              placeholder={"e.g. " + units[0]?.code || "CS1010"}
             />
           </label>
 
