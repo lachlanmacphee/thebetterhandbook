@@ -1,9 +1,8 @@
-import { redirect } from "react-router";
-import { useFetcher, useNavigate } from "react-router";
-import { getSession } from "~/modules/auth/session.server";
-import { authenticator } from "~/modules/auth/auth.server";
-import type { Route } from "../+types/root";
 import { useState } from "react";
+import { redirect, useFetcher, useNavigate } from "react-router";
+import { authenticator } from "~/modules/auth/auth.server";
+import { getSession } from "~/modules/auth/session.server";
+import type { Route } from "../+types/root";
 
 export async function loader({ request }: Route.LoaderArgs) {
   // Check for existing session.
@@ -51,7 +50,8 @@ export default function Route() {
 
     if (
       email.endsWith("@student.monash.edu") ||
-      email.endsWith("@student.unimelb.edu.au")
+      email.endsWith("@student.unimelb.edu.au") ||
+      email.endsWith("@anu.edu.au")
     ) {
       setEmailError("");
       fetcher.submit(formData, { method: "POST" });
@@ -78,8 +78,8 @@ export default function Route() {
             disabled={isSubmitting}
           />
           <small id="email-helper">
-            Your email must end in either @student.monash.edu or
-            @student.unimelb.edu.au
+            Only student emails are permitted. They must end in either
+            @student.monash.edu, @student.unimelb.edu.au, or @anu.edu.au.
           </small>
         </label>
         <div className="grid">

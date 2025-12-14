@@ -30,11 +30,10 @@ authenticator.use(
       sendTOTP: async ({ email, magicLink, code }) => {
         if (
           !email.endsWith("@student.monash.edu") &&
-          !email.endsWith("@student.unimelb.edu.au")
+          !email.endsWith("@student.unimelb.edu.au") &&
+          !email.endsWith("@anu.edu.au")
         ) {
-          throw new Error(
-            "Only Monash and UniMelb students are allowed to sign up"
-          );
+          throw new Error("Use your University email to sign up");
         }
 
         sendEmail({
@@ -54,11 +53,10 @@ authenticator.use(
     async ({ email, request }) => {
       if (
         !email.endsWith("@student.monash.edu") &&
-        !email.endsWith("@student.unimelb.edu.au")
+        !email.endsWith("@student.unimelb.edu.au") &&
+        !email.endsWith("@anu.edu.au")
       ) {
-        throw new Error(
-          "Only Monash and UniMelb students are allowed to sign up"
-        );
+        throw new Error("Use your University email to sign up");
       }
 
       let user = await db.user.findFirst({
@@ -73,7 +71,7 @@ authenticator.use(
       }
 
       const session = await sessionStorage.getSession(
-        request.headers.get("Cookie")
+        request.headers.get("Cookie"),
       );
 
       session.set("id", user.id);
@@ -89,6 +87,6 @@ authenticator.use(
           "Set-Cookie": sessionCookie,
         },
       });
-    }
-  )
+    },
+  ),
 );
