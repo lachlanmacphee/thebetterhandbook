@@ -34,7 +34,14 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     : DEFAULT_PAGE_SIZE;
 
   // Fetch reference data for dropdowns
-  const [faculties, campuses, semesters, universities] = await Promise.all([
+  const [
+    faculties,
+    campuses,
+    semesters,
+    universities,
+    uniqueLevels,
+    uniqueCreditPoints,
+  ] = await Promise.all([
     db.faculty.findMany({
       where: { universityId },
       orderBy: { name: "asc" },
@@ -48,6 +55,18 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       orderBy: { name: "asc" },
     }),
     db.university.findMany({ orderBy: { name: "asc" } }),
+    db.unit.findMany({
+      where: { universityId },
+      select: { level: true },
+      distinct: ["level"],
+      orderBy: { level: "asc" },
+    }),
+    db.unit.findMany({
+      where: { universityId },
+      select: { creditPoints: true },
+      distinct: ["creditPoints"],
+      orderBy: { creditPoints: "asc" },
+    }),
   ]);
 
   // Build the where clause based on filters
@@ -198,6 +217,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     campuses,
     semesters,
     universities,
+    levels: uniqueLevels.map((u) => u.level),
+    creditPointsOptions: uniqueCreditPoints.map((u) => u.creditPoints),
     pagination: {
       currentPage: page,
       totalPages,
@@ -219,8 +240,16 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 }
 
 export default function Search({ loaderData, params }: Route.ComponentProps) {
-  const { units, faculties, campuses, semesters, filters, pagination } =
-    loaderData;
+  const {
+    units,
+    faculties,
+    campuses,
+    semesters,
+    filters,
+    pagination,
+    levels,
+    creditPointsOptions,
+  } = loaderData;
   const { currentPage, totalPages, totalCount, pageSize } = pagination;
   const location = useLocation();
 
@@ -265,11 +294,13 @@ export default function Search({ loaderData, params }: Route.ComponentProps) {
             Faculty
             <select name="faculty" defaultValue={filters.faculty}>
               <option value="">All Faculties</option>
-              {faculties.map((faculty) => (
-                <option key={faculty.id} value={faculty.id}>
-                  {faculty.name}
-                </option>
-              ))}
+              {faculties
+                .filter((semester) => semester.name.trim() !== "")
+                .map((faculty) => (
+                  <option key={faculty.id} value={faculty.id}>
+                    {faculty.name}
+                  </option>
+                ))}
             </select>
           </label>
 
@@ -277,7 +308,7 @@ export default function Search({ loaderData, params }: Route.ComponentProps) {
             Level
             <select name="level" defaultValue={filters.level}>
               <option value="">All Levels</option>
-              {[1, 2, 3, 4, 5].map((level) => (
+              {levels.map((level) => (
                 <option key={level} value={level}>
                   Level {level}
                 </option>
@@ -291,7 +322,7 @@ export default function Search({ loaderData, params }: Route.ComponentProps) {
             Credit Points
             <select name="creditPoints" defaultValue={filters.creditPoints}>
               <option value="">Any Credit Points</option>
-              {[6, 12].map((points) => (
+              {creditPointsOptions.map((points) => (
                 <option key={points} value={points}>
                   {points} Points
                 </option>
@@ -300,9 +331,9 @@ export default function Search({ loaderData, params }: Route.ComponentProps) {
           </label>
 
           <label>
-            Campus
+            Location
             <select name="campus" defaultValue={filters.campus}>
-              <option value="">All Campuses</option>
+              <option value="">All Locations</option>
               {campuses.map((campus) => (
                 <option key={campus.id} value={campus.id}>
                   {campus.name}
@@ -317,11 +348,13 @@ export default function Search({ loaderData, params }: Route.ComponentProps) {
             Semester
             <select name="semester" defaultValue={filters.semester}>
               <option value="">All Semesters</option>
-              {semesters.map((semester) => (
-                <option key={semester.id} value={semester.id}>
-                  {semester.name}
-                </option>
-              ))}
+              {semesters
+                .filter((semester) => semester.name.trim() !== "")
+                .map((semester) => (
+                  <option key={semester.id} value={semester.id}>
+                    {semester.name}
+                  </option>
+                ))}
             </select>
           </label>
 
