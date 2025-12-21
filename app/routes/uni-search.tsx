@@ -310,7 +310,7 @@ export default function Search({ loaderData, params }: Route.ComponentProps) {
               <option value="">All Levels</option>
               {levels.map((level) => (
                 <option key={level} value={level}>
-                  Level {level}
+                  {level}
                 </option>
               ))}
             </select>
