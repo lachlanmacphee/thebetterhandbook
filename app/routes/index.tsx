@@ -13,7 +13,7 @@ export default function Index() {
         </a>
       </div>
       <div className="grid">
-        <a href="/4">
+        <a href="/5">
           <article style={{ marginBottom: 0 }}>University of Adelaide</article>
         </a>
         <a href="/2">
@@ -21,7 +21,7 @@ export default function Index() {
         </a>
       </div>
       <div className="grid">
-        <a href="/5">
+        <a href="/4">
           <article style={{ marginBottom: 0 }}>
             University of New South Wales
           </article>
