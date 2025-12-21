@@ -15,7 +15,7 @@ type IndexResult = {
   courses: string[];
 };
 
-export default class MonashImporter extends Importer {
+export default class MonashUniversityImporter extends Importer {
   constructor(logger: pino.Logger) {
     super(
       "Monash University",

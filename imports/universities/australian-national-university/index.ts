@@ -15,7 +15,7 @@ type ANUApiUnit = {
   Year: number;
 };
 
-export default class ANUImporter extends Importer {
+export default class AustralianNationalUniversityImporter extends Importer {
   constructor(logger: pino.Logger) {
     super(
       "Australian National University",
@@ -42,7 +42,7 @@ export default class ANUImporter extends Importer {
       name: unit.Name.trim(),
       level: "NA",
       creditPoints: unit.Units,
-      facultyName: "",
+      facultyName: "NA",
       offerings: unit.Session.split("/").map((session) => ({
         location: unit.ModeOfDelivery.trim(),
         period: session.trim(),

@@ -1,10 +1,11 @@
 import { PrismaClient } from "@prisma/client";
 import pino from "pino";
-// import MonashImporter from "imports/universities/monash-university";
-// import MelbourneImporter from "imports/universities/university-of-melbourne";
-// import ANUImporter from "imports/universities/australian-national-university";
-// import UNSWImporter from "imports/universities/university-of-new-south-wales";
-import UQIimporter from "imports/universities/university-of-queensland";
+// import MonashUniversityImporter from "imports/universities/monash-university";
+// import UniversityOfMelbourneImporter from "imports/universities/university-of-melbourne";
+// import AustralianNationalUniversityImporter from "imports/universities/australian-national-university";
+// import UniversityOfNewSouthWalesImporter from "imports/universities/university-of-new-south-wales";
+// import UniversityOfQueenslandImporter from "imports/universities/university-of-queensland";
+import UniversityOfAdelaideImporter from "imports/universities/university-of-adelaide";
 
 const prisma = new PrismaClient();
 
@@ -21,11 +22,12 @@ async function main() {
     },
   });
 
-  // const importer = new MonashImporter(logger);
-  // const importer = new MelbourneImporter(logger);
-  // const importer = new ANUImporter(logger);
-  // const importer = new UNSWImporter(logger);
-  const importer = new UQIimporter(logger);
+  // const importer = new MonashUniversityImporter(logger);
+  // const importer = new UniversityOfMelbourneImporter(logger);
+  // const importer = new AustralianNationalUniversityImporter(logger);
+  // const importer = new UniversityOfNewSouthWalesImporter(logger);
+  // const importer = new UniversityOfQueenslandImporter(logger);
+  const importer = new UniversityOfAdelaideImporter(logger);
   const units = await importer.getUnits();
 
   const university = await prisma.university.upsert({

@@ -26,7 +26,7 @@ type UNSWApiUnit = {
   secondaryURL: string;
 };
 
-export default class UNSWImporter extends Importer {
+export default class UniversityOfNewSouthWalesImporter extends Importer {
   constructor(logger: pino.Logger) {
     super(
       "University of New South Wales",

@@ -5,7 +5,7 @@ import pino from "pino";
 const UQ_SEARCH_URL =
     "https://programs-courses.uq.edu.au/search.html?keywords=+&searchType=course";
 
-export default class UQImporter extends Importer {
+export default class UniversityOfQueenslandImporter extends Importer {
     constructor(logger: pino.Logger) {
         super(
             "University of Queensland",

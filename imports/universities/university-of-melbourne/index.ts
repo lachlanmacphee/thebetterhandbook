@@ -24,7 +24,7 @@ type CoursePlannerUnit = {
   }[];
 };
 
-export default class MelbourneImporter extends Importer {
+export default class UniversityOfMelbourneImporter extends Importer {
   constructor(logger: pino.Logger) {
     super(
       "University of Melbourne",
