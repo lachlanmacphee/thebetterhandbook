@@ -819,10 +819,24 @@ function Review({ review, user }: { review: any; user?: number }) {
   );
 }
 
-function ReviewsList({ reviews, user }: { reviews: any[]; user?: number }) {
+function ReviewsList({
+  reviews,
+  user,
+  hasReviewed,
+}: {
+  reviews: any[];
+  user?: number;
+  hasReviewed?: boolean;
+}) {
   const [sortBy, setSortBy] = useState<"helpful" | "latest" | "oldest">(
     "helpful",
   );
+
+  const handleAddReviewClick = () => {
+    document
+      .getElementById("review-form")
+      ?.scrollIntoView({ behavior: "smooth" });
+  };
 
   const sortedReviews = [...reviews].sort((a, b) => {
     if (sortBy === "helpful") {
@@ -853,19 +867,30 @@ function ReviewsList({ reviews, user }: { reviews: any[]; user?: number }) {
         }}
       >
         <h2>Reviews</h2>
-        <select
-          name="sort-reviews"
-          aria-label="Sort reviews by..."
-          value={sortBy}
-          style={{ width: "max-content" }}
-          onChange={(e) =>
-            setSortBy(e.target.value as "helpful" | "latest" | "oldest")
-          }
-        >
-          <option value="helpful">Most Helpful</option>
-          <option value="latest">Latest</option>
-          <option value="oldest">Oldest</option>
-        </select>
+        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+          {user ? (
+            !hasReviewed && (
+              <button onClick={handleAddReviewClick}>Add Review</button>
+            )
+          ) : (
+            <Link to="/auth/login" role="button">
+              Add Review
+            </Link>
+          )}
+          <select
+            name="sort-reviews"
+            aria-label="Sort reviews by..."
+            value={sortBy}
+            style={{ width: "max-content" }}
+            onChange={(e) =>
+              setSortBy(e.target.value as "helpful" | "latest" | "oldest")
+            }
+          >
+            <option value="helpful">Most Helpful</option>
+            <option value="latest">Latest</option>
+            <option value="oldest">Oldest</option>
+          </select>
+        </div>
       </header>
       <div>
         {sortedReviews.map((review) => (
@@ -979,7 +1004,11 @@ export default function Unit({ loaderData, params }: Route.ComponentProps) {
         workloadRating={workloadRating}
       />
 
-      <ReviewsList reviews={unit.reviews} user={user?.id} />
+      <ReviewsList
+        reviews={unit.reviews}
+        user={user?.id}
+        hasReviewed={hasReviewed}
+      />
 
       {user && !hasReviewed && (
         <article id="review-form">
