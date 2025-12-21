@@ -28,7 +28,7 @@ export default class MelbourneImporter extends Importer {
   constructor(logger: pino.Logger) {
     super(
       "University of Melbourne",
-      "https://handbook.unimelb.edu.au/subjects",
+      "https://handbook.unimelb.edu.au/subjects/",
       logger,
     );
   }
@@ -80,7 +80,7 @@ export default class MelbourneImporter extends Importer {
       const unitsToAdd = coursePlannerUnits.map((unit) => ({
         code: unit.code,
         name: unit.name,
-        level: parseInt(unit.level) || -1,
+        level: unit.level || "NA",
         creditPoints: unit.points,
         facultyName:
           unit.areaOfStudy.length > 0

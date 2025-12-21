@@ -105,7 +105,7 @@ model Unit {
   id           Int               @id @default(autoincrement())
   name         String
   code         String
-  level        Int
+  level        String
   creditPoints Int
   reviews      Review[]
   campuses     UnitCampus[]

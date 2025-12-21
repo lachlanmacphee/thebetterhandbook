@@ -76,7 +76,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       code ? { code: { contains: code } } : {},
       name ? { name: { contains: name } } : {},
       faculty ? { facultyId: parseInt(faculty) } : {},
-      level ? { level: parseInt(level) } : {},
+      level ? { level } : {},
       creditPoints ? { creditPoints: parseInt(creditPoints) } : {},
       campus
         ? {

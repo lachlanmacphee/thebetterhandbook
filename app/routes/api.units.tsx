@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 import db from "~/modules/db/db.server";
-import type { Route } from "./+types/search";
+import type { Route } from "./+types";
 
 const DEFAULT_PAGE_SIZE = 12;
 const ALLOWED_PAGE_SIZES = [12, 24, 36];
@@ -68,7 +68,7 @@ export async function loader({ request }: Route.LoaderArgs) {
       code ? { code: { contains: code } } : {},
       name ? { name: { contains: name } } : {},
       faculty ? { facultyId: parseInt(faculty) } : {},
-      level ? { level: parseInt(level) } : {},
+      level ? { level } : {},
       creditPoints ? { creditPoints: parseInt(creditPoints) } : {},
       campus
         ? {

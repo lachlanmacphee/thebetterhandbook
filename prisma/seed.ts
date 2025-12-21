@@ -105,18 +105,13 @@ async function main() {
     facultyMap[school] = faculty.id;
   }
 
-  // Upsert units and their relationships
   for (const unit of units) {
-    // Validate unit data before inserting
     if (!unit.code || !unit.name) {
       logger.warn(`Skipping unit with invalid data: ${JSON.stringify(unit)}`);
       continue;
     }
 
     // Ensure level is a valid number
-    const level = isNaN(unit.level) ? -1 : unit.level;
-
-    // Ensure creditPoints is a valid number
     const creditPoints = isNaN(unit.creditPoints) ? -1 : unit.creditPoints;
 
     const createdUnit = await prisma.unit.upsert({
@@ -128,14 +123,14 @@ async function main() {
       },
       update: {
         name: unit.name,
-        level,
+        level: unit.level,
         creditPoints,
         facultyId: facultyMap[unit.facultyName],
       },
       create: {
         code: unit.code,
         name: unit.name,
-        level,
+        level: unit.level,
         creditPoints,
         facultyId: facultyMap[unit.facultyName],
         universityId: universityId,

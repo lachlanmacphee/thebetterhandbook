@@ -578,7 +578,7 @@ function UnitDetails({
         </div>
         {unit.university.handbookUrl && (
           <a
-            href={`${unit.university.handbookUrl}/${unit.code}`}
+            href={`${unit.university.handbookUrl}${unit.code}`}
             target="_blank"
             rel="noopener noreferrer"
             style={{ display: "block", marginTop: "1rem" }}

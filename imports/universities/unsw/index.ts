@@ -30,7 +30,7 @@ export default class UNSWImporter extends Importer {
   constructor(logger: pino.Logger) {
     super(
       "University of New South Wales",
-      `https://www.handbook.unsw.edu.au/undergraduate/courses/${CURRENT_YEAR}`,
+      `https://www.handbook.unsw.edu.au/undergraduate/courses/${CURRENT_YEAR}/`,
       logger,
     );
   }
@@ -51,7 +51,7 @@ export default class UNSWImporter extends Importer {
     const units: ImportUnit[] = unswUnits.map((unit) => ({
       code: unit.integrat_coursecode,
       name: unit.integrat_coursename.trim(),
-      level: 0,
+      level: "NA",
       creditPoints: parseInt(unit.integrat_unitsofcredit),
       facultyName: unit.integrat_owningacademicunit,
       offerings: [

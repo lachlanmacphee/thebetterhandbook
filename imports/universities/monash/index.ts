@@ -19,7 +19,7 @@ export default class MonashImporter extends Importer {
   constructor(logger: pino.Logger) {
     super(
       "Monash University",
-      "https://handbook.monash.edu/current/units",
+      "https://handbook.monash.edu/current/units/",
       logger,
     );
   }
@@ -168,7 +168,7 @@ export default class MonashImporter extends Importer {
           code: unitData.code.trim(),
           name: unitData.title.trim(),
           facultyName: unitData.school?.value?.trim() || "Unknown",
-          level: level,
+          level: level?.toString() ?? "NA",
           offerings:
             unitData.unit_offering?.map((offering: any) => ({
               location: offering.location?.value?.trim() || "Unknown",

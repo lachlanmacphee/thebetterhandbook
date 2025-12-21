@@ -19,7 +19,7 @@ export default class ANUImporter extends Importer {
   constructor(logger: pino.Logger) {
     super(
       "Australian National University",
-      "https://programsandcourses.anu.edu.au/course",
+      "https://programsandcourses.anu.edu.au/course/",
       logger,
     );
   }
@@ -40,7 +40,7 @@ export default class ANUImporter extends Importer {
     const units: ImportUnit[] = anuUnits.map((unit) => ({
       code: unit.CourseCode,
       name: unit.Name.trim(),
-      level: 0,
+      level: "NA",
       creditPoints: unit.Units,
       facultyName: "",
       offerings: unit.Session.split("/").map((session) => ({

@@ -3,7 +3,7 @@ import pino from "pino";
 export type ImportUnit = {
   code: string;
   name: string;
-  level: number;
+  level: string;
   creditPoints: number;
   facultyName: string;
   offerings: {
