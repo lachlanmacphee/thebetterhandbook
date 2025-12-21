@@ -1,4 +1,3 @@
-import fs from "fs";
 import { Importer, type ImportUnit } from "imports/importer";
 import pino from "pino";
 
@@ -21,18 +20,11 @@ export default class MonashImporter extends Importer {
     super(
       "Monash University",
       "https://handbook.monash.edu/current/units",
-      logger
+      logger,
     );
   }
 
   async getUnits(): Promise<ImportUnit[]> {
-    if (fs.existsSync(this.unitOutputPath)) {
-      this.logger.info(
-        `Unit data already exists at ${this.unitOutputPath}, skipping import`
-      );
-      return JSON.parse(fs.readFileSync(this.unitOutputPath, "utf-8"));
-    }
-
     this.logger.info("Starting unit import process");
 
     const { unitCodes } = await this.fetchIndex();
@@ -46,7 +38,7 @@ export default class MonashImporter extends Importer {
       const batch = unitCodes.slice(i, i + COURSELOOP_BATCH_SIZE);
 
       this.logger.info(
-        `Processing batch ${currentBatch}/${totalBatches} (${batch.length} units)`
+        `Processing batch ${currentBatch}/${totalBatches} (${batch.length} units)`,
       );
 
       const batchPromises = batch.map(async (unitCode) => {
@@ -60,25 +52,23 @@ export default class MonashImporter extends Importer {
       units.push(...validUnits);
 
       this.logger.info(
-        `Batch ${currentBatch} completed: ${validUnits.length}/${batch.length} valid units found`
+        `Batch ${currentBatch} completed: ${validUnits.length}/${batch.length} valid units found`,
       );
 
       if (i + COURSELOOP_BATCH_SIZE < unitCodes.length) {
         this.logger.debug(
-          `Waiting ${COURSELOOP_INTER_BATCH_DELAY}ms before next batch to respect rate limits`
+          `Waiting ${COURSELOOP_INTER_BATCH_DELAY}ms before next batch to respect rate limits`,
         );
         await new Promise((resolve) =>
-          setTimeout(resolve, COURSELOOP_INTER_BATCH_DELAY)
+          setTimeout(resolve, COURSELOOP_INTER_BATCH_DELAY),
         );
       }
     }
 
     this.logger.info(
-      `Import process completed: ${units.length} total units imported`
+      `Import process completed: ${units.length} total units imported`,
     );
 
-    fs.writeFileSync(this.unitOutputPath, JSON.stringify(units, null, 2));
-    this.logger.info(`Unit data written to ${this.unitOutputPath}`);
     return units;
   }
 
@@ -134,11 +124,11 @@ export default class MonashImporter extends Importer {
         }
         return acc;
       },
-      { unitCodes: [], aos: [], courses: [] }
+      { unitCodes: [], aos: [], courses: [] },
     );
 
     this.logger.info(
-      `Index fetch completed: ${index.unitCodes.length} units, ${index.aos.length} AOS, ${index.courses.length} courses`
+      `Index fetch completed: ${index.unitCodes.length} units, ${index.aos.length} AOS, ${index.courses.length} courses`,
     );
     return index;
   }
@@ -155,10 +145,10 @@ export default class MonashImporter extends Importer {
         // CourseLoop seems to return a 403 Forbidden
         // status code instead of a 429 Too Many Requests.
         this.logger.warn(
-          `Rate limited for unit ${unitCode}, retrying after delay`
+          `Rate limited for unit ${unitCode}, retrying after delay`,
         );
         await new Promise((resolve) =>
-          setTimeout(resolve, COURSELOOP_INTER_BATCH_DELAY)
+          setTimeout(resolve, COURSELOOP_INTER_BATCH_DELAY),
         );
         return this.fetchUnitContent(unitCode);
       }
@@ -188,7 +178,7 @@ export default class MonashImporter extends Importer {
         };
 
         this.logger.debug(
-          `Successfully fetched unit: ${unit.code.trim()} - ${unit.name}`
+          `Successfully fetched unit: ${unit.code.trim()} - ${unit.name}`,
         );
         return unit;
       }
@@ -198,7 +188,7 @@ export default class MonashImporter extends Importer {
     } catch (error) {
       this.logger.error(
         { error, unitCode },
-        `Failed to fetch unit content for ${unitCode}`
+        `Failed to fetch unit content for ${unitCode}`,
       );
       return null;
     }

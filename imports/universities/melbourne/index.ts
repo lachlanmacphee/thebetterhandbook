@@ -1,4 +1,3 @@
-import fs from "fs";
 import { Importer, type ImportUnit } from "imports/importer";
 import pino from "pino";
 
@@ -30,7 +29,7 @@ export default class MelbourneImporter extends Importer {
     super(
       "University of Melbourne",
       "https://handbook.unimelb.edu.au/subjects",
-      logger
+      logger,
     );
   }
 
@@ -39,13 +38,6 @@ export default class MelbourneImporter extends Importer {
   }
 
   async getUnits(): Promise<ImportUnit[]> {
-    if (fs.existsSync(this.unitOutputPath)) {
-      this.logger.info(
-        `Unit data already exists at ${this.unitOutputPath}, skipping import`
-      );
-      return JSON.parse(fs.readFileSync(this.unitOutputPath, "utf-8"));
-    }
-
     this.logger.info("Starting unit import process");
 
     const coursesResults = await fetch(COURSE_PLANNER_API_PLAN_CREATION_URL, {
@@ -64,13 +56,13 @@ export default class MelbourneImporter extends Importer {
     for (let i = 0; i < courses.length; i++) {
       const results = await fetch(
         COURSE_PLANNER_API_SUBJECT_URL +
-          this.getQueryParamForCourseId(courses[i].code),
+        this.getQueryParamForCourseId(courses[i].code),
         {
           method: "GET",
           headers: {
             "x-user-id": COURSE_PLANNER_USER_ID,
           },
-        }
+        },
       );
 
       let json;
@@ -78,7 +70,7 @@ export default class MelbourneImporter extends Importer {
         json = await results.json();
       } catch (e) {
         this.logger.error(
-          `Couldn't read the result for course with code ${courses[i].code} and name ${courses[i].name}.`
+          `Couldn't read the result for course with code ${courses[i].code} and name ${courses[i].name}.`,
         );
         continue;
       }
@@ -102,18 +94,15 @@ export default class MelbourneImporter extends Importer {
       }));
 
       this.logger.info(
-        `Found ${unitsToAdd.length} units to add for the course with name ${courses[i].name} `
+        `Found ${unitsToAdd.length} units to add for the course with name ${courses[i].name} `,
       );
 
       units.push(...unitsToAdd.flat());
     }
 
     this.logger.info(
-      `Import process completed: ${units.length} total units imported`
+      `Import process completed: ${units.length} total units imported`,
     );
-
-    fs.writeFileSync(this.unitOutputPath, JSON.stringify(units, null, 2));
-    this.logger.info(`Unit data written to ${this.unitOutputPath}`);
 
     return units;
   }

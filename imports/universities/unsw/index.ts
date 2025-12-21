@@ -1,4 +1,3 @@
-import fs from "fs";
 import { Importer, type ImportUnit } from "imports/importer";
 import pino from "pino";
 
@@ -37,13 +36,6 @@ export default class UNSWImporter extends Importer {
   }
 
   async getUnits(): Promise<ImportUnit[]> {
-    if (fs.existsSync(this.unitOutputPath)) {
-      this.logger.info(
-        `Unit data already exists at ${this.unitOutputPath}, skipping import`,
-      );
-      return JSON.parse(fs.readFileSync(this.unitOutputPath, "utf-8"));
-    }
-
     this.logger.info("Starting unit import process");
 
     const unitResults = await fetch(UNSW_API_BASE_URL + UNSW_API_QUERY_PARAMS, {
