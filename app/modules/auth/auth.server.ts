@@ -33,7 +33,9 @@ authenticator.use(
           !email.endsWith("@student.unimelb.edu.au") &&
           !email.endsWith("@anu.edu.au") &&
           !email.endsWith("@students.unsw.edu.au") &&
-          !email.endsWith("@ad.unsw.edu.au")
+          !email.endsWith("@ad.unsw.edu.au") &&
+          !email.endsWith("@uq.edu.au") &&
+          !email.endsWith("@student.uq.edu.au")
         ) {
           throw new Error("Use your University email to sign up");
         }
@@ -58,7 +60,9 @@ authenticator.use(
         !email.endsWith("@student.unimelb.edu.au") &&
         !email.endsWith("@anu.edu.au") &&
         !email.endsWith("@students.unsw.edu.au") &&
-        !email.endsWith("@ad.unsw.edu.au")
+        !email.endsWith("@ad.unsw.edu.au") &&
+        !email.endsWith("@uq.edu.au") &&
+        !email.endsWith("@student.uq.edu.au")
       ) {
         throw new Error("Use your University email to sign up");
       }
