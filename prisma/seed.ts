@@ -3,7 +3,8 @@ import pino from "pino";
 // import MonashImporter from "imports/universities/monash";
 // import MelbourneImporter from "imports/universities/melbourne";
 // import ANUImporter from "imports/universities/anu";
-import UNSWImporter from "imports/universities/unsw";
+// import UNSWImporter from "imports/universities/unsw";
+import UQIimporter from "imports/universities/uq";
 
 const prisma = new PrismaClient();
 
@@ -23,7 +24,8 @@ async function main() {
   // const importer = new MonashImporter(logger);
   // const importer = new MelbourneImporter(logger);
   // const importer = new ANUImporter(logger);
-  const importer = new UNSWImporter(logger);
+  // const importer = new UNSWImporter(logger);
+  const importer = new UQIimporter(logger);
   const units = await importer.getUnits();
 
   const university = await prisma.university.upsert({
