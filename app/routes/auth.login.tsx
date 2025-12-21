@@ -51,7 +51,9 @@ export default function Route() {
     if (
       email.endsWith("@student.monash.edu") ||
       email.endsWith("@student.unimelb.edu.au") ||
-      email.endsWith("@anu.edu.au")
+      email.endsWith("@anu.edu.au") ||
+      email.endsWith("@students.unsw.edu.au") ||
+      email.endsWith("@ad.unsw.edu.au")
     ) {
       setEmailError("");
       fetcher.submit(formData, { method: "POST" });
@@ -79,7 +81,8 @@ export default function Route() {
           />
           <small id="email-helper">
             Only student emails are permitted. They must end in either
-            @student.monash.edu, @student.unimelb.edu.au, or @anu.edu.au.
+            @student.monash.edu, @student.unimelb.edu.au, @anu.edu.au,
+            @student.unsw.edu.au, or @ad.unsw.edu.au
           </small>
         </label>
         <div className="grid">
