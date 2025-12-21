@@ -1,10 +1,10 @@
 import { PrismaClient } from "@prisma/client";
 import pino from "pino";
-// import MonashImporter from "imports/universities/monash";
-// import MelbourneImporter from "imports/universities/melbourne";
-// import ANUImporter from "imports/universities/anu";
-// import UNSWImporter from "imports/universities/unsw";
-import UQIimporter from "imports/universities/uq";
+// import MonashImporter from "imports/universities/monash-university";
+// import MelbourneImporter from "imports/universities/university-of-melbourne";
+// import ANUImporter from "imports/universities/australian-national-university";
+// import UNSWImporter from "imports/universities/university-of-new-south-wales";
+import UQIimporter from "imports/universities/university-of-queensland";
 
 const prisma = new PrismaClient();
 
