@@ -867,7 +867,7 @@ function ReviewsList({
         }}
       >
         <h2>Reviews</h2>
-        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+        <div role="group" style={{ width: "max-content" }}>
           {user ? (
             !hasReviewed && (
               <button onClick={handleAddReviewClick}>Add Review</button>
@@ -881,7 +881,7 @@ function ReviewsList({
             name="sort-reviews"
             aria-label="Sort reviews by..."
             value={sortBy}
-            style={{ width: "max-content" }}
+            style={{ width: "max-content", marginBottom: 0 }}
             onChange={(e) =>
               setSortBy(e.target.value as "helpful" | "latest" | "oldest")
             }

@@ -25,8 +25,6 @@ export default class AustralianNationalUniversityImporter extends Importer {
   }
 
   async getUnits(): Promise<ImportUnit[]> {
-    this.logger.info("Starting unit import process");
-
     const unitResults = await fetch(ANU_API_BASE_URL + ANU_API_QUERY_PARAMS, {
       method: "GET",
       headers: {

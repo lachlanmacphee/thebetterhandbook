@@ -25,8 +25,6 @@ export default class MonashUniversityImporter extends Importer {
   }
 
   async getUnits(): Promise<ImportUnit[]> {
-    this.logger.info("Starting unit import process");
-
     const { unitCodes } = await this.fetchIndex();
     this.logger.info(`Found ${unitCodes.length} unit codes to process`);
 

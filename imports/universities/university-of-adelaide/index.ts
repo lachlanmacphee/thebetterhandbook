@@ -44,8 +44,6 @@ export default class UniversityOfAdelaideImporter extends Importer {
     }
 
     async getUnits(): Promise<ImportUnit[]> {
-        this.logger.info("Starting unit import process");
-
         const unitResults = await fetch(
             ADELAIDE_API_BASE_URL + ADELAIDE_API_QUERY_PARAMS,
             {

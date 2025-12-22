@@ -36,8 +36,6 @@ export default class UniversityOfNewSouthWalesImporter extends Importer {
   }
 
   async getUnits(): Promise<ImportUnit[]> {
-    this.logger.info("Starting unit import process");
-
     const unitResults = await fetch(UNSW_API_BASE_URL + UNSW_API_QUERY_PARAMS, {
       method: "GET",
       headers: {

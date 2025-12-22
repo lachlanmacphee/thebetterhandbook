@@ -15,8 +15,6 @@ export default class UniversityOfQueenslandImporter extends Importer {
     }
 
     async getUnits(): Promise<ImportUnit[]> {
-        this.logger.info("Starting unit import process");
-
         const response = await fetch(UQ_SEARCH_URL, {
             method: "GET",
         });

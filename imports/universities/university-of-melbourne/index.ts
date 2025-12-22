@@ -38,8 +38,6 @@ export default class UniversityOfMelbourneImporter extends Importer {
   }
 
   async getUnits(): Promise<ImportUnit[]> {
-    this.logger.info("Starting unit import process");
-
     const coursesResults = await fetch(COURSE_PLANNER_API_PLAN_CREATION_URL, {
       method: "GET",
       headers: {
