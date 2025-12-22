@@ -57,3 +57,4 @@ jobs:
             docker compose stop
             docker compose pull tbh
             docker compose up -d
+            docker image prune -a -f
