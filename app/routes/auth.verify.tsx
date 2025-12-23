@@ -1,9 +1,8 @@
-import { redirect, useLoaderData } from "react-router";
 import { Cookie } from "@mjackson/headers";
-import { useFetcher } from "react-router";
 import { useState } from "react";
-import { getSession } from "~/modules/auth/session.server";
+import { redirect, useFetcher, useLoaderData } from "react-router";
 import { authenticator } from "~/modules/auth/auth.server";
+import { getSession } from "~/modules/auth/session.server";
 import type { Route } from "../+types/root";
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -75,8 +74,6 @@ export default function VerifyPage() {
   const isSubmitting = fetcher.state !== "idle" || fetcher.formData != null;
 
   const email = "email" in loaderData ? loaderData.email : undefined;
-  const error = "error" in loaderData ? loaderData.error : null;
-  const errors = fetcher.data?.error || error;
 
   return (
     <>
@@ -98,22 +95,12 @@ export default function VerifyPage() {
             style={{ textAlign: "center", letterSpacing: "0.1em" }}
           />
         </label>
-        <button
-          type="submit"
-          disabled={isSubmitting || value.length !== 6}
-        >
+        <button type="submit" disabled={isSubmitting || value.length !== 6}>
           {isSubmitting ? "Verifying..." : "Verify Code"}
         </button>
       </fetcher.Form>
-      <fetcher.Form
-        method="POST"
-        action="/auth/login"
-        autoComplete="off"
-      >
-        <button
-          type="submit"
-          className="secondary"
-        >
+      <fetcher.Form method="POST" action="/auth/login" autoComplete="off">
+        <button type="submit" className="secondary">
           Request a new code
         </button>
       </fetcher.Form>

@@ -90,7 +90,7 @@ export default function Route() {
             @student.uq.edu.au, @student.adelaide.edu.au, or @uni.sydney.edu.au
           </small>
         </label>
-        <div className="grid">
+        <div role="group">
           <button
             type="button"
             onClick={handleBack}
