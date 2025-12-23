@@ -12,7 +12,7 @@ import {
 
 import { getSession } from "~/modules/auth/session.server";
 import type { Route } from "./+types/root";
-import "./css/pico.min.css";
+import "./css/pico.red.min.css";
 
 export function meta({}: Route.MetaArgs) {
   return [
