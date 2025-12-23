@@ -20,7 +20,7 @@ export function meta({}: Route.MetaArgs) {
     {
       name: "description",
       content:
-        "An independent site designed to help Monash University students make informed decisions about their unit selections.",
+        "An independent site designed to help students at Australian Universities make informed decisions about their unit/subject/course selections.",
     },
   ];
 }
