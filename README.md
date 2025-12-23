@@ -1,6 +1,6 @@
 # The Better Handbook
 
-See the [About page](https://tbh.lachlanmacphee.com/about) for details.
+See the [About page](https://thebetterhandbook.com.au/about) for details.
 
 ## Universities Supported
 
