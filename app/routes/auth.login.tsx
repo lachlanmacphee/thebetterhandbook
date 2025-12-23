@@ -84,10 +84,16 @@ export default function Route() {
             disabled={isSubmitting}
           />
           <small id="email-helper">
-            Only student emails are permitted. They must end in either
-            @student.monash.edu, @student.unimelb.edu.au, @anu.edu.au,
+            To ensure that only students are leaving reviews, you must use your
+            student email. Hover{" "}
+            <em
+              data-tooltip="@student.monash.edu, @student.unimelb.edu.au, @anu.edu.au,
             @student.unsw.edu.au, @ad.unsw.edu.au, @uq.edu.au,
-            @student.uq.edu.au, @student.adelaide.edu.au, or @uni.sydney.edu.au
+            @student.uq.edu.au, @student.adelaide.edu.au, or @uni.sydney.edu.au"
+            >
+              here
+            </em>{" "}
+            for available options.
           </small>
         </label>
         <div role="group">
