@@ -57,7 +57,8 @@ export default function Route() {
       email.endsWith("@uq.edu.au") ||
       email.endsWith("@student.uq.edu.au") ||
       email.endsWith("@student.adelaide.edu.au") ||
-      email.endsWith("@uni.sydney.edu.au")
+      email.endsWith("@uni.sydney.edu.au") ||
+      email.endsWith("@student.uwa.edu.au")
     ) {
       setEmailError("");
       fetcher.submit(formData, { method: "POST" });
@@ -89,7 +90,7 @@ export default function Route() {
             <em
               data-tooltip="@student.monash.edu, @student.unimelb.edu.au, @anu.edu.au,
             @student.unsw.edu.au, @ad.unsw.edu.au, @uq.edu.au,
-            @student.uq.edu.au, @student.adelaide.edu.au, or @uni.sydney.edu.au"
+            @student.uq.edu.au, @student.adelaide.edu.au, @uni.sydney.edu.au, or @student.uwa.edu.au"
             >
               here
             </em>{" "}

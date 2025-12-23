@@ -11,7 +11,7 @@ See the [About page](https://tbh.lachlanmacphee.com/about) for details.
 - [x] University of New South Wales
 - [x] University of Queensland
 - [x] University of Sydney
-- [ ] University of Western Australia
+- [x] University of Western Australia
 
 ## Roadmap
 

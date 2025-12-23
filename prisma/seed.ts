@@ -6,7 +6,8 @@ import pino from "pino";
 // import UniversityOfNewSouthWalesImporter from "imports/universities/university-of-new-south-wales";
 // import UniversityOfQueenslandImporter from "imports/universities/university-of-queensland";
 // import UniversityOfAdelaideImporter from "imports/universities/university-of-adelaide";
-import UniversityOfSydneyImporter from "imports/universities/university-of-sydney";
+// import UniversityOfSydneyImporter from "imports/universities/university-of-sydney";
+import UniversityOfWesternAustraliaImporter from "imports/universities/university-of-western-australia";
 
 const prisma = new PrismaClient();
 
@@ -29,7 +30,8 @@ async function main() {
   // const importer = new UniversityOfNewSouthWalesImporter(logger);
   // const importer = new UniversityOfQueenslandImporter(logger);
   // const importer = new UniversityOfAdelaideImporter(logger);
-  const importer = new UniversityOfSydneyImporter(logger);
+  // const importer = new UniversityOfSydneyImporter(logger);
+  const importer = new UniversityOfWesternAustraliaImporter(logger);
 
   logger.info(`Starting import for ${importer.university}`);
   const units = await importer.getUnits();
