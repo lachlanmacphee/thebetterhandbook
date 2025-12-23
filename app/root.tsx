@@ -18,9 +18,22 @@ export function meta({}: Route.MetaArgs) {
   return [
     { title: "The Better Handbook" },
     {
+      property: "og:title",
+      content: "The Better Handbook",
+    },
+    {
       name: "description",
       content:
         "An independent site designed to help students at Australian Universities make informed decisions about their unit/subject/course selections.",
+    },
+    {
+      property: "keywords",
+      content:
+        "university, handbook, subjects, units, courses, reviews, ratings, australia",
+    },
+    {
+      property: "robots",
+      content: "index, follow",
     },
   ];
 }
