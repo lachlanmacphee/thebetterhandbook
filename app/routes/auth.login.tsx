@@ -65,7 +65,9 @@ export default function Route() {
       return;
     }
 
-    setEmailError("Please use your student email");
+    setEmailError(
+      "Please use an email ending in either @student.monash.edu, @student.unimelb.edu.au, @anu.edu.au, @student.unsw.edu.au, @ad.unsw.edu.au, @uq.edu.au, @student.uq.edu.au, @student.adelaide.edu.au, @uni.sydney.edu.au, or @student.uwa.edu.au",
+    );
   };
 
   return (
@@ -86,15 +88,7 @@ export default function Route() {
           />
           <small id="email-helper">
             To ensure that only students are leaving reviews, you must use your
-            student email. Hover{" "}
-            <em
-              data-tooltip="@student.monash.edu, @student.unimelb.edu.au, @anu.edu.au,
-            @student.unsw.edu.au, @ad.unsw.edu.au, @uq.edu.au,
-            @student.uq.edu.au, @student.adelaide.edu.au, @uni.sydney.edu.au, or @student.uwa.edu.au"
-            >
-              here
-            </em>{" "}
-            for available options.
+            student email.
           </small>
         </label>
         <div role="group">
