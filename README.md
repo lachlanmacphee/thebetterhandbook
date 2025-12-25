@@ -15,7 +15,6 @@ See the [About page](https://thebetterhandbook.com.au/about) for details.
 
 ## Roadmap
 
-- Toast popups after any submission of a modal, review, etc
 - Improve the metrics around how much a unit requires on-campus attendance
 - Add more API call examples to the Bruno directory
 - Store degrees

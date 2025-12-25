@@ -1,4 +1,12 @@
-import { data, redirect, useLoaderData, useNavigate } from "react-router";
+import { useEffect } from "react";
+import toast from "react-hot-toast";
+import {
+  data,
+  redirect,
+  useFetcher,
+  useLoaderData,
+  useNavigate,
+} from "react-router";
 import ReviewForm from "~/components/ReviewForm";
 import { getSession } from "~/modules/auth/session.server";
 import db from "~/modules/db/db.server";
@@ -231,6 +239,20 @@ export async function action({ request, params }: Route.ActionArgs) {
 export default function Review() {
   const { review, uniId, unitCode } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
+
+  const fetcher = useFetcher();
+  const { data, state } = fetcher;
+
+  useEffect(() => {
+    if (state === "idle" && data) {
+      if (data.error) {
+        toast.error(data.error);
+      }
+      if (data.message) {
+        toast.success(data.message);
+      }
+    }
+  }, [data, state]);
 
   const handleCancel = () => {
     if (review) {

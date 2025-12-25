@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { data, Form, Link, useFetcher } from "react-router";
 import { ThumbsDownIcon, ThumbsUpIcon } from "~/components/Icons";
 import Rating, { OverallRating } from "~/components/Rating";
@@ -135,7 +136,7 @@ export async function action({ request, params }: Route.ActionArgs) {
           universityId: parseInt(params.uniId!),
         },
       });
-      return data({ success: true });
+      return null;
     } catch (error) {
       console.error("Error creating unit request:", error);
       return data({ error: "Failed to submit unit request" }, { status: 500 });
@@ -202,7 +203,7 @@ export async function action({ request, params }: Route.ActionArgs) {
           userId,
         },
       });
-      return data({ success: true });
+      return data({ message: "Deprecation request submitted successfully" });
     } catch (error) {
       return data(
         { error: "Failed to submit deprecation request" },
@@ -224,7 +225,7 @@ export async function action({ request, params }: Route.ActionArgs) {
           userId,
         },
       });
-      return data({ success: true });
+      return data({ message: "Suggestion submitted successfully" });
     } catch (error) {
       return data({ error: "Failed to submit suggestion" }, { status: 500 });
     }
@@ -241,12 +242,19 @@ function DeprecateForm({
   unitId: number;
 }) {
   const fetcher = useFetcher();
+  const { data, state } = fetcher;
 
   useEffect(() => {
-    if (fetcher.data?.success) {
-      onClose();
+    if (state === "idle" && data) {
+      if (data.error) {
+        toast.error(data.error);
+      }
+      if (data.message) {
+        toast.success(data.message);
+        onClose();
+      }
     }
-  }, [fetcher.data, onClose]);
+  }, [data, state]);
 
   return (
     <dialog open>
@@ -291,12 +299,19 @@ function SuggestChangesForm({
   unitId: number;
 }) {
   const fetcher = useFetcher();
+  const { data, state } = fetcher;
 
   useEffect(() => {
-    if (fetcher.data?.success) {
-      onClose();
+    if (state === "idle" && data) {
+      if (data.error) {
+        toast.error(data.error);
+      }
+      if (data.message) {
+        toast.success(data.message);
+        onClose();
+      }
     }
-  }, [fetcher.data, onClose]);
+  }, [data, state]);
 
   return (
     <dialog open>

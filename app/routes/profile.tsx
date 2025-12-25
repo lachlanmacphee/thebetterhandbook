@@ -1,5 +1,6 @@
 import { randomBytes } from "crypto";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { Link, redirect, useFetcher, useLoaderData } from "react-router";
 import { getSession } from "~/modules/auth/session.server";
 import db from "~/modules/db/db.server";
@@ -45,9 +46,9 @@ export async function action({ request }: any) {
         where: { id: userId },
         data: { name: formData.get("name") as string },
       });
-      return { success: true, user: updatedUser };
+      return { user: updatedUser, message: "Name updated successfully" };
     } catch (error) {
-      return { success: false, error: "Failed to update name" };
+      return { error: "Failed to update name" };
     }
   }
 
@@ -59,18 +60,19 @@ export async function action({ request }: any) {
         data: { apiKey },
       });
 
-      return { success: true, user: updatedUser, apiKey };
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
       return {
-        success: false,
-        error: `Failed to generate API key: ${errorMessage}`,
+        user: updatedUser,
+        apiKey,
+        message: "API key generated successfully",
+      };
+    } catch (error) {
+      return {
+        error: `Failed to generate API key`,
       };
     }
   }
 
-  return { success: false, error: "Invalid action" };
+  return { error: "Invalid action" };
 }
 
 function ReviewCard({ review }: { review: any }) {
@@ -101,16 +103,23 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const { user } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
+  const { data, state } = fetcher;
 
   if (!user) {
     return redirect("/auth/login");
   }
 
   useEffect(() => {
-    if (fetcher.state === "idle" && fetcher.data?.success) {
-      setIsEditing(false);
+    if (state === "idle") {
+      if (data?.message) {
+        setIsEditing(false);
+        toast.success(data.message);
+      }
+      if (data?.error) {
+        toast.error(data.error);
+      }
     }
-  }, [fetcher.state, fetcher.data]);
+  }, [data, state]);
 
   return (
     <>

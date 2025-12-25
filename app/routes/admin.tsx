@@ -1,4 +1,6 @@
-import { data, Form, redirect, useLoaderData } from "react-router";
+import { useEffect } from "react";
+import toast from "react-hot-toast";
+import { data, redirect, useFetcher, useLoaderData } from "react-router";
 import { getSession } from "~/modules/auth/session.server";
 import db from "~/modules/db/db.server";
 
@@ -94,7 +96,7 @@ export async function action({ request }: any) {
         : []),
     ]);
 
-    return data({ success: true });
+    return data({ message: "Deprecation request handled successfully" });
   }
 
   if (intent === "handle-suggestion") {
@@ -115,7 +117,7 @@ export async function action({ request }: any) {
       data: { status: action },
     });
 
-    return data({ success: true });
+    return data({ message: "Suggestion handled successfully" });
   }
 
   if (intent === "handle-addition") {
@@ -135,7 +137,7 @@ export async function action({ request }: any) {
       });
     }
 
-    return data({ success: true });
+    return data({ message: "Addition request handled successfully" });
   }
 
   return null;
@@ -144,9 +146,11 @@ export async function action({ request }: any) {
 function RequestCard({
   type,
   data,
+  fetcher,
 }: {
   type: "deprecation" | "suggestion" | "addition";
   data: any;
+  fetcher: any;
 }) {
   return (
     <article>
@@ -159,7 +163,7 @@ function RequestCard({
         <p>
           <small>
             by {data.user.name || "Anonymous"} on{" "}
-            {new Date(data.createdAt).toLocaleDateString()}
+            {new Date(data.createdAt).toISOString().split("T")[0]}
           </small>
         </p>
         <p>
@@ -184,7 +188,7 @@ function RequestCard({
       )}
 
       <footer>
-        <Form method="post" className="grid">
+        <fetcher.Form method="post" className="grid">
           <input type="hidden" name="intent" value={`handle-${type}`} />
           <input type="hidden" name="id" value={data.id} />
           <button
@@ -198,7 +202,7 @@ function RequestCard({
           <button type="submit" name="action" value="APPROVED">
             Approve
           </button>
-        </Form>
+        </fetcher.Form>
       </footer>
     </article>
   );
@@ -207,6 +211,21 @@ function RequestCard({
 export default function Admin() {
   const { deprecationRequests, suggestions, additionRequests } =
     useLoaderData<typeof loader>();
+
+  const fetcher = useFetcher();
+  const { data, state } = fetcher;
+
+  useEffect(() => {
+    if (state === "idle" && data) {
+      console.log(data);
+      if (data.error) {
+        toast.error(data.error);
+      }
+      if (data.message) {
+        toast.success(data.message);
+      }
+    }
+  }, [data, state]);
 
   return (
     <>
@@ -218,17 +237,28 @@ export default function Admin() {
           <h2>Pending Requests</h2>
           <div className="grid">
             {deprecationRequests.map((request) => (
-              <RequestCard key={request.id} type="deprecation" data={request} />
+              <RequestCard
+                key={request.id}
+                type="deprecation"
+                data={request}
+                fetcher={fetcher}
+              />
             ))}
             {suggestions.map((suggestion) => (
               <RequestCard
                 key={suggestion.id}
                 type="suggestion"
                 data={suggestion}
+                fetcher={fetcher}
               />
             ))}
             {additionRequests.map((request) => (
-              <RequestCard key={request.id} type="addition" data={request} />
+              <RequestCard
+                key={request.id}
+                type="addition"
+                data={request}
+                fetcher={fetcher}
+              />
             ))}
           </div>
         </>

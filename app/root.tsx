@@ -10,6 +10,7 @@ import {
   useLocation,
 } from "react-router";
 
+import { Toaster } from "react-hot-toast";
 import { getSession } from "~/modules/auth/session.server";
 import type { Route } from "./+types/root";
 import "./css/pico.min.css";
@@ -135,6 +136,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </footer>
         <ScrollRestoration />
         <Scripts />
+        <Toaster />
       </body>
     </html>
   );
