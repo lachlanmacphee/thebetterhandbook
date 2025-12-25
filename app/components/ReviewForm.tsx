@@ -1,4 +1,6 @@
-import { Form, useActionData, useFetcher } from "react-router";
+import { useEffect } from "react";
+import toast from "react-hot-toast";
+import { useFetcher, useNavigate } from "react-router";
 import { StarIcon } from "./Icons";
 
 type ReviewFormProps = {
@@ -12,14 +14,31 @@ export default function ReviewForm({
   onCancel,
   isEditing,
 }: ReviewFormProps) {
-  const actionData = useActionData();
   const fetcher = useFetcher();
+  const navigate = useNavigate();
+  const { data, state } = fetcher;
+
+  useEffect(() => {
+    if (state === "idle" && data) {
+      if (data.error) {
+        toast.error(data.error);
+      }
+      if (data.message) {
+        toast.success(data.message);
+        if (isEditing) {
+          navigate("/profile");
+        } else {
+          navigate(-1);
+        }
+      }
+    }
+  }, [data, state]);
 
   return (
-    <Form method="post">
-      {actionData?.error && (
+    <fetcher.Form method="post">
+      {fetcher.data?.error && (
         <div style={{ color: "red", marginBottom: "1rem" }}>
-          {actionData?.error}
+          {fetcher.data?.error}
         </div>
       )}
       {isEditing && <input type="hidden" name="reviewId" value={review?.id} />}
@@ -212,6 +231,6 @@ export default function ReviewForm({
             : "Submit Review"}
         </button>
       </fieldset>
-    </Form>
+    </fetcher.Form>
   );
 }
