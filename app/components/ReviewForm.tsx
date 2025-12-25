@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { Form, useFetcher } from "react-router";
+import { Form, useActionData, useFetcher } from "react-router";
 import { StarIcon } from "./Icons";
 
 type ReviewFormProps = {
@@ -13,24 +12,22 @@ export default function ReviewForm({
   onCancel,
   isEditing,
 }: ReviewFormProps) {
+  const actionData = useActionData();
   const fetcher = useFetcher();
 
-  useEffect(() => {
-    if (fetcher.state === "idle" && fetcher.data?.success) {
-      onCancel?.();
-    }
-  }, [fetcher.state, fetcher.data, onCancel]);
-
-  const FormComponent = isEditing ? fetcher.Form : Form;
-
   return (
-    <FormComponent method="post">
-      {isEditing && (
-        <>
-          <input type="hidden" name="intent" value="edit-review" />
-          <input type="hidden" name="reviewId" value={review?.id} />
-        </>
+    <Form method="post">
+      {actionData?.error && (
+        <div style={{ color: "red", marginBottom: "1rem" }}>
+          {actionData?.error}
+        </div>
       )}
+      {isEditing && <input type="hidden" name="reviewId" value={review?.id} />}
+      <input
+        type="hidden"
+        name="intent"
+        value={isEditing ? "edit" : "create"}
+      />
 
       <fieldset>
         <label>
@@ -65,117 +62,11 @@ export default function ReviewForm({
             min="2000"
             max={new Date().getFullYear()}
             required
-            placeholder="e.g. 2024"
+            placeholder={"e.g. " + new Date().getFullYear().toString()}
             autoComplete="off"
             style={{ marginBottom: "0px" }}
           />
         </label>
-      </fieldset>
-
-      <fieldset>
-        <legend>Overall Rating</legend>
-        {[...Array(5)].map((_, i) => (
-          <>
-            <input
-              key={i}
-              type="radio"
-              id={`overallRating-${i + 1}`}
-              name="overallRating"
-              value={i + 1}
-              defaultChecked={review?.overallRating === i + 1}
-              required
-            />
-            <label htmlFor={`overallRating-${i + 1}`}>
-              {[...Array(i + 1)].map((_, starIndex) => (
-                <StarIcon key={starIndex} filled={true} />
-              ))}
-            </label>
-          </>
-        ))}
-      </fieldset>
-
-      <fieldset>
-        <legend>Teaching Quality</legend>
-        {[...Array(5)].map((_, i) => (
-          <>
-            <input
-              key={i}
-              type="radio"
-              id={`teachingRating-${i + 1}`}
-              name="teachingRating"
-              value={i + 1}
-              defaultChecked={review?.teachingRating === i + 1}
-              required
-            />
-            <label htmlFor={`teachingRating-${i + 1}`}>
-              {[...Array(i + 1)].map((_, starIndex) => (
-                <StarIcon key={starIndex} filled={true} />
-              ))}
-            </label>
-          </>
-        ))}
-      </fieldset>
-
-      <fieldset>
-        <legend>Content Quality</legend>
-        {[...Array(5)].map((_, i) => (
-          <>
-            <input
-              key={i}
-              type="radio"
-              id={`contentRating-${i + 1}`}
-              name="contentRating"
-              value={i + 1}
-              defaultChecked={review?.contentRating === i + 1}
-              required
-            />
-            <label htmlFor={`contentRating-${i + 1}`}>
-              {[...Array(i + 1)].map((_, starIndex) => (
-                <StarIcon key={starIndex} filled={true} />
-              ))}
-            </label>
-          </>
-        ))}
-      </fieldset>
-
-      <fieldset>
-        <legend>Difficulty Level</legend>
-        {["Very Easy", "Easy", "Medium", "Hard", "Very Hard"].map(
-          (label, i) => (
-            <>
-              <input
-                key={i}
-                type="radio"
-                id={`difficultyRating-${i + 1}`}
-                name="difficultyRating"
-                value={i + 1}
-                defaultChecked={review?.difficultyRating === i + 1}
-                required
-              />
-              <label htmlFor={`difficultyRating-${i + 1}`}>{label}</label>
-            </>
-          )
-        )}
-      </fieldset>
-
-      <fieldset>
-        <legend>Workload</legend>
-        {["Very Low", "Low", "Moderate", "High", "Very High"].map(
-          (label, i) => (
-            <>
-              <input
-                key={i}
-                type="radio"
-                id={`workloadRating-${i + 1}`}
-                name="workloadRating"
-                value={i + 1}
-                defaultChecked={review?.workloadRating === i + 1}
-                required
-              />
-              <label htmlFor={`workloadRating-${i + 1}`}>{label}</label>
-            </>
-          )
-        )}
       </fieldset>
 
       <div className="grid">
@@ -204,7 +95,110 @@ export default function ReviewForm({
         </fieldset>
       </div>
 
-      <fieldset role="group">
+      <div className="grid">
+        <fieldset>
+          <legend>Overall Rating</legend>
+          {[...Array(5)].map((_, i) => (
+            <div key={i}>
+              <input
+                type="radio"
+                id={`overallRating-${i + 1}`}
+                name="overallRating"
+                value={i + 1}
+                defaultChecked={review?.overallRating === i + 1}
+                required
+              />
+              <label htmlFor={`overallRating-${i + 1}`}>
+                {[...Array(i + 1)].map((_, starIndex) => (
+                  <StarIcon key={starIndex} filled={true} />
+                ))}
+              </label>
+            </div>
+          ))}
+        </fieldset>
+
+        <fieldset>
+          <legend>Teaching Quality</legend>
+          {[...Array(5)].map((_, i) => (
+            <div key={i}>
+              <input
+                type="radio"
+                id={`teachingRating-${i + 1}`}
+                name="teachingRating"
+                value={i + 1}
+                defaultChecked={review?.teachingRating === i + 1}
+                required
+              />
+              <label htmlFor={`teachingRating-${i + 1}`}>
+                {[...Array(i + 1)].map((_, starIndex) => (
+                  <StarIcon key={starIndex} filled={true} />
+                ))}
+              </label>
+            </div>
+          ))}
+        </fieldset>
+
+        <fieldset>
+          <legend>Content Quality</legend>
+          {[...Array(5)].map((_, i) => (
+            <div key={i}>
+              <input
+                type="radio"
+                id={`contentRating-${i + 1}`}
+                name="contentRating"
+                value={i + 1}
+                defaultChecked={review?.contentRating === i + 1}
+                required
+              />
+              <label htmlFor={`contentRating-${i + 1}`}>
+                {[...Array(i + 1)].map((_, starIndex) => (
+                  <StarIcon key={starIndex} filled={true} />
+                ))}
+              </label>
+            </div>
+          ))}
+        </fieldset>
+
+        <fieldset>
+          <legend>Difficulty Level</legend>
+          {["Very Easy", "Easy", "Medium", "Hard", "Very Hard"].map(
+            (label, i) => (
+              <div key={i}>
+                <input
+                  type="radio"
+                  id={`difficultyRating-${i + 1}`}
+                  name="difficultyRating"
+                  value={i + 1}
+                  defaultChecked={review?.difficultyRating === i + 1}
+                  required
+                />
+                <label htmlFor={`difficultyRating-${i + 1}`}>{label}</label>
+              </div>
+            ),
+          )}
+        </fieldset>
+
+        <fieldset>
+          <legend>Workload</legend>
+          {["Very Low", "Low", "Moderate", "High", "Very High"].map(
+            (label, i) => (
+              <div key={i}>
+                <input
+                  type="radio"
+                  id={`workloadRating-${i + 1}`}
+                  name="workloadRating"
+                  value={i + 1}
+                  defaultChecked={review?.workloadRating === i + 1}
+                  required
+                />
+                <label htmlFor={`workloadRating-${i + 1}`}>{label}</label>
+              </div>
+            ),
+          )}
+        </fieldset>
+      </div>
+
+      <fieldset role="group" style={{ marginTop: "1rem" }}>
         {onCancel && (
           <button type="button" className="secondary" onClick={onCancel}>
             Cancel
@@ -218,6 +212,6 @@ export default function ReviewForm({
             : "Submit Review"}
         </button>
       </fieldset>
-    </FormComponent>
+    </Form>
   );
 }

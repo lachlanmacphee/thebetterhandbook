@@ -14,8 +14,11 @@ export default [
   route(":uniId", "routes/uni-home.tsx"),
   route(":uniId/search", "routes/uni-search.tsx"),
   route(":uniId/units/:unitCode", "routes/uni-unit.tsx"),
+  route(":uniId/units/:unitCode/review", "routes/review.tsx", {
+    id: "review-create",
+  }),
 
-  route("reviews/:reviewId/edit", "routes/edit-review.tsx"),
+  route("reviews/:reviewId", "routes/review.tsx", { id: "review-edit" }),
 
   route("admin", "routes/admin.tsx"),
 ] satisfies RouteConfig;

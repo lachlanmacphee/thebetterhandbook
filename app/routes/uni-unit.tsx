@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import { data, Form, Link, redirect, useFetcher } from "react-router";
+import { data, Form, Link, useFetcher } from "react-router";
 import { ThumbsDownIcon, ThumbsUpIcon } from "~/components/Icons";
 import Rating, { OverallRating } from "~/components/Rating";
-import ReviewForm from "~/components/ReviewForm";
 import { getSession } from "~/modules/auth/session.server";
 import db from "~/modules/db/db.server";
 import type { Route } from "./+types/uni-unit";
@@ -127,51 +126,6 @@ export async function action({ request, params }: Route.ActionArgs) {
       { status: 400 },
     );
 
-  if (intent === "edit-review") {
-    const reviewId = parseInt(formData.get("reviewId") as string);
-    const title = formData.get("title");
-    const text = formData.get("description");
-    const yearCompleted = formData.get("yearCompleted");
-    const overallRating = formData.get("overallRating");
-    const teachingRating = formData.get("teachingRating");
-    const contentRating = formData.get("contentRating");
-    const difficultyRating = formData.get("difficultyRating");
-    const workloadRating = formData.get("workloadRating");
-    const requiresAttendance = formData.get("attendanceRequired") === "on";
-    const isWamBooster = formData.get("isWamBooster") === "on";
-
-    // Validate that the review belongs to the user
-    const review = await db.review.findUnique({
-      where: { id: reviewId },
-    });
-
-    if (!review || review.userId !== userId) {
-      return data({ error: "Review not found" }, { status: 404 });
-    }
-
-    try {
-      await db.review.update({
-        where: { id: reviewId },
-        data: {
-          title: title as string,
-          text: text as string,
-          yearCompleted: parseInt(yearCompleted as string),
-          overallRating: parseInt(overallRating as string),
-          teachingRating: parseInt(teachingRating as string),
-          contentRating: parseInt(contentRating as string),
-          difficultyRating: parseInt(difficultyRating as string),
-          workloadRating: parseInt(workloadRating as string),
-          requiresAttendance,
-          isWamBooster,
-        },
-      });
-      return data({ success: true });
-    } catch (error) {
-      console.error("Error updating review:", error);
-      return data({ error: "Failed to update review" }, { status: 500 });
-    }
-  }
-
   if (intent === "request-unit") {
     try {
       await db.unitAdditionRequest.create({
@@ -276,113 +230,7 @@ export async function action({ request, params }: Route.ActionArgs) {
     }
   }
 
-  const title = formData.get("title");
-  const description = formData.get("description");
-  const yearCompleted = formData.get("yearCompleted");
-  const overallRating = formData.get("overallRating");
-  const teachingRating = formData.get("teachingRating");
-  const contentRating = formData.get("contentRating");
-  const difficultyRating = formData.get("difficultyRating");
-  const workloadRating = formData.get("workloadRating");
-
-  const errors: {
-    title?: string;
-    description?: string;
-    yearCompleted?: string;
-    overallRating?: string;
-    teachingRating?: string;
-    contentRating?: string;
-    difficultyRating?: string;
-    workloadRating?: string;
-    unitCode?: string;
-    userId?: string;
-  } = {};
-
-  if (!title) {
-    errors.title = "Title is required";
-  }
-
-  if (!description) {
-    errors.description = "Description is required";
-  }
-
-  if (!yearCompleted) {
-    errors.yearCompleted = "Year completed is required";
-  }
-
-  if (
-    yearCompleted &&
-    (Number(yearCompleted) < 2000 ||
-      Number(yearCompleted) > new Date().getFullYear())
-  ) {
-    errors.yearCompleted = "Please enter a valid year";
-  }
-
-  if (!overallRating) {
-    errors.overallRating = "Overall rating is required";
-  }
-
-  if (!teachingRating) {
-    errors.teachingRating = "Teaching rating is required";
-  }
-
-  if (!contentRating) {
-    errors.contentRating = "Content rating is required";
-  }
-
-  if (!difficultyRating) {
-    errors.difficultyRating = "Difficulty rating is required";
-  }
-
-  if (!workloadRating) {
-    errors.workloadRating = "Workload rating is required";
-  }
-
-  if (!params.unitCode) {
-    errors.unitCode = "Unit Code is required";
-  }
-
-  if (Object.keys(errors).length > 0) {
-    return data({ errors }, { status: 400 });
-  }
-
-  const unit = await db.unit.findUnique({
-    where: {
-      code: params.unitCode,
-      code_universityId: {
-        universityId: parseInt(params.uniId!),
-        code: params.unitCode!,
-      },
-    },
-  });
-  if (!unit) {
-    return data({ error: "Unit not found" }, { status: 404 });
-  }
-  const unitId = unit.id;
-
-  try {
-    await db.review.create({
-      data: {
-        title: title as string,
-        text: description as string,
-        yearCompleted: parseInt(yearCompleted as string),
-        overallRating: parseInt(overallRating as string),
-        teachingRating: parseInt(teachingRating as string),
-        contentRating: parseInt(contentRating as string),
-        difficultyRating: parseInt(difficultyRating as string),
-        workloadRating: parseInt(workloadRating as string),
-        requiresAttendance: formData.get("attendanceRequired") === "on",
-        isWamBooster: formData.get("isWamBooster") === "on",
-        unitId,
-        userId,
-      },
-    });
-  } catch (error) {
-    console.error("Error saving review:", error);
-    return { error: "Failed to save review" };
-  }
-
-  return redirect("/units/" + params.unitCode);
+  return null;
 }
 
 function DeprecateForm({
@@ -656,7 +504,6 @@ function UnitDetails({
 
 function Review({ review, user }: { review: any; user?: number }) {
   const fetcher = useFetcher();
-  const [isEditing, setIsEditing] = useState(false);
 
   const userReaction = review.reactions?.find((r: any) => r.userId === user);
   const likes = review.reactions?.filter((r: any) => r.isLike).length || 0;
@@ -673,18 +520,6 @@ function Review({ review, user }: { review: any; user?: number }) {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
-  if (isEditing) {
-    return (
-      <article>
-        <ReviewForm
-          review={review}
-          onCancel={() => setIsEditing(false)}
-          isEditing={true}
-        />
-      </article>
-    );
-  }
 
   return (
     <article>
@@ -808,9 +643,7 @@ function Review({ review, user }: { review: any; user?: number }) {
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
             <small>{new Date(review.createdAt).toLocaleDateString()}</small>
             {user === review.user.id && (
-              <button onClick={() => setIsEditing(true)} className="secondary">
-                Edit
-              </button>
+              <Link to={`/reviews/${review.id}`}>Edit</Link>
             )}
           </div>
         </div>
@@ -831,12 +664,6 @@ function ReviewsList({
   const [sortBy, setSortBy] = useState<"helpful" | "latest" | "oldest">(
     "helpful",
   );
-
-  const handleAddReviewClick = () => {
-    document
-      .getElementById("review-form")
-      ?.scrollIntoView({ behavior: "smooth" });
-  };
 
   const sortedReviews = [...reviews].sort((a, b) => {
     if (sortBy === "helpful") {
@@ -870,7 +697,9 @@ function ReviewsList({
         <div role="group" style={{ width: "max-content" }}>
           {user ? (
             !hasReviewed && (
-              <button onClick={handleAddReviewClick}>Add Review</button>
+              <Link to="review" role="button">
+                Add Review
+              </Link>
             )
           ) : (
             <Link to="/auth/login" role="button">
@@ -1009,17 +838,6 @@ export default function Unit({ loaderData, params }: Route.ComponentProps) {
         user={user?.id}
         hasReviewed={hasReviewed}
       />
-
-      {user && !hasReviewed && (
-        <article id="review-form">
-          <header>
-            <h2>Add Review</h2>
-          </header>
-          <section>
-            <ReviewForm />
-          </section>
-        </article>
-      )}
     </>
   );
 }

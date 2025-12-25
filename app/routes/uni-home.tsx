@@ -131,7 +131,7 @@ function UnitsRow({
               <div>
                 {unit.reviews.filter((review) => review.userId === user)
                   .length === 0 && (
-                  <Link to={`units/${unit.code}#review-form`} role="button">
+                  <Link to={`units/${unit.code}/review`} role="button">
                     Review
                   </Link>
                 )}

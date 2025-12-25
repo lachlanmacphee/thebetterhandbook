@@ -88,7 +88,7 @@ function ReviewCard({ review }: { review: any }) {
             <br />
             Unit Taken: {review.yearCompleted}
           </small>
-          <Link to={`/reviews/${review.id}/edit`} role="button">
+          <Link to={`/reviews/${review.id}`} role="button">
             Edit
           </Link>
         </div>
@@ -168,8 +168,8 @@ export default function Profile() {
               {fetcher.state !== "idle"
                 ? "Generating..."
                 : user.apiKey
-                ? "Regenerate"
-                : "Generate"}
+                  ? "Regenerate"
+                  : "Generate"}
             </button>
           </fieldset>
         </fetcher.Form>
@@ -189,7 +189,7 @@ export default function Profile() {
                       <ReviewCard key={review.id} review={review} />
                     ))}
                 </div>
-              )
+              ),
             )}
           </>
         ) : (

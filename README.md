@@ -15,14 +15,13 @@ See the [About page](https://thebetterhandbook.com.au/about) for details.
 
 ## Roadmap
 
-- [ ] Toast popups after any submission of a modal, review, etc
-- [ ] Improve the metrics around how much a unit requires on-campus attendance
-- [ ] All review additions/editing should be on the dedicated page
-- [ ] Add more API call examples to the Bruno directory
-- [ ] Store degrees
-- [ ] Pre/co-requisites visualisation
-- [ ] Course maps
-- [ ] Import data from University review systems (e.g. SETU at Monash, MonSTAR)
+- Toast popups after any submission of a modal, review, etc
+- Improve the metrics around how much a unit requires on-campus attendance
+- Add more API call examples to the Bruno directory
+- Store degrees
+- Pre/co-requisites visualisation
+- Course maps
+- Import data from University review systems (e.g. SETU at Monash, MonSTAR)
 
 ## Contributing & Hosting
 
