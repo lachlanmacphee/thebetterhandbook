@@ -9,6 +9,7 @@ import { sessionStorage } from "./session.server";
 export let authenticator = new Authenticator<User>();
 
 authenticator.use(
+  // Secret must be a string with 64 hex characters
   new TOTPStrategy(
     {
       secret: process.env.ENCRYPTION_SECRET!,
@@ -27,7 +28,7 @@ authenticator.use(
         httpOnly: true,
         sameSite: "Lax",
       },
-      sendTOTP: async ({ email, magicLink, code }) => {
+      sendTOTP: async ({ email, code }: { email: string; code: string }) => {
         if (
           !email.endsWith("@student.monash.edu") &&
           !email.endsWith("@student.unimelb.edu.au") &&
@@ -45,9 +46,9 @@ authenticator.use(
 
         sendEmail({
           to: email,
-          subject: "Magic Link",
+          subject: "The Better Handbook - Login Code",
           html: `
-            <p>Click this <a href="${magicLink}">magic link</a> to log in. If that doesn't work, use the code ${code} to sign in.</p>
+            <p>Use the code ${code} to sign in.</p>
           `,
         });
 

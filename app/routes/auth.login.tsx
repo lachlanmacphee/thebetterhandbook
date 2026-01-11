@@ -5,11 +5,9 @@ import { getSession } from "~/modules/auth/session.server";
 import type { Route } from "../+types/root";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  // Check for existing session.
   const session = await getSession(request.headers.get("Cookie"));
   const user = session.get("id");
 
-  // If the user is already authenticated, redirect to home page.
   if (user) return redirect("/");
 
   return null;
@@ -17,15 +15,13 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export async function action({ request }: Route.ActionArgs) {
   try {
-    // Authenticate the user via TOTP (Form submission).
-    return await authenticator.authenticate("TOTP", request);
+    const result = await authenticator.authenticate("TOTP", request);
+    return result;
   } catch (error) {
-    // The error from TOTP includes the redirect Response with the cookie.
     if (error instanceof Response) {
       return error;
     }
 
-    // For other errors, return with error message.
     return {
       error: "An error occurred during login. Please try again.",
     };
@@ -87,8 +83,8 @@ export default function Route() {
             disabled={isSubmitting}
           />
           <small id="email-helper">
-            To ensure that only students are leaving reviews, you must use your
-            student email.
+            {emailError ||
+              "To ensure that only students are leaving reviews, you must use your student email."}
           </small>
         </label>
         <div role="group">
