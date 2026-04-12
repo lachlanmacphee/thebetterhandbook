@@ -16,7 +16,6 @@ See the [About page](https://thebetterhandbook.com.au/about) for details.
 ## Roadmap
 
 - Improve the metrics around how much a unit requires on-campus attendance
-- Add more API call examples to the Bruno directory
 - Store degrees
 - Pre/co-requisites visualisation
 - Course maps

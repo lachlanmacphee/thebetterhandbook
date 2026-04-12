@@ -125,6 +125,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
             {" • "}
             <Link to="/about">About</Link>
             {" • "}
+            <Link to="/api/docs">API Docs</Link>
+            {" • "}
             <a
               href="https://github.com/lachlanmacphee/thebetterhandbook"
               target="_blank"
