@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma } from "~/generated/prisma/client";
 import db from "~/modules/db/db.server";
 import type { Route } from "./+types";
 

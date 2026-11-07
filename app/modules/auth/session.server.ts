@@ -1,4 +1,5 @@
-import type { User } from "@prisma/client";
+import "dotenv/config";
+import type { User } from "~/generated/prisma/client";
 import { createCookieSessionStorage } from "react-router";
 
 export const sessionStorage = createCookieSessionStorage<User>({

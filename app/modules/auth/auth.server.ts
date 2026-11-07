@@ -1,4 +1,4 @@
-import type { User } from "@prisma/client";
+import type { User } from "~/generated/prisma/client";
 import { redirect } from "react-router";
 import { Authenticator } from "remix-auth";
 import { TOTPStrategy } from "remix-auth-totp";

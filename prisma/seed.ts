@@ -1,4 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import "dotenv/config";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "../app/generated/prisma/client";
 import pino from "pino";
 // import MonashUniversityImporter from "imports/universities/monash-university";
 // import UniversityOfMelbourneImporter from "imports/universities/university-of-melbourne";
@@ -9,7 +11,9 @@ import pino from "pino";
 // import UniversityOfSydneyImporter from "imports/universities/university-of-sydney";
 import UniversityOfWesternAustraliaImporter from "imports/universities/university-of-western-australia";
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+});
 
 async function main() {
   const logger = pino({
