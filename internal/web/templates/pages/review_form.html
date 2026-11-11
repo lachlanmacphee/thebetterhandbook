@@ -1,0 +1,70 @@
+{{define "title"}}{{if .Editing}}Edit{{else}}Review{{end}} {{.Unit.Code}} · The Better Handbook{{end}}
+{{define "content"}}
+<hgroup>
+  <h1>{{if .Editing}}Edit Review{{else}}Create Review{{end}}</h1>
+  <p><a href="{{.URL}}">{{.Unit.Code}} - {{.Unit.Name}}</a></p>
+</hgroup>
+
+<form method="post" action="{{.URL}}/review" hx-disabled-elt="find button[type=submit]">
+  {{if .Errors}}<p class="form-error" role="alert">Please fix the highlighted fields.</p>{{end}}
+  <fieldset>
+    <label>Title
+      <textarea name="title" rows="2" required placeholder="Enter a title for your review" autocomplete="off"
+        {{with index .Errors "title"}}aria-invalid="true" aria-describedby="title-error"{{end}}>{{.Form.Title}}</textarea>
+      {{with index .Errors "title"}}<small id="title-error">{{.}}</small>{{end}}
+    </label>
+    <label>Description
+      <textarea name="description" rows="8" required
+        placeholder="Write your review here. Share your experience with assignments, teaching quality, content, and any tips for future students."
+        {{with index .Errors "description"}}aria-invalid="true" aria-describedby="description-error"{{end}}>{{.Form.Text}}</textarea>
+      {{with index .Errors "description"}}<small id="description-error">{{.}}</small>{{end}}
+    </label>
+    <label>Year Completed
+      <input name="yearCompleted" type="number" min="2000" max="{{year}}" required placeholder="e.g. {{year}}"
+        autocomplete="off" {{if .Form.Year}}value="{{.Form.Year}}"{{end}}
+        {{with index .Errors "yearCompleted"}}aria-invalid="true" aria-describedby="year-error"{{end}}>
+      {{with index .Errors "yearCompleted"}}<small id="year-error">{{.}}</small>{{end}}
+    </label>
+  </fieldset>
+
+  <div class="grid">
+    <fieldset>
+      <legend>In Person Attendance Required</legend>
+      <label><input type="checkbox" name="attendanceRequired" {{if .Form.Attendance}}checked{{end}}> Yes</label>
+    </fieldset>
+    <fieldset>
+      <legend>WAM Booster</legend>
+      <label><input type="checkbox" name="isWamBooster" {{if .Form.WAMBooster}}checked{{end}}> Yes</label>
+    </fieldset>
+  </div>
+
+  <div class="grid">
+    {{template "rating-field" (dict "Name" "overallRating" "Legend" "Overall Rating" "Value" .Form.Overall "Error" (index .Errors "overallRating"))}}
+    {{template "rating-field" (dict "Name" "teachingRating" "Legend" "Teaching Quality" "Value" .Form.Teaching "Error" (index .Errors "teachingRating"))}}
+    {{template "rating-field" (dict "Name" "contentRating" "Legend" "Content Quality" "Value" .Form.Content "Error" (index .Errors "contentRating"))}}
+    {{template "rating-field" (dict "Name" "difficultyRating" "Legend" "Difficulty Level" "Scale" "difficulty" "Value" .Form.Difficulty "Error" (index .Errors "difficultyRating"))}}
+    {{template "rating-field" (dict "Name" "workloadRating" "Legend" "Workload" "Scale" "workload" "Value" .Form.Workload "Error" (index .Errors "workloadRating"))}}
+  </div>
+
+  <div role="group" class="form-actions">
+    <a href="{{.URL}}" role="button" class="secondary">Cancel</a>
+    <button type="submit">{{if .Editing}}Save{{else}}Submit Review{{end}}</button>
+  </div>
+</form>
+{{end}}
+
+{{/* rating-field renders five radio buttons: stars, or labels when Scale is set. */}}
+{{define "rating-field"}}
+<fieldset {{if .Error}}aria-invalid="true"{{end}}>
+  <legend>{{.Legend}}</legend>
+  {{range $i := seq 1 5}}
+    <div>
+      <input type="radio" id="{{$.Name}}-{{$i}}" name="{{$.Name}}" value="{{$i}}" required {{if eq $.Value $i}}checked{{end}}>
+      <label for="{{$.Name}}-{{$i}}">
+        {{if $.Scale}}{{scaleLabel $.Scale $i}}{{else}}<span class="visually-hidden">{{$i}} out of 5</span>{{range seq 1 $i}}{{template "star" true}}{{end}}{{end}}
+      </label>
+    </div>
+  {{end}}
+  {{with .Error}}<small class="field-error">{{.}}</small>{{end}}
+</fieldset>
+{{end}}

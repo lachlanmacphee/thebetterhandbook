@@ -1,0 +1,101 @@
+{{define "title"}}Search {{.University.Name}} units · The Better Handbook{{end}}
+{{define "content"}}
+{{$uni := .University}}
+<hgroup>
+  <h1>Advanced Unit Search</h1>
+  <p><a href="/universities/{{$uni.Slug}}">{{$uni.Name}}</a></p>
+</hgroup>
+
+<form method="get" action="/universities/{{$uni.Slug}}/search">
+  <div class="grid">
+    <label>Unit Code
+      <input type="text" name="code" value="{{.Filters.Code}}" placeholder="e.g. FIT1045">
+    </label>
+    <label>Unit Name
+      <input type="text" name="name" value="{{.Filters.Name}}" placeholder="e.g. Introduction to Computer Science">
+    </label>
+  </div>
+
+  <div class="grid">
+    <label>Faculty
+      <select name="faculty">
+        <option value="">All Faculties</option>
+        {{range .Faculties}}<option value="{{.ID}}" {{if eq (printf "%d" .ID) $.Filters.Faculty}}selected{{end}}>{{.Name}}</option>{{end}}
+      </select>
+    </label>
+    <label>Level
+      <select name="level">
+        <option value="">All Levels</option>
+        {{range .Levels}}<option value="{{.}}" {{if eq . $.Filters.Level}}selected{{end}}>{{.}}</option>{{end}}
+      </select>
+    </label>
+  </div>
+
+  <div class="grid">
+    <label>Credit Points
+      <select name="creditPoints">
+        <option value="">Any Credit Points</option>
+        {{range .CreditPoints}}<option value="{{.}}" {{if eq (printf "%d" .) $.Filters.CreditPoints}}selected{{end}}>{{.}} Points</option>{{end}}
+      </select>
+    </label>
+    <label>Location
+      <select name="campus">
+        <option value="">All Locations</option>
+        {{range .Campuses}}<option value="{{.ID}}" {{if eq (printf "%d" .ID) $.Filters.Campus}}selected{{end}}>{{.Name}}</option>{{end}}
+      </select>
+    </label>
+  </div>
+
+  <div class="grid">
+    <label>Semester
+      <select name="semester">
+        <option value="">All Semesters</option>
+        {{range .Semesters}}<option value="{{.ID}}" {{if eq (printf "%d" .ID) $.Filters.Semester}}selected{{end}}>{{.Name}}</option>{{end}}
+      </select>
+    </label>
+    <label>Sort By
+      <select name="sortBy">
+        <option value="code" {{if eq .Filters.SortBy "code"}}selected{{end}}>Unit Code</option>
+        <option value="name" {{if eq .Filters.SortBy "name"}}selected{{end}}>Unit Name</option>
+        <option value="rating" {{if eq .Filters.SortBy "rating"}}selected{{end}}>Average Rating</option>
+        <option value="reviews" {{if eq .Filters.SortBy "reviews"}}selected{{end}}>Number of Reviews</option>
+      </select>
+    </label>
+  </div>
+
+  <label>Items per Page
+    <select name="pageSize">
+      {{range .PageSizes}}<option value="{{.}}" {{if eq . $.Filters.PageSize}}selected{{end}}>{{.}} Items</option>{{end}}
+    </select>
+  </label>
+
+  <div class="grid">
+    <a href="/universities/{{$uni.Slug}}/search" role="button" class="secondary">Clear</a>
+    <button type="submit">Search</button>
+  </div>
+</form>
+
+<h2 id="results">Search Results ({{.Total}} units)</h2>
+
+{{range chunk 3 .Units}}
+  <div class="grid">
+    {{range .}}
+      <article>
+        <header><a href="/universities/{{$uni.Slug}}/units/{{.Code}}"><h3>{{.Code}}</h3></a></header>
+        <p><strong>{{.Name}}</strong></p>
+        <p><small>Level {{.Level}} • {{.CreditPoints}} Points • {{.ReviewCount}} reviews</small></p>
+        <p><strong>Campuses:</strong> {{.Campuses}}</p>
+        <p><strong>Semesters:</strong> {{.Semesters}}</p>
+      </article>
+    {{end}}
+  </div>
+{{end}}
+
+{{with .Pages}}
+  <nav class="pagination" aria-label="Pagination">
+    {{range .}}
+      <a href="{{.URL}}" role="button" class="{{if not .Current}}secondary{{end}}" {{if .Current}}aria-current="page"{{end}}>{{.Label}}</a>
+    {{end}}
+  </nav>
+{{end}}
+{{end}}

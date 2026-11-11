@@ -1,0 +1,41 @@
+{{define "title"}}{{.University.Name}} · The Better Handbook{{end}}
+{{define "content"}}
+<h1>{{.University.Name}}</h1>
+<form method="get" action="/universities/{{.University.Slug}}/units">
+  <fieldset role="group">
+    <input type="text" name="code" placeholder="Enter a unit code" aria-label="Unit code" required>
+    <input type="submit" value="Go">
+  </fieldset>
+</form>
+<a href="/universities/{{.University.Slug}}/search">or search for units instead</a>
+
+<h2>Popular Units</h2>
+{{range chunk 3 .Units}}
+  <div class="grid">
+    {{range .}}
+      <article class="unit-card">
+        <header>
+          <a href="/universities/{{$.University.Slug}}/units/{{.Code}}"><h4>{{.Code}}</h4></a>
+        </header>
+        <p>
+          <strong>Name:</strong> {{.Name}}<br>
+          <strong>Reviews:</strong> {{.ReviewCount}}<br>
+          <strong>Campuses:</strong> {{.Campuses}}<br>
+          <strong>Semesters:</strong> {{.Semesters}}
+        </p>
+        {{if $.User}}
+          <footer>
+            {{if .HasReviewed}}
+              <a href="/universities/{{$.University.Slug}}/units/{{.Code}}" role="button" class="secondary">Reviewed</a>
+            {{else}}
+              <a href="/universities/{{$.University.Slug}}/units/{{.Code}}/review" role="button">Review</a>
+            {{end}}
+          </footer>
+        {{end}}
+      </article>
+    {{end}}
+  </div>
+{{else}}
+  <p>No units have been imported for this university yet.</p>
+{{end}}
+{{end}}

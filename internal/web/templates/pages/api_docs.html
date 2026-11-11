@@ -1,0 +1,70 @@
+{{define "title"}}API Docs · The Better Handbook{{end}}
+{{define "content"}}
+<div id="api-docs" {{with .User}}{{if .ApiKey.Valid}}data-api-key="{{.ApiKey.String}}"{{end}}{{end}}>
+<section>
+  <h1>API Documentation</h1>
+  <p>Use the API endpoints below to fetch university and unit data as JSON.</p>
+  <pre><code>GET /api/universities
+GET /api/units</code></pre>
+</section>
+
+<section>
+  <h2>Universities Endpoint</h2>
+  <p>
+    <strong>GET /api/universities</strong><br>
+    Optional query params: <code>name</code>, <code>sortBy</code> (<code>name</code> or <code>unitCount</code>),
+    <code>page</code>, and <code>pageSize</code> (10, 20, or 50).
+  </p>
+</section>
+
+<section>
+  <h2>Units Endpoint</h2>
+  <p>
+    <strong>GET /api/units</strong><br>
+    Optional query params: <code>university</code> (a university's <code>slug</code>, e.g. <code>monash-university</code>),
+    <code>code</code>, <code>name</code>, <code>faculty</code>, <code>level</code>, <code>creditPoints</code>,
+    <code>campus</code>, <code>semester</code>, <code>sortBy</code> (<code>code</code>, <code>name</code>,
+    <code>rating</code> or <code>reviews</code>), <code>page</code>, and <code>pageSize</code> (12, 24, or 36).
+    <code>faculty</code>, <code>campus</code> and <code>semester</code> take IDs from previous responses.
+  </p>
+</section>
+
+<section>
+  <h2>Authentication</h2>
+  {{with .User}}
+    <p>Signed in as <strong>{{.Email}}</strong>.</p>
+    {{if .ApiKey.Valid}}
+      <label>Your API Key <input type="text" value="{{.ApiKey.String}}" readonly></label>
+    {{else}}
+      <p>No API key found. Go to your <a href="/profile">Profile</a> page and click <strong>Generate</strong> in the API key section.</p>
+    {{end}}
+  {{else}}
+    <p>
+      To get an API key: 1. <a href="/auth/login">Sign in</a>. 2. Go to your <a href="/profile">Profile</a> page.
+      3. Click <strong>Generate</strong> in the API key section.
+    </p>
+  {{end}}
+  <p>Pass your key in the Authorization header for every request:</p>
+  <pre><code>Authorization: Bearer {{with .User}}{{if .ApiKey.Valid}}{{.ApiKey.String}}{{else}}tbh_your_api_key_here{{end}}{{else}}tbh_your_api_key_here{{end}}</code></pre>
+</section>
+
+<section>
+  <h2>Example Requests</h2>
+  {{$canRun := and .User .User.ApiKey.Valid}}
+  {{if not $canRun}}<p>Sign in and generate an API key to enable the <strong>Run</strong> buttons.</p>{{end}}
+  {{range .Examples}}
+    <article>
+      <header class="example-header">
+        <div>
+          <h3>{{.Title}}</h3>
+          <small>{{.Description}}</small>
+        </div>
+        <button type="button" data-api-run="{{.Path}}" data-output="result-{{.ID}}" {{if not $canRun}}disabled{{end}}>Run</button>
+      </header>
+      <pre><code>GET {{.Path}}</code></pre>
+      <pre id="result-{{.ID}}" hidden><code></code></pre>
+    </article>
+  {{end}}
+</section>
+</div>
+{{end}}

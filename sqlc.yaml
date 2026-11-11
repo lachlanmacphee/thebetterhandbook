@@ -1,0 +1,13 @@
+version: "2"
+sql:
+  - engine: sqlite
+    schema: internal/db/migrations
+    queries: internal/db/queries
+    gen:
+      go:
+        package: db
+        out: internal/db
+        # sqlc singularises "campuses" as "campuse".
+        rename:
+          campuse: Campus
+          unit_campuse: UnitCampus

@@ -1,0 +1,158 @@
+{{define "title"}}{{.Unit.Code}} {{.Unit.Name}} · The Better Handbook{{end}}
+{{define "content"}}
+<article>
+  <header>
+    <div class="unit-heading">
+      <hgroup>
+        <h1>{{.Unit.Code}}</h1>
+        <p>{{.Unit.Name}}</p>
+      </hgroup>
+      <div class="overall-stars" role="img" aria-label="Overall rating {{printf "%.1f" .Unit.OverallRating}} out of 5">
+        {{range stars .Unit.OverallRating}}{{template "star" .}}{{end}}
+      </div>
+    </div>
+    <div class="tags">
+      {{if .Unit.IsDeprecated}}<mark>Deprecated</mark>{{end}}
+      {{range .Campuses}}<kbd class="tag-campus">{{.}}</kbd>{{end}}
+      {{range .Semesters}}<kbd class="tag-semester">{{.}}</kbd>{{end}}
+    </div>
+    {{if .University.HandbookUrl.Valid}}
+      <a href="{{.University.HandbookUrl.String}}{{.Unit.Code}}" target="_blank" rel="noopener noreferrer" class="handbook-link">
+        View in {{.University.Name}} Handbook
+      </a>
+    {{end}}
+  </header>
+
+  <div class="ratings">
+    <div><h4>Teaching</h4><p>{{ratingLabel "" .Unit.TeachingRating}}</p></div>
+    <div><h4>Content</h4><p>{{ratingLabel "" .Unit.ContentRating}}</p></div>
+    <div><h4>Difficulty</h4><p>{{ratingLabel "difficulty" .Unit.DifficultyRating}}</p></div>
+    <div><h4>Workload</h4><p>{{ratingLabel "workload" .Unit.WorkloadRating}}</p></div>
+  </div>
+
+  {{if .User}}
+    <footer class="unit-actions">
+      <a href="/universities/{{.University.Slug}}" role="button" class="secondary">Back</a>
+      <div>
+        <button type="button" class="secondary" data-open-dialog="deprecate-dialog">Mark as Deprecated</button>
+        <button type="button" class="secondary" data-open-dialog="suggest-dialog">Suggest Changes</button>
+      </div>
+    </footer>
+  {{end}}
+</article>
+
+{{if .User}}
+  <dialog id="deprecate-dialog">
+    <article>
+      <header>
+        <button type="button" aria-label="Close" rel="prev" data-close-dialog></button>
+        <h3>Mark Unit as Deprecated</h3>
+      </header>
+      <form hx-post="{{.URL}}/deprecations" hx-swap="none">
+        <label>Reason for deprecation
+          <textarea name="reason" rows="4" required placeholder="Why should this unit be marked as deprecated?"></textarea>
+        </label>
+        <footer class="dialog-actions">
+          <button type="button" class="secondary" data-close-dialog>Cancel</button>
+          <button type="submit">Submit</button>
+        </footer>
+      </form>
+    </article>
+  </dialog>
+
+  <dialog id="suggest-dialog">
+    <article>
+      <header>
+        <button type="button" aria-label="Close" rel="prev" data-close-dialog></button>
+        <h3>Suggest Changes</h3>
+      </header>
+      <form hx-post="{{.URL}}/suggestions" hx-swap="none">
+        <label>What would you like to change?
+          <select name="field" required>
+            <option value="">Select a field</option>
+            <option value="campus">Campus</option>
+            <option value="semester">Semester</option>
+            <option value="name">Unit Name</option>
+          </select>
+        </label>
+        <label>Description of change
+          <textarea name="reason" rows="4" required placeholder="Describe what needs to be adjusted - such as the semester that should be added/removed or what the new unit name should be"></textarea>
+        </label>
+        <footer class="dialog-actions">
+          <button type="button" class="secondary" data-close-dialog>Cancel</button>
+          <button type="submit">Submit</button>
+        </footer>
+      </form>
+    </article>
+  </dialog>
+{{end}}
+
+<section id="reviews">
+  <header class="reviews-header">
+    <h2>Reviews</h2>
+    <div role="group">
+      {{if .User}}
+        {{if not .HasReviewed}}<a href="{{.URL}}/review" role="button">Add Review</a>{{end}}
+      {{else}}
+        <a href="/auth/login" role="button">Add Review</a>
+      {{end}}
+      <select name="sort" aria-label="Sort reviews by"
+        hx-get="{{.URL}}" hx-target="#reviews" hx-select="#reviews" hx-swap="outerHTML" hx-push-url="true">
+        <option value="helpful" {{if eq .Sort "helpful"}}selected{{end}}>Most Helpful</option>
+        <option value="latest" {{if eq .Sort "latest"}}selected{{end}}>Latest</option>
+        <option value="oldest" {{if eq .Sort "oldest"}}selected{{end}}>Oldest</option>
+      </select>
+    </div>
+  </header>
+
+  {{range .Reviews}}
+    <article class="review" id="review-{{.ID}}">
+      <header>
+        <hgroup>
+          <h3>{{.Title}}</h3>
+          <p><small>{{.AuthorName}} • Completed {{.YearCompleted}}{{if .IsWamBooster}} • WAM Booster{{end}}</small></p>
+        </hgroup>
+        <div class="ratings">
+          <div><h4>Teaching</h4><p>{{.TeachingRating}} / 5</p></div>
+          <div><h4>Content</h4><p>{{.ContentRating}} / 5</p></div>
+          <div><h4>Difficulty</h4><p>{{scaleLabel "difficulty" .DifficultyRating}}</p></div>
+          <div><h4>Workload</h4><p>{{scaleLabel "workload" .WorkloadRating}}</p></div>
+        </div>
+      </header>
+
+      <p class="review-text">{{.Text}}</p>
+
+      <footer class="review-footer">
+        {{if $.User}}
+          {{template "reactions" .}}
+        {{else}}
+          <div class="reactions">
+            <a href="/auth/login" role="button" class="secondary" aria-label="Sign in to mark helpful">{{template "thumbs-up"}}<span>{{.Likes}}</span></a>
+            <a href="/auth/login" role="button" class="secondary" aria-label="Sign in to mark unhelpful">{{template "thumbs-down"}}<span>{{.Dislikes}}</span></a>
+          </div>
+        {{end}}
+        <div class="review-meta">
+          <small>{{date .CreatedAt}}</small>
+          {{if and $.User (eq .UserID $.User.ID)}}<a href="{{$.URL}}/review">Edit</a>{{end}}
+        </div>
+      </footer>
+    </article>
+  {{else}}
+    <p>No reviews yet. Be the first!</p>
+  {{end}}
+</section>
+{{end}}
+
+{{define "reactions"}}
+<form class="reactions" method="post" action="/reviews/{{.ID}}/reaction"
+  hx-post="/reviews/{{.ID}}/reaction" hx-target="this" hx-swap="outerHTML" hx-disabled-elt="find button">
+  <button type="submit" name="reaction" value="like" class="{{if ne .ViewerReaction 1}}secondary{{end}}"
+    aria-label="Helpful" aria-pressed="{{eq .ViewerReaction 1}}">
+    {{template "thumbs-up"}}<span>{{.Likes}}</span>
+  </button>
+  <button type="submit" name="reaction" value="dislike" class="{{if ne .ViewerReaction -1}}secondary{{end}}"
+    aria-label="Not helpful" aria-pressed="{{eq .ViewerReaction -1}}">
+    {{template "thumbs-down"}}<span>{{.Dislikes}}</span>
+  </button>
+</form>
+{{end}}

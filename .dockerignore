@@ -1,10 +1,9 @@
 .git
 .github
-.react-router
-build
-imports
-node_modules
-.gitignore
-README.md
+.claude
 .env
-.env.example
+data
+*.db
+*.db-shm
+*.db-wal
+node_modules

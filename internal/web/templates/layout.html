@@ -1,0 +1,62 @@
+{{define "layout"}}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>{{block "title" .}}The Better Handbook{{end}}</title>
+  <meta name="description" content="An independent site designed to help students at Australian Universities make informed decisions about their unit/subject/course selections.">
+  <meta name="keywords" content="university, handbook, subjects, units, courses, reviews, ratings, australia">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="The Better Handbook">
+  <meta name="htmx-config" content='{"responseHandling":[{"code":"204","swap":false},{"code":"[23]..","swap":true},{"code":"422","swap":true},{"code":"[45]..","swap":false,"error":true}]}'>
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{asset "img/favicon-32x32.png"}}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{{asset "img/favicon-16x16.png"}}">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap">
+  <link rel="stylesheet" href="{{asset "css/pico.min.css"}}">
+  <link rel="stylesheet" href="{{asset "css/app.css"}}">
+  <script src="{{asset "js/htmx.min.js"}}" defer></script>
+  <script src="{{asset "js/app.js"}}" defer></script>
+</head>
+<body hx-boost="true">
+  <header class="container">
+    <nav>
+      <ul>
+        <li><a href="/"><strong>The Better Handbook</strong></a></li>
+      </ul>
+      <ul>
+        {{with .User}}
+          {{if eq .Role "ADMIN"}}<li><a href="/admin">Admin</a></li>{{end}}
+          <li><a href="/profile">Profile</a></li>
+          <li>
+            <form method="post" action="/auth/logout" class="inline">
+              <button type="submit" class="link">Sign out</button>
+            </form>
+          </li>
+        {{else}}
+          {{if ne $.Path "/auth/login"}}<li><a href="/auth/login">Sign in</a></li>{{end}}
+        {{end}}
+      </ul>
+    </nav>
+  </header>
+  <main class="container">
+    {{template "content" .}}
+  </main>
+  <footer class="container">
+    <small>
+      &copy; {{year}} The Better Handbook
+      • <a href="/about">About</a>
+      • <a href="/api/docs">API Docs</a>
+      • <a href="https://github.com/lachlanmacphee/thebetterhandbook" target="_blank" rel="noopener noreferrer">Source Code</a>
+    </small>
+  </footer>
+  <div id="toasts" aria-live="polite">
+    {{range .Toasts}}<div class="toast toast-{{.Kind}}" role="status">{{.Message}}</div>{{end}}
+  </div>
+</body>
+</html>
+{{end}}

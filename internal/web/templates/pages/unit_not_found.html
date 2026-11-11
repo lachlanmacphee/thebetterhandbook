@@ -1,0 +1,29 @@
+{{define "title"}}{{.Code}} not found · The Better Handbook{{end}}
+{{define "content"}}
+<article>
+  <header>
+    <h1>Unit Not Found</h1>
+    <p>Sorry, we couldn't find the unit {{.Code}} at <a href="/universities/{{.University.Slug}}">{{.University.Name}}</a>.</p>
+  </header>
+
+  {{with .Request}}
+    <section>
+      <p>We currently have a pending request to add this unit. Please check back again soon.</p>
+      <small>Requested on {{date .CreatedAt}}</small>
+    </section>
+  {{else}}
+    {{if .User}}
+      <section>
+        <p>If you think this unit should be in our system, you can request it to be added.</p>
+        <form method="post" action="{{.URL}}/addition-request">
+          <button type="submit">Request Unit Addition</button>
+        </form>
+      </section>
+    {{else}}
+      <section>
+        <p>If you'd like to raise a request to add this unit, please <a href="/auth/login">sign in</a>.</p>
+      </section>
+    {{end}}
+  {{end}}
+</article>
+{{end}}

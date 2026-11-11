@@ -1,0 +1,18 @@
+{{define "title"}}Check your email · The Better Handbook{{end}}
+{{define "content"}}
+<h1>Check your email</h1>
+<p>We sent a code to {{.Email}}</p>
+<form method="post" action="/auth/verify" class="verify-code">
+  <label>
+    Verification Code
+    <input name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}"
+      minlength="6" maxlength="6" required placeholder="Enter the 6-digit code"
+      aria-describedby="code-helper" {{if .Error}}aria-invalid="true"{{end}}>
+    {{with .Error}}<small id="code-helper">{{.}}</small>{{end}}
+  </label>
+  <button type="submit">Verify Code</button>
+</form>
+<form method="post" action="/auth/resend">
+  <button type="submit" class="secondary">Request a new code</button>
+</form>
+{{end}}

@@ -1,19 +1,13 @@
 .DS_Store
-/node_modules/
-
-# React Router
-/.react-router/
-/build/
 
 # Environment
 .env
 
-# Prisma
-prisma/dev.db
-/app/generated/
+# SQLite databases and backups
+/data/
+*.db
+*.db-shm
+*.db-wal
 
-# Imports
-imports/**/*.json
-
-# Backups
-backups/**/*.json
+# Build output
+/tbh

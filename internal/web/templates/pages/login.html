@@ -1,0 +1,18 @@
+{{define "title"}}Sign in · The Better Handbook{{end}}
+{{define "content"}}
+<h1>Sign In</h1>
+<form method="post" action="/auth/login">
+  <label>
+    Email Address
+    <input type="email" name="email" value="{{.Email}}" required autocomplete="email"
+      aria-describedby="email-helper" {{if .Error}}aria-invalid="true"{{end}}>
+    <small id="email-helper">
+      {{if .Error}}{{.Error}}{{else}}To ensure that only students are leaving reviews, you must use your student email.{{end}}
+    </small>
+  </label>
+  <div role="group">
+    <a href="/" role="button" class="secondary">Go back</a>
+    <button type="submit">Continue</button>
+  </div>
+</form>
+{{end}}

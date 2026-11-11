@@ -1,0 +1,62 @@
+{{define "title"}}Profile · The Better Handbook{{end}}
+{{define "content"}}
+<section>
+  <h1>Profile</h1>
+  {{template "name-form" .}}
+</section>
+
+<section>
+  <h2>Your API Key</h2>
+  {{template "api-key-form" .}}
+  <small>Use it with the <a href="/api/docs">API</a>.</small>
+</section>
+
+<section>
+  <h2>Your Reviews</h2>
+  {{range chunk 3 .Reviews}}
+    <div class="grid">
+      {{range .}}
+        <article class="unit-card">
+          <header><h3><a href="/universities/{{.UniversitySlug}}/units/{{.UnitCode}}">{{.UnitCode}}</a></h3></header>
+          <h4>{{.Title}}</h4>
+          <p class="review-text">{{.Text}}</p>
+          <footer>
+            <div class="grid">
+              <small>{{date .CreatedAt}}<br>Unit Taken: {{.YearCompleted}}</small>
+              <a href="/universities/{{.UniversitySlug}}/units/{{.UnitCode}}/review" role="button">Edit</a>
+            </div>
+          </footer>
+        </article>
+      {{end}}
+    </div>
+  {{else}}
+    <div class="empty">
+      <p><em>No reviews yet</em></p>
+      <p><a href="/" role="button">Find Units to Review</a></p>
+    </div>
+  {{end}}
+</section>
+{{end}}
+
+{{define "name-form"}}
+<form id="name-form" method="post" action="/profile/name" hx-post="/profile/name" hx-target="this" hx-swap="outerHTML">
+  <fieldset role="group">
+    <input type="text" name="name" value="{{if .User.Name.Valid}}{{.User.Name.String}}{{end}}"
+      placeholder="Enter your name" aria-label="Display name" required maxlength="100">
+    <button type="submit">Save</button>
+  </fieldset>
+  <small>Shown on your reviews.</small>
+</form>
+{{end}}
+
+{{define "api-key-form"}}
+<form id="api-key-form" method="post" action="/profile/api-key" hx-post="/profile/api-key" hx-target="this" hx-swap="outerHTML"
+  hx-disabled-elt="find button"
+  {{if .User.ApiKey.Valid}}hx-confirm="Regenerating will stop your current key from working. Continue?"{{end}}>
+  <fieldset role="group">
+    <input type="text" readonly aria-label="API key" value="{{if .User.ApiKey.Valid}}{{.User.ApiKey.String}}{{end}}"
+      placeholder="No key found. Please click generate.">
+    <button type="submit">{{if .User.ApiKey.Valid}}Regenerate{{else}}Generate{{end}}</button>
+  </fieldset>
+</form>
+{{end}}

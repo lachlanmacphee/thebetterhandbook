@@ -1,0 +1,56 @@
+{{define "title"}}Admin · The Better Handbook{{end}}
+{{define "content"}}
+<h1>Admin Dashboard</h1>
+{{if .Empty}}
+  <div class="empty"><p><em>No pending requests</em></p></div>
+{{else}}
+  <h2>Pending Requests</h2>
+  <div class="request-grid">
+    {{range .Deprecations}}
+      <article>
+        <header>
+          <h3>Deprecation Request</h3>
+          <p><small>by {{.AuthorName}} on {{date .CreatedAt}}</small></p>
+          <p><strong><a href="/universities/{{.UniversitySlug}}/units/{{.UnitCode}}">{{.UnitCode}}</a></strong> · {{.UniversityName}}</p>
+        </header>
+        <h4>Reason for deprecation:</h4>
+        <p>{{.Reason}}</p>
+        {{template "decision" (printf "/admin/deprecations/%d" .ID)}}
+      </article>
+    {{end}}
+    {{range .Suggestions}}
+      <article>
+        <header>
+          <h3>Change Suggestion</h3>
+          <p><small>by {{.AuthorName}} on {{date .CreatedAt}}</small></p>
+          <p><strong><a href="/universities/{{.UniversitySlug}}/units/{{.UnitCode}}">{{.UnitCode}}</a></strong> · {{.UniversityName}}</p>
+        </header>
+        <h4>Field to change:</h4>
+        <p>{{.Field}}</p>
+        <h4>Description:</h4>
+        <p>{{.Reason}}</p>
+        {{template "decision" (printf "/admin/suggestions/%d" .ID)}}
+      </article>
+    {{end}}
+    {{range .Additions}}
+      <article>
+        <header>
+          <h3>Unit Addition Request</h3>
+          <p><small>by {{.AuthorName}} on {{date .CreatedAt}}</small></p>
+          <p><strong>{{.UnitCode}}</strong> · {{.UniversityName}}</p>
+        </header>
+        {{template "decision" (printf "/admin/additions/%d" .ID)}}
+      </article>
+    {{end}}
+  </div>
+{{end}}
+{{end}}
+
+{{define "decision"}}
+<footer>
+  <form class="grid" method="post" action="{{.}}" hx-post="{{.}}" hx-target="closest article" hx-swap="outerHTML">
+    <button type="submit" name="action" value="REJECTED" class="secondary">Reject</button>
+    <button type="submit" name="action" value="APPROVED">Approve</button>
+  </form>
+</footer>
+{{end}}

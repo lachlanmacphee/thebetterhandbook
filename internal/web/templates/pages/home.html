@@ -1,0 +1,10 @@
+{{define "content"}}
+<h1>Choose your University</h1>
+{{range chunk 2 .Universities}}
+  <div class="grid">
+    {{range .}}<a href="/universities/{{.Slug}}" class="card-link"><article>{{.Name}}</article></a>{{end}}
+  </div>
+{{else}}
+  <p>No universities have been imported yet.</p>
+{{end}}
+{{end}}
