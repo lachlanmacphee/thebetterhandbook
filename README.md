@@ -27,7 +27,6 @@ The Better Handbook is a single Go binary: the standard library's `net/http` and
 
 ```
 cmd/tbh/            the app: serve, import and backup subcommands
-cmd/pgmigrate/      one-off copy of the old Postgres database into SQLite
 internal/auth/      emailed sign-in codes and allowed student email domains
 internal/config/    environment variables
 internal/db/        migrations, sqlc queries, and the JSON API's SQL
@@ -80,16 +79,6 @@ docker compose pull tbh
 docker compose up -d
 docker image prune -a -f
 ```
-
-### Moving from Postgres
-
-`cmd/pgmigrate` copies everything from the old Prisma database into a new SQLite file, keeping IDs so old `/{id}/...` links redirect to the new `/universities/{slug}/...` URLs:
-
-```bash
-DATABASE_URL=postgres://... go run ./cmd/pgmigrate -sqlite tbh.db
-```
-
-Copy the resulting file into the volume as `tbh.db` before starting the new image. Everyone has to sign in again after the switch, but API keys keep working.
 
 ## Contributing & Hosting
 
